@@ -1,0 +1,3 @@
+- [ ] Add security middleware on protected API routes.
+- [ ] Not an important concern. just a note that the UPDATE route for FinancialBook will handle singular status updates(closing and archiving). This means that the requestor must send only the new status code. Or maybe we could allow changes to the Financial Book data(name and description). Data related to the FB must be read-only regardless.
+- [ ] Add tests for the existing routes, or at least test it locally. I need an alembic migration to be ran first. SQLite3 will suffice for the tests.
