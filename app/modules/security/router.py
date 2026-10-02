@@ -2,8 +2,8 @@ import fastapi
 from typing import Annotated
 
 from .service import SecurityService, get_security_service
-from .schemas import SignupRequest, SignupResponse
-from .exceptions import UserExistsException
+from .schemas import SignupRequest, SignupResponse, SigninRequest
+from .exceptions import UserExistsException, InvalidCredentialsException, UserDoesNotExistException
 from app.modules.common.exceptions import InternalServerErrorException
 from app.modules.common.schemas import ErrorResponse
 
@@ -58,6 +58,36 @@ class SecurityRouter(fastapi.APIRouter):
         return _response
 
     def sign_in(
-        self
+        self,
+        data: SigninRequest,
+        security_srv: Annotated[SecurityService, fastapi.Depends(get_security_service)]
     ):
-        ...
+
+        try:
+            _response = security_srv.sign_in(
+                data=data
+            )
+        except UserDoesNotExistException:
+            raise fastapi.HTTPException(
+                status_code=fastapi.status.HTTP_404_NOT_FOUND,
+                detail=ErrorResponse(
+                    message='User does not exists! Sign-Up.'
+                )
+            )
+        except InvalidCredentialsException:
+            raise fastapi.HTTPException(
+                status_code=fastapi.status.HTTP_401_UNAUTHORIZED,
+                detail=ErrorResponse(
+                    message='Invalid credentials!'
+                )
+            )
+        except InternalServerErrorException:
+            raise fastapi.HTTPException(
+                status_code=fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=ErrorResponse(
+                    message='An unknown error occured. Please, retry!'
+                ).model_dump_json()
+
+            )
+
+        return _response
