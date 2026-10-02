@@ -11,6 +11,10 @@ class EnvironmentSettings(BaseSettings):
 
     DB_CONNECTION_STRING: str = ''
 
+    JWT_SECRET_KEY: str = ''
+
+    JWT_EXPIRATION_SECONDS: int = 900
+
 @lru_cache
 def get_environment_settings() -> EnvironmentSettings:
     return EnvironmentSettings()
