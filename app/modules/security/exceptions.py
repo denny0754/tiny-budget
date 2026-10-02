@@ -1,0 +1,3 @@
+from app.modules.common.exceptions import ApplicationException
+
+class UserExistsException(ApplicationException): ...
