@@ -1,0 +1,6 @@
+
+class ApplicationException(Exception):
+    ...
+
+class InternalServerErrorException(ApplicationException):
+    ...
