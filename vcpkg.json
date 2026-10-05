@@ -1,0 +1,26 @@
+{
+  "dependencies": [
+    {
+      "name": "spdlog",
+      "version>=": "1.17.0"
+    },
+    {
+      "name": "glfw3",
+      "version>=": "3.5.1"
+    },
+    {
+      "name": "imgui",
+      "version>=": "1.92.9",
+      "features": [ "glfw-binding", "opengl3-binding", "docking-experimental" ]
+    },
+    {
+      "name": "nlohmann-json",
+      "version>=": "3.12.0"
+    },
+    {
+      "name": "wt",
+      "version>=": "4.13.4",
+      "features": [ "dbo", "sqlite3" ]
+    }
+  ]
+}
