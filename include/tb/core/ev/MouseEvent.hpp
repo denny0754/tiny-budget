@@ -5,7 +5,8 @@
 
 namespace tb::core::ev
 {
-class MouseEvent : public Event
+
+struct MouseEvent : public Event
 {
 public:
     MouseEvent(int button, int action, int mods)

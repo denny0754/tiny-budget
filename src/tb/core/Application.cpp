@@ -2,6 +2,7 @@
 
 #include <tb/core/ev/MouseEvent.hpp>
 #include <tb/core/ev/KeyboardEvent.hpp>
+#include <tb/core/ev/WindowResizeEvent.hpp>
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -61,6 +62,14 @@ void Application::Init()
         app->GetEventBus()->Push<ev::KeyboardEvent>(ev::KeyboardEvent(key, scancode, action, mods));
     });
 
+    glfwSetWindowSizeCallback(m_nativeWindow, [](GLFWwindow* window, int width, int height){
+        Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+        app->GetEventBus()->Push<ev::WindowResizeEvent>(ev::WindowResizeEvent(width,height));
+    });
+
+    m_eventBus->Subscribe<ev::PushModuleEvent>(TB_BIND_EVENT_FN(OnPushModule));
+    m_eventBus->Subscribe<ev::PopModuleEvent>(TB_BIND_EVENT_FN(OnPopModule));
+
     m_ready = true;
 }
 
@@ -70,13 +79,51 @@ void Application::Run()
 
     while(m_ready)
     {
+        if (!m_pendingRemovalModules.empty())
+        {
+            for (auto& modToRem : m_pendingRemovalModules)
+            {
+                // Trigger user shutdown sequence
+                modToRem->OnShutdown();
+
+                // Erase from active vector. Dropping the shared_ptr ref count 
+                // triggers the destructor, automatically running unsubscription lambdas.
+                auto it = std::find(m_modules.begin(), m_modules.end(), modToRem);
+                if (it != m_modules.end()) {
+                    m_modules.erase(it);
+                }
+            }
+            m_pendingRemovalModules.clear();
+        }
+
+        if (!m_pendingModules.empty())
+        {
+            for (auto& modToAdd : m_pendingModules)
+            {
+                modToAdd->BindEventBus(m_eventBus);
+                modToAdd->OnInit();
+                m_modules.push_back(modToAdd);
+            }
+            m_pendingModules.clear();
+        }
+
         glfwPollEvents();
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // Render and Update Modules
+        // Rendering modules
+        for(auto& module : m_modules)
+        {
+            module->OnRender();
+        }
+
+        // Updating modules
+        for(auto& module : m_modules)
+        {
+            module->OnUpdate();
+        }
 
         ImGui::Render();
         int display_w, display_h;
@@ -88,6 +135,25 @@ void Application::Run()
 
         glfwSwapBuffers(m_nativeWindow);
     }
+}
+
+void Application::PushModule(std::shared_ptr<mod::Module> module)
+{
+    module->BindEventBus(m_eventBus);
+    module->OnInit();
+    m_modules.push_back(module);
+}
+
+void Application::OnPopModule(const ev::PopModuleEvent& event)
+{
+    m_pendingRemovalModules.push_back(event.TargetModule);
+    event.Handled = true;
+}
+
+void Application::OnPushModule(const ev::PushModuleEvent& event)
+{
+    m_pendingModules.push_back(event.NewModule);
+    event.Handled = true;
 }
 
 void Application::Shutdown()

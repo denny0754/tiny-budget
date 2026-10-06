@@ -4,6 +4,7 @@
 #include <memory>
 #include <functional>
 #include <vector>
+#include <memory>
 
 #include <tb/core/ev/EventBus.hpp>
 
@@ -12,7 +13,7 @@ namespace tb::core { class Application; }
 namespace tb::core::mod
 {
 
-class Module
+class Module : std::enable_shared_from_this<Module>
 {
 private:
     friend class Application;
@@ -38,7 +39,7 @@ protected:
 public:
     virtual void OnInit() = 0;
 
-    virtual void OnUpdate(double delta_time = .0f);
+    virtual void OnUpdate(double delta_time = .0f) = 0;
 
     virtual void OnRender() = 0;
 

@@ -5,7 +5,8 @@
 
 namespace tb::core::ev
 {
-class KeyboardEvent : public Event
+    
+struct KeyboardEvent : public Event
 {
 public:
     KeyboardEvent(int key, int scancode, int action, int mods)
