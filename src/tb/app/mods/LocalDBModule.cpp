@@ -1,4 +1,4 @@
-#include <tb/app/mods/DatabaseModule.hpp>
+#include <tb/app/mods/LocalDBModule.hpp>
 
 #include <Wt/Dbo/backend/Sqlite3.h>
 
@@ -8,7 +8,7 @@
 namespace tb::app::mods
 {
 
-void DatabaseModule::OnInit()
+void LocalDBModule::OnInit()
 {
     auto sqlite3Session = std::make_unique<Wt::Dbo::backend::Sqlite3>(":memory:");
 
@@ -18,17 +18,17 @@ void DatabaseModule::OnInit()
     m_dbSession.mapClass<tb::app::models::PasswordCredential>("password_credential");
 }
 
-void DatabaseModule::OnUpdate(double deltaTime)
+void LocalDBModule::OnUpdate(double deltaTime)
 {
 
 }
 
-void DatabaseModule::OnShutdown()
+void LocalDBModule::OnShutdown()
 {
 
 }
 
-void DatabaseModule::OnDatabaseOperation(const tb::app::events::DatabaseOperationEvent& event)
+void LocalDBModule::OnDatabaseOperation(const tb::app::events::DatabaseOperationEvent& event)
 {
     try {
         Wt::Dbo::Transaction transaction(m_dbSession);

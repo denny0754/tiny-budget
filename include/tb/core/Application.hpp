@@ -3,11 +3,11 @@
 
 #include <memory>
 
-#include <tb/core/ev/EventBus.hpp>
 #include <tb/core/mod/Module.hpp>
 #include <tb/core/ev/PopModuleEvent.hpp>
 #include <tb/core/ev/PushModuleEvent.hpp>
 #include <tb/core/ev/WindowCloseEvent.hpp>
+#include <tb/core/Context.hpp>
 
 #include <glfw/glfw3.h>
 
@@ -27,7 +27,7 @@ public:
 
     void PushModule(std::shared_ptr<mod::Module> module);
 
-    std::shared_ptr<ev::EventBus> GetEventBus();
+    std::shared_ptr<tb::core::Context> GetContext();
 
     ~Application();
 private:
@@ -37,8 +37,10 @@ private:
 
     void OnShutdown(const ev::WindowCloseEvent& event);
 
+    virtual bool BaseInit() = 0;
+
 private:
-    std::shared_ptr<ev::EventBus> m_eventBus;
+    std::shared_ptr<tb::core::Context> m_context;
 
     GLFWwindow* m_nativeWindow;
 
@@ -46,7 +48,7 @@ private:
 
     std::vector<std::shared_ptr<mod::Module>> m_modules;
     std::vector<std::shared_ptr<mod::Module>> m_pendingModules;
-    std::vector<std::shared_ptr<mod::Module>> m_pendingRemovalModules;
+    std::vector<std::shared_ptr<mod::Module>> m_pendingRemovalModules; 
 };
 
 } // ns tb::core

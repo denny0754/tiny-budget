@@ -6,7 +6,7 @@
 #include <vector>
 #include <memory>
 
-#include <tb/core/ev/EventBus.hpp>
+#include <tb/core/Context.hpp>
 
 namespace tb::core { class Application; }
 
@@ -18,9 +18,9 @@ class Module : std::enable_shared_from_this<Module>
 private:
     friend class Application;
 
-    void BindEventBus(std::shared_ptr<core::ev::EventBus> event_bus)
+    void BindContext(std::shared_ptr<tb::core::Context> context)
     {
-        m_eventBus = event_bus;
+        m_context = context;
     }
 
     std::vector<std::function<void()>> m_unsubscribers;
@@ -29,12 +29,12 @@ protected:
     template<typename T>
     void SubscribeEvent(ev::EventBus::EventListenerRef<T> listener)
     {
-        auto id = m_eventBus->Subscribe<T>(listener);
+        auto id = m_context->eventBus->Subscribe<T>(listener);
 
         m_unsubscribers.push_back([this, id](){
-            if(m_eventBus)
+            if(m_context->eventBus)
             {
-                m_eventBus->Unsubscribe<T>(id);
+                m_context->eventBus->Unsubscribe<T>(id);
             }
         });
     }
@@ -58,7 +58,7 @@ public:
     }
 
 protected:
-    std::shared_ptr<core::ev::EventBus> m_eventBus;
+    std::shared_ptr<tb::core::Context> m_context;
 };
 
 } // ns tb::core::mod

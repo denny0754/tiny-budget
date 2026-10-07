@@ -9,7 +9,7 @@
 namespace tb::app::mods
 {
 
-class DatabaseModule : public tb::core::mod::Module
+class LocalDBModule : public tb::core::mod::Module
 {
 public:
     void OnInit() override;

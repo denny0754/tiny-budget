@@ -4,6 +4,9 @@ add_executable (
 	"main.cpp"
 
 	"tb/core/Application.cpp"
+	"tb/app/Application.cpp"
+	"tb/app/mods/LocalDBModule.cpp"
+	"tb/app/mods/LocalSessionModule.cpp"
 )
 
 set_target_properties(TinyBudget PROPERTIES
@@ -23,6 +26,7 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
+find_package(wt CONFIG REQUIRED)
 
 target_link_libraries(
 	TinyBudget
@@ -33,4 +37,7 @@ target_link_libraries(
 	opengl32
 	imgui::imgui
 	nlohmann_json::nlohmann_json
+	Wt::Wt
+	Wt::Dbo
+	Wt::DboSqlite3
 )

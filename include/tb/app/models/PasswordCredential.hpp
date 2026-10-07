@@ -3,6 +3,7 @@
 
 #include <Wt/Dbo/Dbo.h>
 #include <Wt/WDateTime.h>
+#include <Wt/Dbo/WtSqlTraits.h>
 #include <string>
 
 #include <tb/app/models/Identity.hpp>
@@ -20,14 +21,14 @@ public:
         Wt::Dbo::field(action, m_passwordHash, "password_hash");
         Wt::Dbo::field(action, m_passwordAlgo, "password_algo");
         Wt::Dbo::field(action, m_failedAttempts, "failed_attempts");
-        Wt::Dbo::field(action, m_updateOn, "updated_on");
+        Wt::Dbo::field(action, m_updatedOn, "updated_on");
     }
 
     inline const std::string& GetPasswordHash() { return m_passwordHash; }
 
     inline const std::string& GetPasswordAlgo() { return m_passwordAlgo; }
 
-    inline unsigned int GetFailedAttempts() { return m_failedAttempts; }
+    inline int GetFailedAttempts() { return m_failedAttempts; }
 
     inline const Wt::WDateTime& GetUpdatedOn() { return m_updatedOn; }
 
@@ -43,7 +44,7 @@ private:
     Wt::Dbo::ptr<Identity> m_identity;
     std::string m_passwordHash;
     std::string m_passwordAlgo;
-    unsigned int m_failedAttempts{0};
+    int m_failedAttempts{0};
     Wt::WDateTime m_updatedOn;
 };
 

@@ -3,6 +3,7 @@
 
 #include <Wt/Dbo/Dbo.h>
 #include <Wt/WDateTime.h>
+#include <Wt/Dbo/WtSqlTraits.h>
 #include <string>
 
 namespace tb::app::models
@@ -21,7 +22,7 @@ public:
         Wt::Dbo::field(action, m_lastName, "last_name");
         Wt::Dbo::field(action, m_createdOn, "created_on");
         Wt::Dbo::field(action, m_updatedOn, "updated_on");
-        Wt::Dbo::hasOne(action, m_passwordCredential, "identity_id")
+        Wt::Dbo::hasOne(action, m_passwordCredential, "identity_id");
     }
 
     inline const std::string& GetEmail() { return m_email; }

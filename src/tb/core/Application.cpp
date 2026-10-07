@@ -9,15 +9,36 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
+#include <spdlog/sinks/rotating_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+
 namespace tb::core
 {
 
 void Application::Init()
 {
-    m_eventBus = std::make_shared<ev::EventBus>();
+    m_context = std::make_shared<tb::core::Context>();
+    m_context->eventBus = std::make_shared<ev::EventBus>();
+
+    // Initializing the default Application Logger:
+    std::vector<spdlog::sink_ptr> logSinks;
+    logSinks.push_back(
+        std::make_shared<spdlog::sinks::rotating_file_sink_mt>("./logs/app.log", 52428800U, 7, false)
+    );
+
+    logSinks.push_back(
+        std::make_shared<spdlog::sinks::stdout_color_sink_mt>()
+    );
+
+    m_context->logger = std::make_shared<spdlog::logger>("TB", begin(logSinks), end(logSinks));
+
+    m_context->logger->set_level(spdlog::level::level_enum::trace);
+
+    m_context->logger->set_pattern("[%Y-%m-%d %H:%M:%S] %n - %^%l%$: %v");
 
     if(!glfwInit())
     {
+        m_context->logger->critical("An error occured while trying to initialize GLFW...");
         return;
     }
 
@@ -54,30 +75,40 @@ void Application::Init()
     glfwSetWindowUserPointer(m_nativeWindow, this);
 
     glfwSetMouseButtonCallback(m_nativeWindow, [](GLFWwindow* window, int button, int action, int mods){
+        ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
         Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-        app->GetEventBus()->Push<ev::MouseEvent>(ev::MouseEvent(button, action, mods));
+        app->GetContext()->eventBus->Push<ev::MouseEvent>(ev::MouseEvent(button, action, mods));
+        app->GetContext()->logger->trace("Mouse Button Callback initialized succesfully!");
     });
 
     glfwSetKeyCallback(m_nativeWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+        ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
         Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-        app->GetEventBus()->Push<ev::KeyboardEvent>(ev::KeyboardEvent(key, scancode, action, mods));
+        app->GetContext()->eventBus->Push<ev::KeyboardEvent>(ev::KeyboardEvent(key, scancode, action, mods));
+        app->GetContext()->logger->trace("Keyboard Callback initialized succesfully!");
     });
 
     glfwSetWindowSizeCallback(m_nativeWindow, [](GLFWwindow* window, int width, int height){
         Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-        app->GetEventBus()->Push<ev::WindowResizeEvent>(ev::WindowResizeEvent(width,height));
+        app->GetContext()->eventBus->Push<ev::WindowResizeEvent>(ev::WindowResizeEvent(width,height));
+        app->GetContext()->logger->trace("Window Resize Callback initialized succesfully!");
     });
 
-    glfwSetWindowCloseCallback(m_nativeWindow, [](GLFWwindow* window){
+    glfwSetWindowCloseCallback(m_nativeWindow, [](GLFWwindow* window){                                                                                                                                                                                  
         Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-        app->GetEventBus()->Push<ev::WindowCloseEvent>(ev::WindowCloseEvent());
+        app->GetContext()->eventBus->Push<ev::WindowCloseEvent>(ev::WindowCloseEvent());
+        app->GetContext()->logger->trace("Window Close Callback initialized succesfully!");
     });
 
-    m_eventBus->Subscribe<ev::PushModuleEvent>(TB_BIND_EVENT_FN(OnPushModule));
-    m_eventBus->Subscribe<ev::PopModuleEvent>(TB_BIND_EVENT_FN(OnPopModule));
-    m_eventBus->Subscribe<ev::WindowCloseEvent>(TB_BIND_EVENT_FN(OnShutdown));
+    m_context->eventBus->Subscribe<ev::PushModuleEvent>(TB_BIND_EVENT_FN(OnPushModule));
+    m_context->eventBus->Subscribe<ev::PopModuleEvent>(TB_BIND_EVENT_FN(OnPopModule));
+    m_context->eventBus->Subscribe<ev::WindowCloseEvent>(TB_BIND_EVENT_FN(OnShutdown));
 
-    m_ready = true;
+    if(BaseInit())
+    {
+        m_context->logger->info("Application succesfully initialized...Setting status to ready!");
+        m_ready = true;
+    }
 }
 
 void Application::Run()
@@ -107,7 +138,7 @@ void Application::Run()
         {
             for (auto& modToAdd : m_pendingModules)
             {
-                modToAdd->BindEventBus(m_eventBus);
+                modToAdd->BindContext(m_context);
                 modToAdd->OnInit();
                 m_modules.push_back(modToAdd);
             }
@@ -146,7 +177,7 @@ void Application::Run()
 
 void Application::PushModule(std::shared_ptr<mod::Module> module)
 {
-    module->BindEventBus(m_eventBus);
+    module->BindContext(m_context);
     module->OnInit();
     m_modules.push_back(module);
 }
@@ -173,9 +204,9 @@ void Application::Shutdown()
     m_ready = false;
 }
 
-std::shared_ptr<ev::EventBus> Application::GetEventBus()
+std::shared_ptr<tb::core::Context> Application::GetContext()
 {
-    return m_eventBus;
+    return m_context;
 }
 
 Application::~Application()
