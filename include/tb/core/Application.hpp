@@ -7,6 +7,7 @@
 #include <tb/core/mod/Module.hpp>
 #include <tb/core/ev/PopModuleEvent.hpp>
 #include <tb/core/ev/PushModuleEvent.hpp>
+#include <tb/core/ev/WindowCloseEvent.hpp>
 
 #include <glfw/glfw3.h>
 
@@ -33,6 +34,8 @@ private:
     void OnPushModule(const ev::PushModuleEvent& event);
 
     void OnPopModule(const ev::PopModuleEvent& event);
+
+    void OnShutdown(const ev::WindowCloseEvent& event);
 
 private:
     std::shared_ptr<ev::EventBus> m_eventBus;

@@ -3,11 +3,11 @@
 #include <tb/core/ev/MouseEvent.hpp>
 #include <tb/core/ev/KeyboardEvent.hpp>
 #include <tb/core/ev/WindowResizeEvent.hpp>
+#include <tb/core/ev/WindowCloseEvent.hpp>
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
-#include <imgui_impl_opengl3_loader.h>
 
 namespace tb::core
 {
@@ -49,6 +49,7 @@ void Application::Init()
 
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(m_nativeWindow, true);
+    ImGui_ImplOpenGL3_Init(nullptr);
 
     glfwSetWindowUserPointer(m_nativeWindow, this);
 
@@ -67,8 +68,14 @@ void Application::Init()
         app->GetEventBus()->Push<ev::WindowResizeEvent>(ev::WindowResizeEvent(width,height));
     });
 
+    glfwSetWindowCloseCallback(m_nativeWindow, [](GLFWwindow* window){
+        Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+        app->GetEventBus()->Push<ev::WindowCloseEvent>(ev::WindowCloseEvent());
+    });
+
     m_eventBus->Subscribe<ev::PushModuleEvent>(TB_BIND_EVENT_FN(OnPushModule));
     m_eventBus->Subscribe<ev::PopModuleEvent>(TB_BIND_EVENT_FN(OnPopModule));
+    m_eventBus->Subscribe<ev::WindowCloseEvent>(TB_BIND_EVENT_FN(OnShutdown));
 
     m_ready = true;
 }
@@ -156,9 +163,19 @@ void Application::OnPushModule(const ev::PushModuleEvent& event)
     event.Handled = true;
 }
 
+void Application::OnShutdown(const ev::WindowCloseEvent& event)
+{
+    m_ready = false;
+}
+
 void Application::Shutdown()
 {
     m_ready = false;
+}
+
+std::shared_ptr<ev::EventBus> Application::GetEventBus()
+{
+    return m_eventBus;
 }
 
 Application::~Application()

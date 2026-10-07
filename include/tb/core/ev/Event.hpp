@@ -6,7 +6,7 @@
 namespace tb::core::ev
 {
 
-class Event
+struct Event
 {
 public:
     virtual ~Event() = default;

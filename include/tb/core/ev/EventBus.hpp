@@ -23,7 +23,7 @@ public:
     SubscriptionId Subscribe(EventListenerRef<T> listener, int priority = 0)
     {
         auto typeIndex = std::type_index(typeid(T));
-        SubscriptionId id = ++m_nextId;
+        SubscriptionId id = ++m_nextSubId;
         
         auto& vector = m_listeners[typeIndex];
         
@@ -35,7 +35,7 @@ public:
             }
         });
         
-        std::stable_sort(vector.begin(), vector.end(), [](const Handler& a, const Handler& b) {
+        std::stable_sort(vector.begin(), vector.end(), [](const EventHandlerData& a, const EventHandlerData& b) {
             return a.priority > b.priority;
         });
         
@@ -54,7 +54,7 @@ public:
             // Erase-remove idiom to safely filter out the matching ID
             vector.erase(
                 std::remove_if(vector.begin(), vector.end(), 
-                    [id](const Handler& h) { return h.id == id; }),
+                    [id](const EventHandlerData& h) { return h.id == id; }),
                 vector.end()
             );
         }
@@ -83,8 +83,8 @@ private:
     struct EventHandlerData
     {
         SubscriptionId id;
-        EventListenerRef<Event> handler;
-        int priority;        
+        int priority;
+        EventListenerRef<Event> callback;
     };
 
     std::unordered_map<std::type_index, std::vector<EventHandlerData>> m_listeners;

@@ -18,7 +18,10 @@ class Module : std::enable_shared_from_this<Module>
 private:
     friend class Application;
 
-    void BindEventBus(std::shared_ptr<core::ev::EventBus> event_bus);
+    void BindEventBus(std::shared_ptr<core::ev::EventBus> event_bus)
+    {
+        m_eventBus = event_bus;
+    }
 
     std::vector<std::function<void()>> m_unsubscribers;
 

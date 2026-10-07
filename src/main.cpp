@@ -1,10 +1,10 @@
 #include <iostream>
 
-#include <mtkm/core/Application.hpp>
+#include <tb/core/Application.hpp>
 
 int main()
 {
-	mtkm::core::Application app = mtkm::core::Application();
+	tb::core::Application app = tb::core::Application();
 
 	app.Init();
 
