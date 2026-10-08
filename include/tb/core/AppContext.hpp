@@ -4,14 +4,14 @@
 #include <spdlog/spdlog.h>
 
 #include <memory>
-#include <tb/core/ev/EventBus.hpp>
+#include <tb/core/EventBus.hpp>
 
 namespace tb::core
 {
 
-struct Context
+struct AppContext
 {
-    std::shared_ptr<tb::core::ev::EventBus> eventBus;
+    std::shared_ptr<tb::core::EventBus> eventBus;
 
     std::shared_ptr<spdlog::logger> logger;
 };

@@ -6,9 +6,9 @@
 #include <vector>
 #include <algorithm>
 
-#include <tb/core/ev/Event.hpp>
+#include <tb/core/events/BaseEvent.hpp>
 
-namespace tb::core::ev
+namespace tb::core
 {
 
 class EventBus
@@ -30,7 +30,7 @@ public:
         vector.push_back({
             id,
             priority,
-            [listener](const Event& e) {
+            [listener](const events::BaseEvent& e) {
                 listener(static_cast<const T&>(e));
             }
         });
@@ -84,7 +84,7 @@ private:
     {
         SubscriptionId id;
         int priority;
-        EventListenerRef<Event> callback;
+        EventListenerRef<events::BaseEvent> callback;
     };
 
     std::unordered_map<std::type_index, std::vector<EventHandlerData>> m_listeners;

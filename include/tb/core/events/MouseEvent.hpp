@@ -1,12 +1,12 @@
-#ifndef TB_CORE_EV_MOUSE_EVENT_HPP
-#define TB_CORE_EV_MOUSE_EVENT_HPP
+#ifndef TB_CORE_EVENTS_MOUSE_EVENT_HPP
+#define TB_CORE_EVENTS_MOUSE_EVENT_HPP
 
-#include <tb/core/ev/Event.hpp>
+#include <tb/core/events/BaseEvent.hpp>
 
-namespace tb::core::ev
+namespace tb::core::events
 {
 
-struct MouseEvent : public Event
+struct MouseEvent : public BaseEvent
 {
 public:
     MouseEvent(int button, int action, int mods)
@@ -22,6 +22,6 @@ public:
     int Mods;
 };
 
-} // ns tb::core::ev
+} // ns tb::core::events
 
 #endif

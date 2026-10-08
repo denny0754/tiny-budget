@@ -1,29 +1,45 @@
-#include <tb/app/modules/SessionInitializer.hpp>
+#include <tb/app/modules/Session.hpp>
 
+#include <spdlog/sinks/rotating_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include <imgui.h>
 
-namespace tb::app::mods
+namespace tb::app::modules
 {
 
-void SessionInitializer::OnInit()
+void Session::OnInit()
 {
+    m_sessionCtx = std::make_shared<SessionContext>();
 
+    // Initializing the default Application Logger:
+    std::vector<spdlog::sink_ptr> logSinks;
+    logSinks.push_back(
+        std::make_shared<spdlog::sinks::rotating_file_sink_mt>("./logs/session.log", 52428800U, 7, false)
+    );
+    logSinks.push_back(
+        std::make_shared<spdlog::sinks::stdout_color_sink_mt>()
+    );
+    m_sessionCtx->logger = std::make_shared<spdlog::logger>("Session", begin(logSinks), end(logSinks));
+    m_sessionCtx->logger->set_level(spdlog::level::level_enum::trace);
+    m_sessionCtx->logger->set_pattern("[%Y-%m-%d %H:%M:%S] %n - %^%l%$: %v");
 }
 
-void SessionInitializer::OnRender()
+void Session::OnRender()
 {
     // Center window on viewport
     ImGuiIO& io = ImGui::GetIO();
     ImVec2 centerPos{ io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f };
     ImGui::SetNextWindowPos(centerPos, ImGuiCond_Once, ImVec2(0.5f, 0.5f));
-    ImGui::SetNextWindowSize({ 380.0f, 0.0f }, ImGuiCond_Always);
+    ImGui::SetNextWindowSize({ 480.0f, 0.0f }, ImGuiCond_Always);
 
     ImGui::Begin(
         "TinyBudget - Authentication",
         nullptr,
         ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoCollapse |
-        ImGuiWindowFlags_NoSavedSettings
+        ImGuiWindowFlags_NoSavedSettings |
+        ImGuiWindowFlags_NoDecoration |
+        ImGuiWindowFlags_NoMove
     );
 
     float fullWidth = ImGui::GetContentRegionAvail().x;
@@ -92,12 +108,12 @@ void SessionInitializer::OnRender()
     ImGui::End();
 }
 
-void SessionInitializer::OnUpdate(double deltaTime)
+void Session::OnUpdate(double deltaTime)
 {
 
 }
 
-void SessionInitializer::OnShutdown()
+void Session::OnShutdown()
 {
 
 }

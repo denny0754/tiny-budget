@@ -6,28 +6,28 @@
 #include <vector>
 #include <memory>
 
-#include <tb/core/Context.hpp>
+#include <tb/core/AppContext.hpp>
 
 namespace tb::core { class Application; }
 
-namespace tb::core::mod
+namespace tb::core
 {
 
-class Module : std::enable_shared_from_this<Module>
+class BaseModule : std::enable_shared_from_this<BaseModule>
 {
 private:
     friend class Application;
 
-    void BindContext(std::shared_ptr<tb::core::Context> context)
+    void BindContext(std::shared_ptr<tb::core::AppContext> context)
     {
-        m_context = context;
+        m_appCtx = context;
     }
 
     std::vector<std::function<void()>> m_unsubscribers;
 
 protected:
     template<typename T>
-    void SubscribeEvent(ev::EventBus::EventListenerRef<T> listener)
+    void SubscribeEvent(EventBus::EventListenerRef<T> listener)
     {
         auto id = m_context->eventBus->Subscribe<T>(listener);
 
@@ -48,7 +48,7 @@ public:
 
     virtual void OnShutdown() = 0;
 
-    ~Module()
+    ~BaseModule()
     {
         for(auto& unsubscriber_handler : m_unsubscribers)
         {
@@ -58,9 +58,9 @@ public:
     }
 
 protected:
-    std::shared_ptr<tb::core::Context> m_context;
+    std::shared_ptr<tb::core::AppContext> m_appCtx;
 };
 
-} // ns tb::core::mod
+} // ns tb::core
 
 #endif

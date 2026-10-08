@@ -1,26 +1,43 @@
-#ifndef TB_APP_MODULES_SESSION_MODULE_HPP
-#define TB_APP_MODULES_SESSION_MODULE_HPP
+#ifndef TB_APP_MODULES_SESSION_HPP
+#define TB_APP_MODULES_SESSION_HPP
 
-#include <tb/core/mod/Module.hpp>
-#include <tb/app/api/APIProvider.hpp>
+#include <memory> 
+
+#include <tb/core/BaseModule.hpp>
+#include <tb/app/SessionContext.hpp>
 
 namespace tb::app::modules
 {
 
-class Session : public tb::core::mod::Module
+class Session : public core::BaseModule
 {
 public:
-    virtual void OnInit();
 
-    virtual void OnUpdate(double delta_time = .0f);
+	void OnInit() override;
 
-    virtual void OnRender();
+	void OnRender() override;
 
-    virtual void OnShutdown();
+	void OnUpdate(double deltaTime = 0.f) override;
 
-protected:
-    std::shared_ptr<tb::app::common::APIProvider> m_apiProvider;
-};
+	void OnShutdown() override;
+
+private:
+	void OnSessionOpen();
+
+	void OnSessionClose();
+
+private:
+	std::shared_ptr<SessionContext> m_sessionCtx;
+
+	int m_sessionTypeInt = 0; // 0 = Local, 1 = Remote
+	bool m_isSignUpMode = false;
+
+	char m_emailBuf[128] = "";
+	char m_passwordBuf[128] = "";
+	char m_firstNameBuf[64] = "";
+	char m_lastNameBuf[64] = "";
+
+}; // cl Session
 
 } // ns tb::app::modules
 

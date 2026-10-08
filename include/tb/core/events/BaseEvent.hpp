@@ -1,15 +1,15 @@
-#ifndef TB_CORE_EV_EVENT_HPP
-#define TB_CORE_EV_EVENT_HPP
+#ifndef TB_CORE_EVENTS_BASE_EVENT_HPP
+#define TB_CORE_EVENTS_BASE_EVENT_HPP
 
 #include <string>
 
-namespace tb::core::ev
+namespace tb::core::events
 {
 
-struct Event
+struct BaseEvent
 {
 public:
-    virtual ~Event() = default;
+    virtual ~BaseEvent() = default;
 
     // Mutable allows listeners to consume the event even when passed as const
     mutable bool Handled = false;
@@ -22,6 +22,6 @@ public:
     }
 };
 
-} // ns tb::core::ev
+} // ns tb::core::events
 
 #endif

@@ -1,10 +1,10 @@
 #include <iostream>
 
-#include <tb/app/Application.hpp>
+#include <tb/core/Application.hpp>
 
 int main()
 {
-	tb::app::Application app = tb::app::Application();
+	tb::core::Application app = tb::core::Application();
 
 	app.Init();
 

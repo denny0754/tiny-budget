@@ -1,12 +1,12 @@
-#ifndef TB_CORE_EV_WINDOW_RESIZE_EVENT_HPP
-#define TB_CORE_EV_WINDOW_RESIZE_EVENT_HPP
+#ifndef TB_CORE_EVENTS_WINDOW_RESIZE_EVENT_HPP
+#define TB_CORE_EVENTS_WINDOW_RESIZE_EVENT_HPP
 
-#include <tb/core/ev/Event.hpp>
+#include <tb/core/events/BaseEvent.hpp>
 
-namespace tb::core::ev
+namespace tb::core::events
 {
     
-struct WindowResizeEvent : public Event
+struct WindowResizeEvent : public BaseEvent
 {
 public:
     explicit WindowResizeEvent(int width, int height)
@@ -21,6 +21,6 @@ public:
     int Height;
 };
 
-} // ns tb::core::ev
+} // ns tb::core::events
 
 #endif

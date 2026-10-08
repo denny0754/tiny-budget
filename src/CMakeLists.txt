@@ -4,8 +4,7 @@ add_executable (
 	"main.cpp"
 
 	"tb/core/Application.cpp"
-	"tb/app/Application.cpp"
-	"tb/app/modules/SessionInitializer.cpp"
+	"tb/app/modules/Session.cpp"
 )
 
 set_target_properties(TinyBudget PROPERTIES

@@ -3,11 +3,11 @@
 
 #include <memory>
 
-#include <tb/core/mod/Module.hpp>
-#include <tb/core/ev/PopModuleEvent.hpp>
-#include <tb/core/ev/PushModuleEvent.hpp>
-#include <tb/core/ev/WindowCloseEvent.hpp>
-#include <tb/core/Context.hpp>
+#include <tb/core/BaseModule.hpp>
+#include <tb/core/events/PopModuleEvent.hpp>
+#include <tb/core/events/PushModuleEvent.hpp>
+#include <tb/core/events/WindowCloseEvent.hpp>
+#include <tb/core/AppContext.hpp>
 
 #include <glfw/glfw3.h>
 
@@ -25,30 +25,28 @@ public:
 
     void Shutdown();
 
-    void PushModule(std::shared_ptr<mod::Module> module);
+    void PushModule(std::shared_ptr<BaseModule> module);
 
-    std::shared_ptr<tb::core::Context> GetContext();
+    std::shared_ptr<tb::core::AppContext> GetContext();
 
     ~Application();
 private:
-    void OnPushModule(const ev::PushModuleEvent& event);
+    void OnPushModule(const events::PushModuleEvent& event);
 
-    void OnPopModule(const ev::PopModuleEvent& event);
+    void OnPopModule(const events::PopModuleEvent& event);
 
-    void OnShutdown(const ev::WindowCloseEvent& event);
-
-    virtual bool BaseInit() = 0;
+    void OnShutdown(const events::WindowCloseEvent& event);
 
 private:
-    std::shared_ptr<tb::core::Context> m_context;
+    std::shared_ptr<tb::core::AppContext> m_context;
 
     GLFWwindow* m_nativeWindow;
 
     bool m_ready{false};
 
-    std::vector<std::shared_ptr<mod::Module>> m_modules;
-    std::vector<std::shared_ptr<mod::Module>> m_pendingModules;
-    std::vector<std::shared_ptr<mod::Module>> m_pendingRemovalModules; 
+    std::vector<std::shared_ptr<BaseModule>> m_modules;
+    std::vector<std::shared_ptr<BaseModule>> m_pendingModules;
+    std::vector<std::shared_ptr<BaseModule>> m_pendingRemovalModules;
 };
 
 } // ns tb::core
