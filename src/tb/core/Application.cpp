@@ -1,4 +1,4 @@
-#include <tb/core/Application.hpp>
+ #include <tb/core/Application.hpp>
 
 #include <tb/core/ev/MouseEvent.hpp>
 #include <tb/core/ev/KeyboardEvent.hpp>

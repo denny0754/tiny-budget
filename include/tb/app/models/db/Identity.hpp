@@ -1,12 +1,12 @@
-#ifndef TB_APP_MODELS_IDENTITY_HPP
-#define TB_APP_MODELS_IDENTITY_HPP
+#ifndef TB_APP_MODELS_DB_IDENTITY_HPP
+#define TB_APP_MODELS_DB_IDENTITY_HPP
 
 #include <Wt/Dbo/Dbo.h>
 #include <Wt/WDateTime.h>
 #include <Wt/Dbo/WtSqlTraits.h>
 #include <string>
 
-namespace tb::app::models
+namespace tb::app::models::db
 {
 
 class PasswordCredential;
@@ -25,23 +25,18 @@ public:
         Wt::Dbo::hasOne(action, m_passwordCredential, "identity_id");
     }
 
-    inline const std::string& GetEmail() { return m_email; }
-
-    inline const std::string& GetFirstName() { return m_firstName; }
-
-    inline const std::string& GetLastName() { return m_lastName; }
-
-    inline const Wt::WDateTime& GetCreatedOn() { return m_createdOn; }
-
-    inline const Wt::WDateTime& GetUpdatedOn() { return m_updatedOn; }
-
-    inline Wt::Dbo::weak_ptr<PasswordCredential> GetPasswordCredential() { return m_passwordCredential; }
+    inline const std::string& GetEmail() const { return m_email; }
+    inline const std::string& GetFirstName() const { return m_firstName; }
+    inline const std::string& GetLastName() const { return m_lastName; }
+    inline const Wt::WDateTime& GetCreatedOn() const { return m_createdOn; }
+    inline const Wt::WDateTime& GetUpdatedOn() const { return m_updatedOn; }
+    inline Wt::Dbo::weak_ptr<PasswordCredential> GetPasswordCredential() const { return m_passwordCredential; }
 
     inline void SetEmail(const std::string& email) { m_email = email; }
-
     inline void SetFirstName(const std::string& first_name) { m_firstName = first_name; }
-
     inline void SetLastName(const std::string& last_name) { m_lastName = last_name; }
+    inline void SetCreatedOn(const Wt::WDateTime& created_on) { m_createdOn = created_on; }
+    inline void SetUpdatedOn(const Wt::WDateTime& updated_on) { m_updatedOn = updated_on; }
 
 private:
     std::string m_email;
@@ -56,6 +51,8 @@ private:
 
     Wt::Dbo::weak_ptr<PasswordCredential> m_passwordCredential;
 };
+
+
 
 } // ns tb::app::models
 

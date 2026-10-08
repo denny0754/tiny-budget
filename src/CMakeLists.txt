@@ -5,8 +5,7 @@ add_executable (
 
 	"tb/core/Application.cpp"
 	"tb/app/Application.cpp"
-	"tb/app/mods/LocalDBModule.cpp"
-	"tb/app/mods/LocalSessionModule.cpp"
+	"tb/app/modules/SessionInitializer.cpp"
 )
 
 set_target_properties(TinyBudget PROPERTIES
