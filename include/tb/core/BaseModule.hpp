@@ -29,12 +29,12 @@ protected:
     template<typename T>
     void SubscribeEvent(EventBus::EventListenerRef<T> listener)
     {
-        auto id = m_context->eventBus->Subscribe<T>(listener);
+        auto id = m_appCtx->eventBus->Subscribe<T>(listener);
 
         m_unsubscribers.push_back([this, id](){
-            if(m_context->eventBus)
+            if(m_appCtx->eventBus)
             {
-                m_context->eventBus->Unsubscribe<T>(id);
+                m_appCtx->eventBus->Unsubscribe<T>(id);
             }
         });
     }
