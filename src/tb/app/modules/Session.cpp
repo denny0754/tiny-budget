@@ -1,5 +1,7 @@
 #include <tb/app/modules/Session.hpp>
 
+#include <tb/core/events/PushModuleEvent.hpp>
+
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <imgui.h>
@@ -22,6 +24,8 @@ void Session::OnInit()
     m_sessionCtx->logger = std::make_shared<spdlog::logger>("Session", begin(logSinks), end(logSinks));
     m_sessionCtx->logger->set_level(spdlog::level::level_enum::trace);
     m_sessionCtx->logger->set_pattern("[%Y-%m-%d %H:%M:%S] %n - %^%l%$: %v");
+
+    m_sessionCtx->eventDispatcher = std::make_shared<EventDispatcher>();
 }
 
 void Session::OnRender()
@@ -111,6 +115,7 @@ void Session::OnRender()
 void Session::OnUpdate(double deltaTime)
 {
 
+    m_sessionCtx->eventDispatcher->DispatchQueued();
 }
 
 void Session::OnShutdown()
