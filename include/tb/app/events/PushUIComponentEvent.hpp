@@ -16,7 +16,7 @@ public:
 	using ComponentFactory = std::function<std::unique_ptr<ui::UIComponent>(void)>;
 
 	explicit PushUIComponentEvent(ComponentFactory factory)
-		: m_componentFactory(factory)
+		: m_compFactory(factory)
 	{
 
 	}

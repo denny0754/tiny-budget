@@ -43,9 +43,12 @@ private:
 	}
 
 private:
-	std::shared_ptr<SessionContext> m_sessionCtx;
 
 	UIComponentState m_state{ UIComponentState::OPENED };
+
+protected:
+	std::shared_ptr<SessionContext> m_sessionCtx;
+
 }; // cl UIComponent
 
 } // ns tb::app::ui

@@ -5,6 +5,7 @@
 
 #include <tb/core/BaseModule.hpp>
 #include <tb/app/SessionContext.hpp>
+#include <tb/app/ui/UIController.hpp>
 
 namespace tb::app::modules
 {
@@ -29,14 +30,7 @@ private:
 private:
 	std::shared_ptr<SessionContext> m_sessionCtx;
 
-	int m_sessionTypeInt = 0; // 0 = Local, 1 = Remote
-	bool m_isSignUpMode = false;
-
-	char m_emailBuf[128] = "";
-	char m_passwordBuf[128] = "";
-	char m_firstNameBuf[64] = "";
-	char m_lastNameBuf[64] = "";
-
+	std::unique_ptr<ui::UIController> m_uiController;
 }; // cl Session
 
 } // ns tb::app::modules

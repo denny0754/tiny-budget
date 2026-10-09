@@ -5,6 +5,8 @@ add_executable (
 
 	"tb/core/Application.cpp"
 	"tb/app/modules/Session.cpp"
+	"tb/app/ui/UIController.cpp"
+	"tb/app/ui/AuthenticationForm.cpp"
 )
 
 set_target_properties(TinyBudget PROPERTIES
