@@ -3,9 +3,12 @@
 #include <tb/core/events/PushModuleEvent.hpp>
 #include <tb/app/events/PushUIComponentEvent.hpp>
 #include <tb/app/ui/AuthenticationForm.hpp>
+#include <tb/app/ui/MenuBar.hpp>
+#include <tb/app/providers/LocalAPIProvider.hpp>
 
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <Wt/Dbo/Dbo.h>
 
 namespace tb::app::modules
 {
@@ -34,11 +37,14 @@ void Session::OnInit()
 
     m_sessionCtx->eventDispatcher->QueueEvent<events::PushUIComponentEvent>(
         events::PushUIComponentEvent(
-            []() ->std::unique_ptr<ui::AuthenticationForm>
+            []() -> std::unique_ptr<ui::AuthenticationForm>
             {
                 return std::make_unique<ui::AuthenticationForm>();
             }
-    ));
+        )
+    );
+
+    m_sessionCtx->apiProvider = std::make_shared<tb::app::providers::LocalAPIProvider>();
 }
 
 void Session::OnRender()

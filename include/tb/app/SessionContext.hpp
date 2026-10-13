@@ -11,8 +11,22 @@
 namespace tb::app
 {
 
+struct SessionData
+{
+	std::string identityId;
+
+	std::string email;
+
+	std::string firstName;
+
+	std::string lastName;
+
+}; // st SessionData
+
 struct SessionContext
 {
+	SessionData sessionData;
+
 	std::shared_ptr<tb::app::providers::APIProvider> apiProvider;
 
 	std::shared_ptr<tb::app::EventDispatcher> eventDispatcher;

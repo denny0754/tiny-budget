@@ -28,6 +28,10 @@ private:
 	char m_firstNameBuf[64] = "";
 	char m_lastNameBuf[64] = "";
 
+	bool m_isProcessing{ false };
+	std::string m_errorMessage;
+	std::string m_successMessage;
+
 }; // cl AuthenticationForm
 
 } // ns tb::app::ui

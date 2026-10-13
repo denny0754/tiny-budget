@@ -5,8 +5,14 @@ add_executable (
 
 	"tb/core/Application.cpp"
 	"tb/app/modules/Session.cpp"
+	
 	"tb/app/ui/UIController.cpp"
 	"tb/app/ui/AuthenticationForm.cpp"
+	"tb/app/ui/MenuBar.cpp"
+
+	"tb/app/providers/LocalAPIProvider.cpp"
+
+	"tb/tools/Security.cpp"
 )
 
 set_target_properties(TinyBudget PROPERTIES
@@ -27,6 +33,8 @@ find_package(glfw3 CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(wt CONFIG REQUIRED)
+find_package(Boost REQUIRED)
+find_package(unofficial-sodium CONFIG REQUIRED)
 
 target_link_libraries(
 	TinyBudget
@@ -40,4 +48,6 @@ target_link_libraries(
 	Wt::Wt
 	Wt::Dbo
 	Wt::DboSqlite3
+	Boost::headers
+	unofficial-sodium::sodium
 )

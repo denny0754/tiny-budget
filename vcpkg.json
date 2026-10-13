@@ -21,6 +21,8 @@
       "name": "wt",
       "version>=": "4.13.4",
       "features": [ "dbo", "sqlite3" ]
-    }
+    },
+    "boost-uuid",
+    "libsodium"
   ]
 }

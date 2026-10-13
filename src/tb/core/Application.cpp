@@ -75,26 +75,26 @@ void Application::Init()
         ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
         Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
         app->GetContext()->eventBus->Push<events::MouseEvent>(events::MouseEvent(button, action, mods));
-        app->GetContext()->logger->trace("Mouse Button Callback initialized succesfully!");
+        //app->GetContext()->logger->trace("Mouse Button Callback initialized succesfully!");
     });
 
     glfwSetKeyCallback(m_nativeWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
         ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
         Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
         app->GetContext()->eventBus->Push<events::KeyboardEvent>(events::KeyboardEvent(key, scancode, action, mods));
-        app->GetContext()->logger->trace("Keyboard Callback initialized succesfully!");
+        //app->GetContext()->logger->trace("Keyboard Callback initialized succesfully!");
     });
 
     glfwSetWindowSizeCallback(m_nativeWindow, [](GLFWwindow* window, int width, int height){
         Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
         app->GetContext()->eventBus->Push<events::WindowResizeEvent>(events::WindowResizeEvent(width,height));
-        app->GetContext()->logger->trace("Window Resize Callback initialized succesfully!");
+        //app->GetContext()->logger->trace("Window Resize Callback initialized succesfully!");
     });
 
     glfwSetWindowCloseCallback(m_nativeWindow, [](GLFWwindow* window){                                                                                                                                                                                  
         Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
         app->GetContext()->eventBus->Push<events::WindowCloseEvent>(events::WindowCloseEvent());
-        app->GetContext()->logger->trace("Window Close Callback initialized succesfully!");
+        //app->GetContext()->logger->trace("Window Close Callback initialized succesfully!");
     });
 
     m_context->eventBus->Subscribe<events::PushModuleEvent>(TB_BIND_EVENT_FN(OnPushModule));
