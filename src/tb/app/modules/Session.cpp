@@ -6,6 +6,7 @@
 #include <tb/app/ui/MenuBar.hpp>
 #include <tb/app/providers/LocalAPIProvider.hpp>
 
+
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <Wt/Dbo/Dbo.h>
@@ -45,6 +46,13 @@ void Session::OnInit()
     );
 
     m_sessionCtx->apiProvider = std::make_shared<tb::app::providers::LocalAPIProvider>();
+
+    m_sessionCtx->eventDispatcher->Subscribe<tb::app::events::IdentitySignedIn>(
+        TB_APP_BIND_EVENT_FN(OnIdentitySignedIn)
+    );
+    m_sessionCtx->eventDispatcher->Subscribe<tb::app::events::IdentitySignedOut>(
+        TB_APP_BIND_EVENT_FN(OnIdentitySignedOut)
+    );
 }
 
 void Session::OnRender()
@@ -61,6 +69,16 @@ void Session::OnUpdate(double deltaTime)
 void Session::OnShutdown()
 {
     m_uiController->Shutdown();
+}
+
+void Session::OnIdentitySignedIn(const tb::app::events::IdentitySignedIn& event)
+{
+    // Initialize Menu Bar, User Information, maybe a Financial Book Selector.
+}
+
+void Session::OnIdentitySignedOut(const tb::app::events::IdentitySignedOut& event)
+{
+    // De-initialize everything the user opened and re-open the AuthenticationForm UI component.
 }
 
 } // ns tb::app::mods
