@@ -1,5 +1,5 @@
 #include <tb/app/providers/LocalAPIProvider.hpp>
-#include <tb/models/dbo/Identity.hpp>
+#include <tb/models/dbo/Dbo.hpp>
 #include <tb/tools/Security.hpp>
 
 #include <Wt/Dbo/Dbo.h>
