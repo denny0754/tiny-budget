@@ -1,12 +1,12 @@
 #ifndef TB_APP_UI_AUTHENTICATION_FORM_HPP
 #define TB_APP_UI_AUTHENTICATION_FORM_HPP
 
-#include <tb/app/ui/UIComponent.hpp>
+#include <tb/app/ui/GlobalComponent.hpp>
 
 namespace tb::app::ui
 {
 
-class AuthenticationForm : public UIComponent
+class AuthenticationForm : public tb::app::ui::GlobalComponent
 {
 public:
 	void OnInit();

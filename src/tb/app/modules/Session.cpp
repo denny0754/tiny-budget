@@ -1,7 +1,7 @@
 #include <tb/app/modules/Session.hpp>
 
 #include <tb/core/events/PushModuleEvent.hpp>
-#include <tb/app/events/PushUIComponentEvent.hpp>
+#include <tb/app/events/PushGlobalComponentEvent.hpp>
 #include <tb/app/ui/AuthenticationForm.hpp>
 #include <tb/app/ui/MenuBar.hpp>
 #include <tb/app/providers/LocalAPIProvider.hpp>
@@ -32,25 +32,25 @@ void Session::OnInit()
 
     m_sessionCtx->eventDispatcher = std::make_shared<EventDispatcher>();
 
-    m_uiController = std::make_unique<ui::UIController>(m_sessionCtx);
+    m_uiController = std::make_unique<tb::app::ui::Controller>(m_sessionCtx);
 
     m_uiController->Init();
 
-    m_sessionCtx->eventDispatcher->QueueEvent<events::PushUIComponentEvent>(
-        events::PushUIComponentEvent(
-            []() -> std::unique_ptr<ui::AuthenticationForm>
+    m_sessionCtx->eventDispatcher->QueueEvent<events::PushGlobalComponentEvent>(
+        events::PushGlobalComponentEvent(
+            []() -> std::unique_ptr<tb::app::ui::AuthenticationForm>
             {
-                return std::make_unique<ui::AuthenticationForm>();
+                return std::make_unique<tb::app::ui::AuthenticationForm>();
             }
         )
     );
 
     m_sessionCtx->apiProvider = std::make_shared<tb::app::providers::LocalAPIProvider>();
 
-    m_sessionCtx->eventDispatcher->Subscribe<tb::app::events::IdentitySignedIn>(
+    m_sessionCtx->eventDispatcher->Subscribe<tb::app::events::IdentitySignedInEvent>(
         TB_APP_BIND_EVENT_FN(OnIdentitySignedIn)
     );
-    m_sessionCtx->eventDispatcher->Subscribe<tb::app::events::IdentitySignedOut>(
+    m_sessionCtx->eventDispatcher->Subscribe<tb::app::events::IdentitySignedOutEvent>(
         TB_APP_BIND_EVENT_FN(OnIdentitySignedOut)
     );
 }
@@ -71,12 +71,22 @@ void Session::OnShutdown()
     m_uiController->Shutdown();
 }
 
-void Session::OnIdentitySignedIn(const tb::app::events::IdentitySignedIn& event)
+void Session::OnIdentitySignedIn(const tb::app::events::IdentitySignedInEvent& event)
 {
     // Initialize Menu Bar, User Information, maybe a Financial Book Selector.
+    m_sessionCtx->logger->info("User with ID `{}` logged in succesfully.",
+        event.GetIdentityId()
+    );
+
+    m_sessionCtx->sessionData.email = event.GetEmail();
+    m_sessionCtx->sessionData.firstName = event.GetFirstName();
+    m_sessionCtx->sessionData.lastName = event.GetLastName();
+    m_sessionCtx->sessionData.identityId = event.GetIdentityId();
+
+    event.Handled = true;
 }
 
-void Session::OnIdentitySignedOut(const tb::app::events::IdentitySignedOut& event)
+void Session::OnIdentitySignedOut(const tb::app::events::IdentitySignedOutEvent& event)
 {
     // De-initialize everything the user opened and re-open the AuthenticationForm UI component.
 }

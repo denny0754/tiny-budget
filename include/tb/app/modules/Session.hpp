@@ -5,9 +5,9 @@
 
 #include <tb/core/BaseModule.hpp>
 #include <tb/app/SessionContext.hpp>
-#include <tb/app/ui/UIController.hpp>
-#include <tb/app/events/IdentitySignedIn.hpp>
-#include <tb/app/events/IdentitySignedOut.hpp>
+#include <tb/app/ui/Controller.hpp>
+#include <tb/app/events/IdentitySignedInEvent.hpp>
+#include <tb/app/events/IdentitySignedOutEvent.hpp>
 
 namespace tb::app::modules
 {
@@ -25,14 +25,14 @@ public:
 	void OnShutdown() override;
 
 private:
-	void OnIdentitySignedIn(const tb::app::events::IdentitySignedIn& event);
+	void OnIdentitySignedIn(const tb::app::events::IdentitySignedInEvent& event);
 
-	void OnIdentitySignedOut(const tb::app::events::IdentitySignedOut& event);
+	void OnIdentitySignedOut(const tb::app::events::IdentitySignedOutEvent& event);
 
 private:
 	std::shared_ptr<SessionContext> m_sessionCtx;
 
-	std::unique_ptr<ui::UIController> m_uiController;
+	std::unique_ptr<tb::app::ui::Controller> m_uiController;
 }; // cl Session
 
 } // ns tb::app::modules

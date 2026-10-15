@@ -1,5 +1,5 @@
 #include <tb/app/ui/AuthenticationForm.hpp>
-#include <tb/app/events/IdentityAuthEvent.hpp>
+#include <tb/app/events/IdentitySignedInEvent.hpp>
 
 #include <imgui.h>
 
@@ -85,7 +85,7 @@ void AuthenticationForm::OnRender()
                     request.Email = m_emailBuf;
                     request.Password = m_passwordBuf;
 
-                    m_sessionCtx->apiProvider->SignIn(
+                    GetSessionContext()->apiProvider->SignIn(
                         request,
                         [this](const models::dto::APIResult<models::dto::SignInResponse>& result) {
                             m_isProcessing = false;
@@ -93,8 +93,8 @@ void AuthenticationForm::OnRender()
                             if (result.Success)
                             {
                                 // Notify application about successful login
-                                m_sessionCtx->eventDispatcher->QueueEvent(
-                                    events::IdentityAuthEvent{
+                                GetSessionContext()->eventDispatcher->QueueEvent(
+                                    events::IdentitySignedInEvent{
                                         result.Result.IdentityId,
                                         result.Result.Email,
                                         result.Result.FirstName,
@@ -103,7 +103,7 @@ void AuthenticationForm::OnRender()
                                 );
 
                                 // Close authentication window
-                                this->SetState(tb::app::ui::UIComponentState::CLOSED);
+                                //this->SetState(tb::app::ui::UIComponentState::CLOSED);
                             }
                             else
                             {
@@ -166,7 +166,7 @@ void AuthenticationForm::OnRender()
                     request.Email = m_emailBuf;
                     request.Password = m_passwordBuf;
 
-                    m_sessionCtx->apiProvider->SignUp(
+                    GetSessionContext()->apiProvider->SignUp(
                         request,
                         [this](const models::dto::APIResult<models::dto::SignUpResponse>& result) {
                             m_isProcessing = false;

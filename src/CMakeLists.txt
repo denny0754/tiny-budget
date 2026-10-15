@@ -6,7 +6,7 @@ add_executable (
 	"tb/core/Application.cpp"
 	"tb/app/modules/Session.cpp"
 	
-	"tb/app/ui/UIController.cpp"
+	"tb/app/ui/Controller.cpp"
 	"tb/app/ui/AuthenticationForm.cpp"
 	"tb/app/ui/MenuBar.cpp"
 
