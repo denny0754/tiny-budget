@@ -6,10 +6,10 @@
 namespace tb::app::events
 {
 
-struct IdentitySignedIn : public BaseUserEvent
+struct IdentitySignedInEvent : public BaseUserEvent
 {
 public:
-	explicit IdentitySignedIn(
+	explicit IdentitySignedInEvent(
 		std::string identity_id,
 		std::string email,
 		std::string fname,
@@ -19,10 +19,10 @@ public:
 
 	}
 
-	inline const std::string& GetIdentityId() { return m_identityId; }
-	inline const std::string& GetEmail() { return m_email; }
-	inline const std::string& GetFirstName() { return m_firstName; }
-	inline const std::string& GetLastName() { return m_lastName; }
+	inline const std::string& GetIdentityId() const { return m_identityId; }
+	inline const std::string& GetEmail() const { return m_email; }
+	inline const std::string& GetFirstName() const { return m_firstName; }
+	inline const std::string& GetLastName() const { return m_lastName; }
 
 	const char* GetName() const
 	{

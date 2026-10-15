@@ -6,10 +6,10 @@
 namespace tb::app::events
 {
 
-struct IdentitySignedOut : public BaseUserEvent
+struct IdentitySignedOutEvent : public BaseUserEvent
 {
 public:
-	explicit IdentitySignedOut()
+	explicit IdentitySignedOutEvent()
 	{
 
 	}
