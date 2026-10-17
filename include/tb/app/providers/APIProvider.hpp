@@ -4,8 +4,7 @@
 #include <functional>
 #include <vector>
 
-#include <tb/models/dto/Common.hpp>
-#include <tb/models/dto/Authentication.hpp>
+#include <tb/models/dto/Dto.hpp>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/rotating_file_sink.h>
@@ -44,6 +43,11 @@ public:
 	virtual void SignIn(
 		const tb::models::dto::SignInRequest& data,
 		APICallback<tb::models::dto::SignInResponse>
+	) = 0;
+
+	virtual void CreateFinancialBook(
+		const tb::models::dto::CreateFinancialBookRequest& data,
+		APICallback<tb::models::dto::CreateFinancialBookResponse>
 	) = 0;
 
 protected:

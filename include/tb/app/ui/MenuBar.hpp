@@ -6,7 +6,7 @@
 namespace tb::app::ui
 {
 
-class MenuBar : public GlobalComponent
+class MenuBar : public tb::app::ui::GlobalComponent
 {
 public:
 	void OnInit();

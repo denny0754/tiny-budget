@@ -6,14 +6,6 @@
 namespace tb::models::dto
 {
 
-template<typename T>
-struct APIResult
-{
-	std::string ErrorMessage{};
-	bool Success;
-
-	T Result;
-}; // st APIResult
 
 } // ns tb::models::dto
 

@@ -9,6 +9,7 @@ add_executable (
 	"tb/app/ui/Controller.cpp"
 	"tb/app/ui/AuthenticationForm.cpp"
 	"tb/app/ui/MenuBar.cpp"
+	"tb/app/ui/FinancialBookSetup.cpp"
 
 	"tb/app/providers/LocalAPIProvider.cpp"
 

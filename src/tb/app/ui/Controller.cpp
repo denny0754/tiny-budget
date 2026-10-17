@@ -98,6 +98,18 @@ void Controller::ComponentStorage::FlushDeferred()
 		m_activeCmp.push_back(std::move(cmp));
 	}
 	m_deferredCmp.clear();
+
+	std::erase_if(
+		m_activeCmp,
+		[](const std::unique_ptr<tb::app::ui::IComponent>& cmp) {
+			if (cmp->ShouldClose())
+			{
+				cmp->OnShutdown();
+				return true;
+			}
+			return false;
+		}
+	);
 }
 
 void Controller::ComponentStorage::PushComponent(std::unique_ptr<IComponent> component)

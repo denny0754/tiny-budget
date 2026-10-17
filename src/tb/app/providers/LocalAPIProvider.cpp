@@ -21,6 +21,15 @@ LocalAPIProvider::LocalAPIProvider()
 
 	m_dbSession->mapClass<tb::models::dbo::Identity>("identity");
 	m_dbSession->mapClass<tb::models::dbo::PasswordCredential>("password_credential");
+	m_dbSession->mapClass<tb::models::dbo::FinancialBook>("financial_book");
+	m_dbSession->mapClass<tb::models::dbo::Partner>("partner");
+	m_dbSession->mapClass<tb::models::dbo::PartnerAddress>("partner_address");
+	m_dbSession->mapClass<tb::models::dbo::PartnerCommunication>("partner_communication");
+	m_dbSession->mapClass<tb::models::dbo::Account>("account");
+	m_dbSession->mapClass<tb::models::dbo::Transaction>("transaction");
+	m_dbSession->mapClass<tb::models::dbo::TransactionItem>("transaction_item");
+	m_dbSession->mapClass<tb::models::dbo::Product>("product");
+	m_dbSession->mapClass<tb::models::dbo::CodeList>("code_list");
 
 	try
 	{
@@ -62,8 +71,6 @@ void LocalAPIProvider::SignUp(
 		auto credential = std::make_unique<tb::models::dbo::PasswordCredential>();
 
 		auto currentDateTime = Wt::WDateTime::currentDateTime();
-		identity->SetCreatedOn(currentDateTime);
-		identity->SetUpdatedOn(currentDateTime);
 		identity->SetFirstName(data.FirstName);
 		identity->SetLastName(data.LastName);
 		identity->SetEmail(data.Email);
@@ -71,7 +78,6 @@ void LocalAPIProvider::SignUp(
 
 		std::string pwd_hash = tb::tools::Security::HashPassword(data.Password);
 		credential->SetPasswordHash(pwd_hash);
-		credential->SetUpdatedOn(currentDateTime);
 		credential->SetIdentity(identityPtr);
 		m_dbSession->add(std::move(credential));
 

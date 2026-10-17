@@ -103,7 +103,7 @@ void AuthenticationForm::OnRender()
                                 );
 
                                 // Close authentication window
-                                //this->SetState(tb::app::ui::UIComponentState::CLOSED);
+                                Close();
                             }
                             else
                             {

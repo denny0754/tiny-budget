@@ -25,6 +25,9 @@ public:
 	virtual void OnShutdown() = 0;
 
 	virtual std::string GetComponentId() const = 0;
+
+	const bool ShouldClose() const { return m_isClosed; }
+
 private:
 	friend class Controller;
 
@@ -35,11 +38,15 @@ private:
 
 	std::shared_ptr<tb::app::SessionContext> m_sessionContext;
 
+	bool m_isClosed{ false };
+
 protected:
 	const std::shared_ptr<tb::app::SessionContext>& GetSessionContext() const
 	{
 		return m_sessionContext;
 	}
+
+	void Close() { m_isClosed = true; }
 };
 
 } // ns tb::app::ui

@@ -83,6 +83,14 @@ void Session::OnIdentitySignedIn(const tb::app::events::IdentitySignedInEvent& e
     m_sessionCtx->sessionData.lastName = event.GetLastName();
     m_sessionCtx->sessionData.identityId = event.GetIdentityId();
 
+    m_sessionCtx->eventDispatcher->QueueEvent<tb::app::events::PushGlobalComponentEvent>(
+        tb::app::events::PushGlobalComponentEvent(
+            []() -> std::unique_ptr<tb::app::ui::MenuBar> {
+                return std::make_unique<tb::app::ui::MenuBar>();
+            }
+        )
+    );
+
     event.Handled = true;
 }
 
