@@ -11,7 +11,8 @@ add_executable (
 	"tb/app/ui/MenuBar.cpp"
 	"tb/app/ui/FinancialBookSetup.cpp"
 
-	"tb/app/providers/LocalAPIProvider.cpp"
+	"tb/app/api/local/LocalApiService.cpp"
+	"tb/app/api/local/LocalAuthClient.cpp"
 
 	"tb/tools/Security.cpp"
 )

@@ -85,7 +85,7 @@ void AuthenticationForm::OnRender()
                     request.Email = m_emailBuf;
                     request.Password = m_passwordBuf;
 
-                    GetSessionContext()->apiProvider->SignIn(
+                    GetSessionContext()->apiService->GetAuthService()->SignIn(
                         request,
                         [this](const models::dto::APIResult<models::dto::SignInResponse>& result) {
                             m_isProcessing = false;
@@ -166,7 +166,7 @@ void AuthenticationForm::OnRender()
                     request.Email = m_emailBuf;
                     request.Password = m_passwordBuf;
 
-                    GetSessionContext()->apiProvider->SignUp(
+                    GetSessionContext()->apiService->GetAuthService()->SignUp(
                         request,
                         [this](const models::dto::APIResult<models::dto::SignUpResponse>& result) {
                             m_isProcessing = false;

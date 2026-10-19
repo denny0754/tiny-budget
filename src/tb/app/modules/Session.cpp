@@ -4,8 +4,7 @@
 #include <tb/app/events/PushGlobalComponentEvent.hpp>
 #include <tb/app/ui/AuthenticationForm.hpp>
 #include <tb/app/ui/MenuBar.hpp>
-#include <tb/app/providers/LocalAPIProvider.hpp>
-
+#include <tb/app/api/local/LocalApiService.hpp>
 
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -45,7 +44,7 @@ void Session::OnInit()
         )
     );
 
-    m_sessionCtx->apiProvider = std::make_shared<tb::app::providers::LocalAPIProvider>();
+    m_sessionCtx->apiService = std::make_shared<tb::app::api::LocalApiService>();
 
     m_sessionCtx->eventDispatcher->Subscribe<tb::app::events::IdentitySignedInEvent>(
         TB_APP_BIND_EVENT_FN(OnIdentitySignedIn)

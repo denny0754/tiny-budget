@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include <tb/app/providers/APIProvider.hpp>
+#include <tb/app/api/BaseApiService.hpp>
 #include <tb/app/EventDispatcher.hpp>
 
 #include <spdlog/spdlog.h>
@@ -27,7 +27,7 @@ struct SessionContext
 {
 	SessionData sessionData;
 
-	std::shared_ptr<tb::app::providers::APIProvider> apiProvider;
+	std::shared_ptr<tb::app::api::BaseApiService> apiService;
 
 	std::shared_ptr<tb::app::EventDispatcher> eventDispatcher;
 

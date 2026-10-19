@@ -1,17 +1,10 @@
-#ifndef TB_MODELS_DTO_HPP
-#define TB_MODELS_DTO_HPP
+#ifndef TB_MODELS_DTO_AUTHENTICATION_HPP
+#define TB_MODELS_DTO_AUTHENTICATION_HPP
+
+#include <string>
 
 namespace tb::models::dto
 {
-
-template<typename T>
-struct APIResult
-{
-	std::string ErrorMessage{};
-	bool Success;
-
-	T Result;
-}; // st APIResult
 
 struct SignUpRequest
 {
@@ -54,20 +47,6 @@ struct SignInResponse
 
 	std::string LastName;
 }; // st SignInResponse
-
-struct CreateFinancialBookRequest
-{
-
-	std::string Name;
-
-	std::string DefaultCurrency;
-
-}; // st CreateFinancialBookRequest
-
-struct CreateFinancialBookResponse
-{
-	std::string FinancialBookId;
-};
 
 } // ns tb::models::dto
 
