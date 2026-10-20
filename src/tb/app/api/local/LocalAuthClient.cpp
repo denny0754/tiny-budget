@@ -53,7 +53,7 @@ void LocalAuthClient::SignUp(
 	{
 		result.Success = false;
 		result.ErrorMessage = "Error while trying to write to the Database...";
-		//GetLogger()->error("Wt::Dbo Exception: {}", e.what());
+		GetLogger()->error("Wt::Dbo Exception: {}", e.what());
 	}
 
 	callback(result);
@@ -99,6 +99,8 @@ void LocalAuthClient::SignIn(
 					result.Result.FirstName = identity->GetFirstName();
 					result.Result.LastName = identity->GetLastName();
 					result.Result.IdentityId = identity->GetId();
+
+					GetLogger()->info("User {} logged in succesfully.", result.Result.IdentityId);
 				}
 			}
 		}

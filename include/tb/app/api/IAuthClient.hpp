@@ -3,11 +3,12 @@
 
 #include <tb/models/dto/Auth.hpp>
 #include <tb/models/dto/Common.hpp>
+#include <tb/app/api/BaseClient.hpp>
 
 namespace tb::app::api
 {
 
-class IAuthClient
+class IAuthClient : public BaseClient
 {
 public:
 	virtual ~IAuthClient() = default;

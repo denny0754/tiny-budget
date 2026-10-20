@@ -25,11 +25,13 @@ void Session::OnInit()
     logSinks.push_back(
         std::make_shared<spdlog::sinks::stdout_color_sink_mt>()
     );
-    m_sessionCtx->logger = std::make_shared<spdlog::logger>("Session", begin(logSinks), end(logSinks));
+    m_sessionCtx->logger = std::make_shared<spdlog::logger>("SESSION", begin(logSinks), end(logSinks));
     m_sessionCtx->logger->set_level(spdlog::level::level_enum::trace);
     m_sessionCtx->logger->set_pattern("[%Y-%m-%d %H:%M:%S] %n - %^%l%$: %v");
 
     m_sessionCtx->eventDispatcher = std::make_shared<EventDispatcher>();
+
+    m_sessionCtx->logger->info("Session Manager is being initialized.");
 
     m_uiController = std::make_unique<tb::app::ui::Controller>(m_sessionCtx);
 
@@ -52,6 +54,8 @@ void Session::OnInit()
     m_sessionCtx->eventDispatcher->Subscribe<tb::app::events::IdentitySignedOutEvent>(
         TB_APP_BIND_EVENT_FN(OnIdentitySignedOut)
     );
+
+    m_sessionCtx->logger->info("Session Manager succesfully initialized.");
 }
 
 void Session::OnRender()

@@ -10,6 +10,8 @@ Controller::Controller(std::shared_ptr<tb::app::SessionContext> sessionCtx)
 
 void Controller::Init()
 {
+	m_sessionContext->logger->info("UI Controller is being initialized.");
+
 	m_sessionContext->eventDispatcher->Subscribe<tb::app::events::PushGlobalComponentEvent>(
 		TB_APP_BIND_EVENT_FN(OnPushGlobalComponent)
 	);

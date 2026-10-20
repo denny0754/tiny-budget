@@ -119,9 +119,21 @@ void Application::Init()
     logSinks.push_back(
         std::make_shared<spdlog::sinks::stdout_color_sink_mt>()
     );
-    m_context->logger = std::make_shared<spdlog::logger>("Core", begin(logSinks), end(logSinks));
+    m_context->logger = std::make_shared<spdlog::logger>("CORE", begin(logSinks), end(logSinks));
     m_context->logger->set_level(spdlog::level::level_enum::trace);
     m_context->logger->set_pattern("[%Y-%m-%d %H:%M:%S] %n - %^%l%$: %v");
+
+    // Registering the Logger to allow GLFW error callback to access it.
+    spdlog::register_logger(m_context->logger);
+
+    m_context->logger->info("Application is being initialized.");
+
+    glfwSetErrorCallback([](int errorCode, const char* description) {
+        if (auto logger = spdlog::get("CORE"))
+        {
+            logger->critical("GLFW Error [{}]: {}", errorCode, description);
+        }
+    });
 
     if(!glfwInit())
     {
@@ -137,12 +149,14 @@ void Application::Init()
 
     if(m_nativeWindow == nullptr)
     {
+        m_context->logger->critical("GLFW Window hasn't been initialized properly.");
         return;
     }
 
     glfwMakeContextCurrent(m_nativeWindow);
     glfwSwapInterval(1);
 
+    m_context->logger->info("DearImGui is being initialized.");
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -193,12 +207,13 @@ void Application::Init()
 
     PushModule(std::make_shared<tb::app::modules::Session>());
 
-    m_context->logger->info("Application succesfully initialized...Setting status to ready!");
+    m_context->logger->info("Application succesfully initialized. Ready to run.");
     m_ready = true;
 }
 
 void Application::Run()
 {
+    m_context->logger->info("Starting application's main loop.");
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     while(m_ready)
