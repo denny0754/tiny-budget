@@ -12,8 +12,6 @@ namespace tb::core
 struct AppContext
 {
     std::shared_ptr<tb::core::EventBus> eventBus;
-
-    std::shared_ptr<spdlog::logger> logger;
 };
 
 } // ns tb::core

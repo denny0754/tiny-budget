@@ -5,6 +5,7 @@
 #include <tb/core/events/WindowResizeEvent.hpp>
 #include <tb/core/events/WindowCloseEvent.hpp>
 #include <tb/app/modules/Session.hpp>
+#include <tb/tools/Logging.hpp>
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -111,33 +112,15 @@ void Application::Init()
     m_context = std::make_shared<tb::core::AppContext>();
     m_context->eventBus = std::make_shared<EventBus>();
 
-    // Initializing the default Application Logger:
-    std::vector<spdlog::sink_ptr> logSinks;
-    logSinks.push_back(
-        std::make_shared<spdlog::sinks::rotating_file_sink_mt>("./logs/app.log", 52428800U, 7, false)
-    );
-    logSinks.push_back(
-        std::make_shared<spdlog::sinks::stdout_color_sink_mt>()
-    );
-    m_context->logger = std::make_shared<spdlog::logger>("CORE", begin(logSinks), end(logSinks));
-    m_context->logger->set_level(spdlog::level::level_enum::trace);
-    m_context->logger->set_pattern("[%Y-%m-%d %H:%M:%S] %n - %^%l%$: %v");
-
-    // Registering the Logger to allow GLFW error callback to access it.
-    spdlog::register_logger(m_context->logger);
-
-    m_context->logger->info("Application is being initialized.");
+    tb::tools::log::GetCoreLogger()->info("Application is being initialized.");
 
     glfwSetErrorCallback([](int errorCode, const char* description) {
-        if (auto logger = spdlog::get("CORE"))
-        {
-            logger->critical("GLFW Error [{}]: {}", errorCode, description);
-        }
+        tb::tools::log::GetCoreLogger()->critical("GLFW Error [{}]: {}", errorCode, description);
     });
 
     if(!glfwInit())
     {
-        m_context->logger->critical("An error occured while trying to initialize GLFW...");
+        tb::tools::log::GetCoreLogger()->critical("An error occured while trying to initialize GLFW...");
         return;
     }
 
@@ -149,14 +132,14 @@ void Application::Init()
 
     if(m_nativeWindow == nullptr)
     {
-        m_context->logger->critical("GLFW Window hasn't been initialized properly.");
+        tb::tools::log::GetCoreLogger()->critical("GLFW Window hasn't been initialized properly.");
         return;
     }
 
     glfwMakeContextCurrent(m_nativeWindow);
     glfwSwapInterval(1);
 
-    m_context->logger->info("DearImGui is being initialized.");
+    tb::tools::log::GetCoreLogger()->info("DearImGui is being initialized.");
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -207,13 +190,13 @@ void Application::Init()
 
     PushModule(std::make_shared<tb::app::modules::Session>());
 
-    m_context->logger->info("Application succesfully initialized. Ready to run.");
+    tb::tools::log::GetCoreLogger()->info("Application succesfully initialized. Ready to run.");
     m_ready = true;
 }
 
 void Application::Run()
 {
-    m_context->logger->info("Starting application's main loop.");
+    tb::tools::log::GetCoreLogger()->info("Starting application's main loop.");
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     while(m_ready)

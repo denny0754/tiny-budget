@@ -81,11 +81,11 @@ void AuthenticationForm::OnRender()
                 {
                     m_isProcessing = true;
 
-                    models::dto::SignInRequest request;
+                    tb::models::dto::SignInRequest request;
                     request.Email = m_emailBuf;
                     request.Password = m_passwordBuf;
 
-                    GetSessionContext()->apiService->GetAuthService()->SignIn(
+                    GetSessionContext()->apiService->GetAuthClient()->SignIn(
                         request,
                         [this](const models::dto::APIResult<models::dto::SignInResponse>& result) {
                             m_isProcessing = false;
@@ -166,7 +166,7 @@ void AuthenticationForm::OnRender()
                     request.Email = m_emailBuf;
                     request.Password = m_passwordBuf;
 
-                    GetSessionContext()->apiService->GetAuthService()->SignUp(
+                    GetSessionContext()->apiService->GetAuthClient()->SignUp(
                         request,
                         [this](const models::dto::APIResult<models::dto::SignUpResponse>& result) {
                             m_isProcessing = false;

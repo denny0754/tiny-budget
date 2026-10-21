@@ -1,21 +1,22 @@
-#ifndef TB_APP_API_LOCAL_LOCAL_AUTH_CLIENT
-#define TB_APP_API_LOCAL_LOCAL_AUTH_CLIENT
+#ifndef TB_API_LOCAL_LOCAL_AUTH_CLIENT
+#define TB_API_LOCAL_LOCAL_AUTH_CLIENT
 
 #include <tb/models/dto/Auth.hpp>
-#include <tb/app/api/IAuthClient.hpp>
+#include <tb/api/interfaces/IAuthClient.hpp>
+#include <tb/api/local/LocalBaseClient.hpp>
 
 #include <memory>
 
 namespace Wt::Dbo { class Session; }
 
-namespace tb::app::api
+namespace tb::api
 {
-class LocalApiService;
 
-class LocalAuthClient : public tb::app::api::IAuthClient
+class LocalAuthClient : public tb::api::IAuthClient, public tb::api::LocalBaseClient
 {
 public:
-	LocalAuthClient(std::shared_ptr<Wt::Dbo::Session> session) { m_dbSession = session; }
+	explicit LocalAuthClient(std::shared_ptr<tb::api::SessionContext> ctx, std::shared_ptr<Wt::Dbo::Session> db)
+		: LocalBaseClient(ctx, db) { }
 
 	void SignUp(
 		const tb::models::dto::SignUpRequest& data,
@@ -27,8 +28,6 @@ public:
 		tb::models::dto::APICallback<tb::models::dto::SignInResponse>
 	) override;
 
-private:
-	std::shared_ptr<Wt::Dbo::Session> m_dbSession;
 }; // cl LocalApiClient
 
 } // ns tb::app::api

@@ -1,10 +1,11 @@
-#include <tb/app/api/local/LocalAuthClient.hpp>
+#include <tb/api/local/LocalAuthClient.hpp>
 #include <tb/models/dbo/Dbo.hpp>
 #include <tb/tools/Security.hpp>
+#include <tb/tools/Logging.hpp>
 
 #include <Wt/Dbo/Dbo.h>
 
-namespace tb::app::api
+namespace tb::api
 {
 
 void LocalAuthClient::SignUp(
@@ -16,9 +17,9 @@ void LocalAuthClient::SignUp(
 
 	try
 	{
-		Wt::Dbo::Transaction trx{ *m_dbSession };
+		Wt::Dbo::Transaction trx{ *GetDatabaseSession() };
 
-		int count = m_dbSession->query<int>("select count(*) from identity")
+		int count = GetDatabaseSession()->query<int>("select count(*) from identity")
 			.where("email = ?")
 			.bind(data.Email);
 
@@ -37,12 +38,12 @@ void LocalAuthClient::SignUp(
 		identity->SetFirstName(data.FirstName);
 		identity->SetLastName(data.LastName);
 		identity->SetEmail(data.Email);
-		auto identityPtr = m_dbSession->add(std::move(identity));
+		auto identityPtr = GetDatabaseSession()->add(std::move(identity));
 
 		std::string pwd_hash = tb::tools::Security::HashPassword(data.Password);
 		credential->SetPasswordHash(pwd_hash);
 		credential->SetIdentity(identityPtr);
-		m_dbSession->add(std::move(credential));
+		GetDatabaseSession()->add(std::move(credential));
 
 		trx.commit();
 
@@ -53,7 +54,8 @@ void LocalAuthClient::SignUp(
 	{
 		result.Success = false;
 		result.ErrorMessage = "Error while trying to write to the Database...";
-		GetLogger()->error("Wt::Dbo Exception: {}", e.what());
+		tb::tools::log::GetApiLogger()->error("Wt::Dbo Exception: {}", e.what());
+		GetSessionContext()->Clear();
 	}
 
 	callback(result);
@@ -64,15 +66,18 @@ void LocalAuthClient::SignIn(
 	tb::models::dto::APICallback<tb::models::dto::SignInResponse> callback
 )
 {
+	// Resetting API Session Context
+	GetSessionContext()->Clear();
+
 	tb::models::dto::APIResult<tb::models::dto::SignInResponse> result;
 	result.Success = false;
 	result.ErrorMessage = "Invalid email or password."; // Default fallback error
 
 	try
 	{
-		Wt::Dbo::Transaction trx{ *m_dbSession };
+		Wt::Dbo::Transaction trx{ *GetDatabaseSession()};
 
-		auto identities = m_dbSession->find<tb::models::dbo::Identity>()
+		auto identities = GetDatabaseSession()->find<tb::models::dbo::Identity>()
 			.where("email = ?")
 			.bind(data.Email)
 			.resultList();
@@ -93,6 +98,12 @@ void LocalAuthClient::SignIn(
 
 				if (isPasswordValid)
 				{
+					GetSessionContext()->CurrentFinancialBookId = "";
+					GetSessionContext()->Email = identity->GetEmail();
+					GetSessionContext()->FirstName = identity->GetFirstName();
+					GetSessionContext()->LastName = identity->GetLastName();
+					GetSessionContext()->IdentityId = identity->GetId();
+
 					result.Success = true;
 					result.ErrorMessage = "";
 					result.Result.Email = identity->GetEmail();
@@ -100,7 +111,7 @@ void LocalAuthClient::SignIn(
 					result.Result.LastName = identity->GetLastName();
 					result.Result.IdentityId = identity->GetId();
 
-					GetLogger()->info("User {} logged in succesfully.", result.Result.IdentityId);
+					tb::tools::log::GetApiLogger()->info("User {} logged in succesfully.", result.Result.IdentityId);
 				}
 			}
 		}
@@ -114,4 +125,4 @@ void LocalAuthClient::SignIn(
 	callback(result);
 }
 
-}
+} // ns tb::api

@@ -1,14 +1,13 @@
-#ifndef TB_APP_API_IAUTH_CLIENT_HPP
-#define TB_APP_API_IAUTH_CLIENT_HPP
+#ifndef TB_API_INTERFACES_IAUTH_CLIENT_HPP
+#define TB_API_INTERFACES_IAUTH_CLIENT_HPP
 
 #include <tb/models/dto/Auth.hpp>
 #include <tb/models/dto/Common.hpp>
-#include <tb/app/api/BaseClient.hpp>
 
-namespace tb::app::api
+namespace tb::api
 {
 
-class IAuthClient : public BaseClient
+class IAuthClient
 {
 public:
 	virtual ~IAuthClient() = default;
@@ -25,6 +24,6 @@ public:
 
 }; // cl IAuthClient
 
-} // ns tb::app::api
+} // ns tb::api
 
 #endif
