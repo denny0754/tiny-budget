@@ -1,10 +1,5 @@
- #include <tb/core/Application.hpp>
-
-#include <tb/core/events/MouseEvent.hpp>
-#include <tb/core/events/KeyboardEvent.hpp>
-#include <tb/core/events/WindowResizeEvent.hpp>
-#include <tb/core/events/WindowCloseEvent.hpp>
-#include <tb/app/modules/Session.hpp>
+#include <tb/core/Application.hpp>
+#include <tb/events/system/WindowCloseEvent.hpp>
 #include <tb/tools/Logging.hpp>
 
 #include <imgui.h>
@@ -107,18 +102,15 @@ void ApplyCustomTheme()
 }
 
 
-void Application::Init()
+Application::Application()
 {
-    m_context = std::make_shared<tb::core::AppContext>();
-    m_context->eventBus = std::make_shared<EventBus>();
-
     tb::tools::log::GetCoreLogger()->info("Application is being initialized.");
 
     glfwSetErrorCallback([](int errorCode, const char* description) {
         tb::tools::log::GetCoreLogger()->critical("GLFW Error [{}]: {}", errorCode, description);
     });
 
-    if(!glfwInit())
+    if (!glfwInit())
     {
         tb::tools::log::GetCoreLogger()->critical("An error occured while trying to initialize GLFW...");
         return;
@@ -128,9 +120,9 @@ void Application::Init()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
     float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
-    m_nativeWindow = glfwCreateWindow((int)(1280 * main_scale), (int)(800 * main_scale), "tiny-budget", nullptr, nullptr);
+    m_nativeWindow = glfwCreateWindow((int)(1280 * main_scale), (int)(720 * main_scale), "tiny-budget", nullptr, nullptr);
 
-    if(m_nativeWindow == nullptr)
+    if (m_nativeWindow == nullptr)
     {
         tb::tools::log::GetCoreLogger()->critical("GLFW Window hasn't been initialized properly.");
         return;
@@ -144,7 +136,7 @@ void Application::Init()
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    
+
     ImGui::StyleColorsDark();
 
     // Setup scaling
@@ -158,37 +150,46 @@ void Application::Init()
 
     glfwSetWindowUserPointer(m_nativeWindow, this);
 
-    glfwSetMouseButtonCallback(m_nativeWindow, [](GLFWwindow* window, int button, int action, int mods){
-        ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
-        Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-        app->GetContext()->eventBus->Push<events::MouseEvent>(events::MouseEvent(button, action, mods));
-        //app->GetContext()->logger->trace("Mouse Button Callback initialized succesfully!");
-    });
+    //glfwSetMouseButtonCallback(m_nativeWindow, [](GLFWwindow* window, int button, int action, int mods){
+    //    ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+    //    Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+    //    app->GetContext()->eventBus->Push<events::MouseEvent>(events::MouseEvent(button, action, mods));
+    //    //app->GetContext()->logger->trace("Mouse Button Callback initialized succesfully!");
+    //});
 
-    glfwSetKeyCallback(m_nativeWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-        ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
-        Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-        app->GetContext()->eventBus->Push<events::KeyboardEvent>(events::KeyboardEvent(key, scancode, action, mods));
-        //app->GetContext()->logger->trace("Keyboard Callback initialized succesfully!");
-    });
+    //glfwSetKeyCallback(m_nativeWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+    //    ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+    //    Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+    //    app->GetContext()->eventBus->Push<events::KeyboardEvent>(events::KeyboardEvent(key, scancode, action, mods));
+    //    //app->GetContext()->logger->trace("Keyboard Callback initialized succesfully!");
+    //});
 
-    glfwSetWindowSizeCallback(m_nativeWindow, [](GLFWwindow* window, int width, int height){
-        Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-        app->GetContext()->eventBus->Push<events::WindowResizeEvent>(events::WindowResizeEvent(width,height));
-        //app->GetContext()->logger->trace("Window Resize Callback initialized succesfully!");
-    });
+    //glfwSetWindowSizeCallback(m_nativeWindow, [](GLFWwindow* window, int width, int height){
+    //    Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+    //    app->GetContext()->eventBus->Push<events::WindowResizeEvent>(events::WindowResizeEvent(width,height));
+    //    //app->GetContext()->logger->trace("Window Resize Callback initialized succesfully!");
+    //});
 
-    glfwSetWindowCloseCallback(m_nativeWindow, [](GLFWwindow* window){                                                                                                                                                                                  
-        Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-        app->GetContext()->eventBus->Push<events::WindowCloseEvent>(events::WindowCloseEvent());
-        //app->GetContext()->logger->trace("Window Close Callback initialized succesfully!");
-    });
+    //glfwSetWindowCloseCallback(m_nativeWindow, [](GLFWwindow* window){                                                                                                                                                                                  
+    //    Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+    //    app->GetContext()->eventBus->Push<events::WindowCloseEvent>(events::WindowCloseEvent());
+    //    //app->GetContext()->logger->trace("Window Close Callback initialized succesfully!");
+    //});
 
-    m_context->eventBus->Subscribe<events::PushModuleEvent>(TB_BIND_EVENT_FN(OnPushModule));
-    m_context->eventBus->Subscribe<events::PopModuleEvent>(TB_BIND_EVENT_FN(OnPopModule));
-    m_context->eventBus->Subscribe<events::WindowCloseEvent>(TB_BIND_EVENT_FN(OnShutdown));
+    //m_context->eventBus->Subscribe<events::PushModuleEvent>(TB_BIND_EVENT_FN(OnPushModule));
+    //m_context->eventBus->Subscribe<events::PopModuleEvent>(TB_BIND_EVENT_FN(OnPopModule));
+    //m_context->eventBus->Subscribe<events::WindowCloseEvent>(TB_BIND_EVENT_FN(OnShutdown));
 
-    PushModule(std::make_shared<tb::app::modules::Session>());
+    //PushModule(std::make_shared<tb::app::modules::Session>());
+
+    m_eventDispatcher = std::make_shared<tb::events::EventDispatcher>();
+
+    m_session = std::make_shared<tb::core::Session>(m_eventDispatcher);
+    m_uiController = std::make_shared<tb::ui::Controller>(m_eventDispatcher);
+
+    m_eventDispatcher->Subscribe<tb::events::WindowCloseEvent>(
+        TB_BIND_EVENT_FN(OnShutdown)
+    );
 
     tb::tools::log::GetCoreLogger()->info("Application succesfully initialized. Ready to run.");
     m_ready = true;
@@ -197,102 +198,46 @@ void Application::Init()
 void Application::Run()
 {
     tb::tools::log::GetCoreLogger()->info("Starting application's main loop.");
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    while(m_ready)
+    while (m_ready)
     {
-        if (!m_pendingRemovalModules.empty())
-        {
-            for (auto& modToRem : m_pendingRemovalModules)
-            {
-                // Trigger user shutdown sequence
-                modToRem->OnShutdown();
-
-                // Erase from active vector. Dropping the shared_ptr ref count 
-                // triggers the destructor, automatically running unsubscription lambdas.
-                auto it = std::find(m_modules.begin(), m_modules.end(), modToRem);
-                if (it != m_modules.end()) {
-                    m_modules.erase(it);
-                }
-            }
-            m_pendingRemovalModules.clear();
-        }
-
-        if (!m_pendingModules.empty())
-        {
-            for (auto& modToAdd : m_pendingModules)
-            {
-                modToAdd->BindContext(m_context);
-                modToAdd->OnInit();
-                m_modules.push_back(modToAdd);
-            }
-            m_pendingModules.clear();
-        }
-
-        glfwPollEvents();
-
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        // Rendering modules
-        for(auto& module : m_modules)
-        {
-            module->OnRender();
-        }
-
-        ApplyCustomTheme();
-
-        // Updating modules
-        for(auto& module : m_modules)
-        {
-            module->OnUpdate();
-        }
-
-        ImGui::Render();
-        int display_w, display_h;
-        glfwGetFramebufferSize(m_nativeWindow, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-        glClear(GL_COLOR_BUFFER_BIT);
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        glfwSwapBuffers(m_nativeWindow);
+        Update();
+        
+        Render();
     }
 }
 
-void Application::PushModule(std::shared_ptr<BaseModule> module)
+void Application::Update()
 {
-    module->BindContext(m_context);
-    module->OnInit();
-    m_modules.push_back(module);
+    glfwPollEvents();
+
+    m_eventDispatcher->Flush();
 }
 
-void Application::OnPopModule(const events::PopModuleEvent& event)
+void Application::Render()
 {
-    m_pendingRemovalModules.push_back(event.TargetModule);
-    event.Handled = true;
+    static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    ApplyCustomTheme();
+
+    ImGui::Render();
+    int display_w, display_h;
+    glfwGetFramebufferSize(m_nativeWindow, &display_w, &display_h);
+    glViewport(0, 0, display_w, display_h);
+    glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+    glClear(GL_COLOR_BUFFER_BIT);
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+    glfwSwapBuffers(m_nativeWindow);
 }
 
-void Application::OnPushModule(const events::PushModuleEvent& event)
-{
-    m_pendingModules.push_back(event.NewModule);
-    event.Handled = true;
-}
-
-void Application::OnShutdown(const events::WindowCloseEvent& event)
+void Application::OnShutdown(const tb::events::WindowCloseEvent& event)
 {
     m_ready = false;
-}
-
-void Application::Shutdown()
-{
-    m_ready = false;
-}
-
-std::shared_ptr<tb::core::AppContext> Application::GetContext()
-{
-    return m_context;
 }
 
 Application::~Application()
