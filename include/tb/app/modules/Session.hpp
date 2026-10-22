@@ -4,7 +4,7 @@
 #include <memory> 
 
 #include <tb/core/BaseModule.hpp>
-#include <tb/app/SessionContext.hpp>
+#include <tb/app/ServiceRegistry.hpp>
 #include <tb/app/ui/Controller.hpp>
 #include <tb/app/events/IdentitySignedInEvent.hpp>
 #include <tb/app/events/IdentitySignedOutEvent.hpp>
@@ -30,7 +30,7 @@ private:
 	void OnIdentitySignedOut(const tb::app::events::IdentitySignedOutEvent& event);
 
 private:
-	std::shared_ptr<SessionContext> m_sessionCtx;
+	std::shared_ptr<tb::app::ServiceRegistry> m_serviceReg;
 
 	std::unique_ptr<tb::app::ui::Controller> m_uiController;
 }; // cl Session

@@ -16,6 +16,17 @@ public:
 		const tb::models::dto::CreateFinancialBookRequest& data,
 		tb::models::dto::APICallback<tb::models::dto::CreateFinancialBookResponse> callback
 	) = 0;
+
+	virtual void GetFinancialBookById(
+		const std::string& id,
+		tb::models::dto::APICallback<tb::models::dto::GetFinancialBookResponse> callback
+	) = 0;
+
+	virtual void GetFinancialBooks(
+		const tb::models::dto::APIQueryParams& params,
+		tb::models::dto::PaginatedAPICallback<tb::models::dto::GetFinancialBookResponse> callback
+	) = 0;
+
 }; // cl IFinancialBookClient
 
 } // ns tb::api

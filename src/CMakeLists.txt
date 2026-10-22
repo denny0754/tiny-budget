@@ -14,6 +14,7 @@ add_executable (
 
 	"tb/api/local/LocalApiService.cpp"
 	"tb/api/local/LocalAuthClient.cpp"
+	"tb/api/local/LocalFinancialBookClient.cpp"
 
 	"tb/tools/Security.cpp"
 	"tb/tools/Logging.cpp"

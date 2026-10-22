@@ -1,7 +1,7 @@
 #ifndef TB_APP_UI_ICOMPONENT_HPP
 #define TB_APP_UI_ICOMPONENT_HPP
 
-#include <tb/app/SessionContext.hpp>
+#include <tb/app/ServiceRegistry.hpp>
 
 #include <string>
 
@@ -31,19 +31,19 @@ public:
 private:
 	friend class Controller;
 
-	void BindSessionContext(std::shared_ptr<tb::app::SessionContext> ctx)
+	void BindServiceRegistry(std::shared_ptr<tb::app::ServiceRegistry> reg)
 	{
-		m_sessionContext = ctx;
+		m_serviceReg = reg;
 	}
 
-	std::shared_ptr<tb::app::SessionContext> m_sessionContext;
+	std::shared_ptr<tb::app::ServiceRegistry> m_serviceReg;
 
 	bool m_isClosed{ false };
 
 protected:
-	const std::shared_ptr<tb::app::SessionContext>& GetSessionContext() const
+	const std::shared_ptr<tb::app::ServiceRegistry>& GetServiceRegistry() const
 	{
-		return m_sessionContext;
+		return m_serviceReg;
 	}
 
 	void Close() { m_isClosed = true; }

@@ -1,7 +1,7 @@
 #ifndef TB_APP_UI_CONTROLLER_HPP
 #define TB_APP_UI_CONTROLLER_HPP
 
-#include <tb/app/SessionContext.hpp>
+#include <tb/app/ServiceRegistry.hpp>
 #include <tb/app/ui/IComponent.hpp>
 #include <tb/app/ui/GlobalComponent.hpp>
 #include <tb/app/ui/LocalComponent.hpp>
@@ -14,7 +14,7 @@ namespace tb::app::ui
 class Controller
 {
 public:
-	Controller(std::shared_ptr<tb::app::SessionContext> sessionCtx);
+	Controller(std::shared_ptr<tb::app::ServiceRegistry> serviceReg);
 
 	void Init();
 
@@ -44,7 +44,7 @@ private:
 	 
 	ComponentStorage m_localCmpStg;
 	ComponentStorage m_globalCmpStg;
-	std::shared_ptr<tb::app::SessionContext> m_sessionContext;
+	std::shared_ptr<tb::app::ServiceRegistry> m_serviceReg;
 }; // cl Controller
 
 } // ns tb::app::ui

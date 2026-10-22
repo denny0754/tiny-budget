@@ -10,6 +10,20 @@ namespace tb::app::ui
 void MenuBar::OnInit()
 {
 
+    tb::models::dto::APIQueryParams params;
+    GetSessionContext()->apiService->GetFinancialBookClient()->GetFinancialBooks(
+        params,
+        [this](tb::models::dto::PaginatedAPIResult<tb::models::dto::GetFinancialBookResponse> result)
+        {
+            if (result.Success)
+            {
+                for (auto book : result.Result)
+                {
+                    this->m_financialBooksList[book.Id] = book.Name;
+                }
+            }
+        }
+    );
 }
 
 void MenuBar::OnRender()
@@ -52,15 +66,16 @@ void MenuBar::OnRender()
             ImGui::TextDisabled(" Active Book:");
 
             // Radio/Selection style for active book
-            if (ImGui::Selectable("  [x] Personal Budget")) {}
-            if (ImGui::Selectable("  [ ] Business & Freelance")) {}
-            if (ImGui::Selectable("  [ ] Household / Family")) {}
+            for (const auto& [bookId, bookName ]: m_financialBooksList)
+            {
+                if (ImGui::Selectable(bookName.c_str(), false)) {}
+            }
 
             ImGui::Separator();
             if (ImGui::Selectable("Create New Book..."))
             {
                 // Launching "FinancialBookSetup" Window
-                GetSessionContext()->eventDispatcher->QueueEvent<tb::app::events::PushLocalComponentEvent>(
+                GetServiceRegistry()->eventDispatcher->QueueEvent<tb::app::events::PushLocalComponentEvent>(
                     tb::app::events::PushLocalComponentEvent(
                         []() -> std::unique_ptr<tb::app::ui::FinancialBookSetup>
                         {

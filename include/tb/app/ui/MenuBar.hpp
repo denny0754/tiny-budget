@@ -3,6 +3,8 @@
 
 #include <tb/app/ui/GlobalComponent.hpp>
 
+#include <unordered_map>
+
 namespace tb::app::ui
 {
 
@@ -18,6 +20,10 @@ public:
 	void OnShutdown();
 
 	std::string GetComponentId() const;
+
+private:
+	std::unordered_map<std::string, std::string> m_financialBooksList;
+
 }; // cl MenuBar
 
 } // ns tb::app::ui

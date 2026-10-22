@@ -6,18 +6,18 @@ namespace tb::app::ui
 
 Controller::Controller(std::shared_ptr<tb::app::SessionContext> sessionCtx)
 {
-	m_sessionContext = sessionCtx;
+	m_serviceReg = sessionCtx;
 }
 
 void Controller::Init()
 {
 	tb::tools::log::GetCoreLogger()->info("UI Controller is being initialized.");
 
-	m_sessionContext->eventDispatcher->Subscribe<tb::app::events::PushGlobalComponentEvent>(
+	m_serviceReg->eventDispatcher->Subscribe<tb::app::events::PushGlobalComponentEvent>(
 		TB_APP_BIND_EVENT_FN(OnPushGlobalComponent)
 	);
 	
-	m_sessionContext->eventDispatcher->Subscribe<tb::app::events::PushLocalComponentEvent>(
+	m_serviceReg->eventDispatcher->Subscribe<tb::app::events::PushLocalComponentEvent>(
 		TB_APP_BIND_EVENT_FN(OnPushLocalComponent)
 	);
 }
@@ -49,9 +49,7 @@ void Controller::OnPushLocalComponent(const tb::app::events::PushLocalComponentE
 	auto cmp = event.CreateComponent();
 	if (cmp)
 	{
-		cmp->BindSessionContext(m_sessionContext);
-		//TODO: Define method and member for WorkspaceContext.
-		//cmp->BindWorkspaceContext(m_workspaceContext);
+		cmp->BindServiceRegistry(m_serviceReg);
 		cmp->OnInit();
 		m_globalCmpStg.PushComponent(std::move(cmp));
 	}
@@ -63,7 +61,7 @@ void Controller::OnPushGlobalComponent(const tb::app::events::PushGlobalComponen
 	auto cmp = event.CreateComponent();
 	if (cmp)
 	{
-		cmp->BindSessionContext(m_sessionContext);
+		cmp->BindServiceRegistry(m_serviceReg);
 		cmp->OnInit();
 		m_globalCmpStg.PushComponent(std::move(cmp));
 	}

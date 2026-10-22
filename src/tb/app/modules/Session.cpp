@@ -16,17 +16,17 @@ namespace tb::app::modules
 
 void Session::OnInit()
 {
-    m_sessionCtx = std::make_shared<SessionContext>();
+    m_serviceReg = std::make_shared<tb::app::ServiceRegistry>();
 
-    m_sessionCtx->eventDispatcher = std::make_shared<EventDispatcher>();
+    m_serviceReg->eventDispatcher = std::make_shared<EventDispatcher>();
 
     tb::tools::log::GetSessionLogger()->info("Session Manager is being initialized.");
 
-    m_uiController = std::make_unique<tb::app::ui::Controller>(m_sessionCtx);
+    m_uiController = std::make_unique<tb::app::ui::Controller>(m_serviceReg);
 
     m_uiController->Init();
 
-    m_sessionCtx->eventDispatcher->QueueEvent<events::PushGlobalComponentEvent>(
+    m_serviceReg->eventDispatcher->QueueEvent<events::PushGlobalComponentEvent>(
         events::PushGlobalComponentEvent(
             []() -> std::unique_ptr<tb::app::ui::AuthenticationForm>
             {
@@ -35,12 +35,12 @@ void Session::OnInit()
         )
     );
 
-    m_sessionCtx->apiService = std::make_shared<tb::api::LocalApiService>();
+    m_serviceReg->apiService = std::make_shared<tb::api::LocalApiService>();
 
-    m_sessionCtx->eventDispatcher->Subscribe<tb::app::events::IdentitySignedInEvent>(
+    m_serviceReg->eventDispatcher->Subscribe<tb::app::events::IdentitySignedInEvent>(
         TB_APP_BIND_EVENT_FN(OnIdentitySignedIn)
     );
-    m_sessionCtx->eventDispatcher->Subscribe<tb::app::events::IdentitySignedOutEvent>(
+    m_serviceReg->eventDispatcher->Subscribe<tb::app::events::IdentitySignedOutEvent>(
         TB_APP_BIND_EVENT_FN(OnIdentitySignedOut)
     );
 
@@ -55,7 +55,7 @@ void Session::OnRender()
 void Session::OnUpdate(double deltaTime)
 {
     m_uiController->Update();
-    m_sessionCtx->eventDispatcher->DispatchQueued();
+    m_serviceReg->eventDispatcher->DispatchQueued();
 }
 
 void Session::OnShutdown()
@@ -70,7 +70,7 @@ void Session::OnIdentitySignedIn(const tb::app::events::IdentitySignedInEvent& e
         event.GetIdentityId()
     );
 
-    m_sessionCtx->eventDispatcher->QueueEvent<tb::app::events::PushGlobalComponentEvent>(
+    m_serviceReg->eventDispatcher->QueueEvent<tb::app::events::PushGlobalComponentEvent>(
         tb::app::events::PushGlobalComponentEvent(
             []() -> std::unique_ptr<tb::app::ui::MenuBar> {
                 return std::make_unique<tb::app::ui::MenuBar>();

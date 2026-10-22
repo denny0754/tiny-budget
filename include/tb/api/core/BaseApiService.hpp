@@ -4,6 +4,7 @@
 #include <tb/models/dto/Common.hpp>
 #include <tb/api/Version.hpp>
 #include <tb/api/interfaces/IAuthClient.hpp>
+#include <tb/api/interfaces/IFinancialBookClient.hpp>
 #include <tb/api/core/SessionContext.hpp>
 
 #include <spdlog/spdlog.h>
@@ -21,16 +22,15 @@ public:
 
 	virtual ~BaseApiService() = default;
 
-    const std::unique_ptr<tb::api::IAuthClient>& GetAuthClient() const
-    {
-        return m_authService;
-    }
+    const std::unique_ptr<tb::api::IAuthClient>& GetAuthClient() const { return m_authClient; }
+    const std::unique_ptr<tb::api::IFinancialBookClient>& GetFinancialBookClient() const { return m_financialBookClient; }
 
 protected:
 
-    std::unique_ptr<tb::api::IAuthClient> m_authService;
+    std::unique_ptr<tb::api::IAuthClient> m_authClient;
+    std::unique_ptr<tb::api::IFinancialBookClient> m_financialBookClient;
 
-    std::shared_ptr<tb::api::SessionContext> m_apiCtx = std::make_shared<tb::api::SessionContext>();
+    std::shared_ptr<tb::api::SessionContext> m_apiCtx;
 
 }; // cl BaseApiService
 

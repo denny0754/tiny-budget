@@ -96,10 +96,30 @@ void FinancialBookSetup::OnRender()
 
         if (ImGui::Button("Create Book", ImVec2(buttonWidth, 0.0f)))
         {
+            m_errorMessage.clear();
             // TODO: Execute book persistence logic via SessionContext / Repository
             // e.g. m_sessionCtx->CreateBook(m_nameBuffer, m_descBuffer, currencyCode);
-
-            Close();
+            tb::models::dto::CreateFinancialBookRequest requestData{};
+            requestData.DefaultCurrencyCode = "EUR";
+            requestData.Description = m_descBuffer;
+            requestData.Name = m_nameBuffer;
+            GetServiceRegistry()->apiService->GetFinancialBookClient()->CreateFinancialBook(
+                requestData,
+                [this](const models::dto::APIResult<tb::models::dto::CreateFinancialBookResponse>& result)
+                {
+                    if (result.Success)
+                    {
+                        result.Result.FinancialBookId;
+                        Close();
+                    }
+                    else
+                    {
+                        m_errorMessage = result.ErrorMessage.empty()
+                            ? "Invalid email or password."
+                            : result.ErrorMessage;
+                    }
+                }
+            );
         }
 
         ImGui::PopStyleColor(3);
@@ -111,6 +131,14 @@ void FinancialBookSetup::OnRender()
             {
                 ImGui::SetTooltip("Please enter a book name.");
             }
+        }
+
+        if (!m_errorMessage.empty())
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.3f, 0.3f, 1.0f));
+            ImGui::TextWrapped("%s", m_errorMessage.c_str());
+            ImGui::PopStyleColor();
+            ImGui::Spacing();
         }
 
         ImGui::End();

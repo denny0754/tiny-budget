@@ -1,5 +1,5 @@
- #ifndef TB_APP_SESSION_CONTEXT_HPP
-#define TB_APP_SESSION_CONTEXT_HPP
+#ifndef TB_APP_SERVICE_REGISTRY_HPP
+#define TB_APP_SERVICE_REGISTRY_HPP
 
 #include <memory>
 
@@ -11,12 +11,12 @@
 namespace tb::app
 {
 
-struct SessionContext
+struct ServiceRegistry
 {
 	std::shared_ptr<tb::api::BaseApiService> apiService;
 
 	std::shared_ptr<tb::app::EventDispatcher> eventDispatcher;
-}; // st SessionContext
+}; // st ServiceRegistry
 
 } // ns tb::app
 

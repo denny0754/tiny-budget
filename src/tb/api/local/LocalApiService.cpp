@@ -1,5 +1,6 @@
 #include <tb/api/local/LocalApiService.hpp>
 #include <tb/api/local/LocalAuthClient.hpp>
+#include <tb/api/local/LocalFinancialBookClient.hpp>
 #include <tb/models/dbo/Dbo.hpp>
 #include <tb/tools/Security.hpp>
 #include <tb/tools/Logging.hpp>
@@ -14,6 +15,9 @@ namespace tb::api
 
 LocalApiService::LocalApiService()
 {
+    m_apiCtx = std::make_shared<tb::api::SessionContext>();
+    m_apiCtx->Clear();
+
 	tb::tools::log::GetApiLogger()->info("Local API Service is being initialized.");
 
 	m_dbSession = std::make_shared<Wt::Dbo::Session>();
@@ -67,7 +71,8 @@ LocalApiService::LocalApiService()
         tb::tools::log::GetApiLogger()->error("Wt::Dbo Exception: {}", e.what());
     }
 
-	m_authService = std::make_unique<tb::api::LocalAuthClient>(m_apiCtx, m_dbSession);
+	m_authClient = std::make_unique<tb::api::LocalAuthClient>(m_apiCtx, m_dbSession);
+    m_financialBookClient = std::make_unique<tb::api::LocalFinancialBookClient>(m_apiCtx, m_dbSession);
 }
 
 

@@ -24,6 +24,7 @@ private:
 	char m_descBuffer[256] = "";
 	int m_selectedCurrencyIdx = 0; // Default: 0 (EUR)
 	bool m_createDefaultAccounts = true;
+	std::string m_errorMessage;
 };
 
 } // ns tb::app::ui

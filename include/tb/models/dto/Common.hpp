@@ -3,6 +3,7 @@
 
 #include <string>
 #include <functional>
+#include <unordered_map>
 
 namespace tb::models::dto
 {
@@ -17,7 +18,24 @@ struct APIResult
 }; // st APIResult
 
 template<typename T>
+using PaginatedAPIResult = APIResult<std::vector<T>>;
+
+template<typename T>
 using APICallback = std::function<void(const tb::models::dto::APIResult<T>&)>;
+
+template<typename T>
+using PaginatedAPICallback = std::function<void(const tb::models::dto::PaginatedAPIResult<T>&)>;
+
+struct APIQueryParams
+{
+	unsigned int Page{ 0 };
+
+	unsigned int PageSize{ 100 };
+
+	std::unordered_map<std::string, std::string> Filters{};
+};
+
+
 
 } // ns tb::models::dto
 

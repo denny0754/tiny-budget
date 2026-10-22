@@ -111,7 +111,7 @@ void LocalAuthClient::SignIn(
 					result.Result.LastName = identity->GetLastName();
 					result.Result.IdentityId = identity->GetId();
 
-					tb::tools::log::GetApiLogger()->info("User {} logged in succesfully.", result.Result.IdentityId);
+					tb::tools::log::GetApiLogger()->info("User {} logged in succesfully.", GetSessionContext()->IdentityId);
 				}
 			}
 		}

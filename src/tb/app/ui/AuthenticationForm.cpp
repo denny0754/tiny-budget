@@ -85,7 +85,7 @@ void AuthenticationForm::OnRender()
                     request.Email = m_emailBuf;
                     request.Password = m_passwordBuf;
 
-                    GetSessionContext()->apiService->GetAuthClient()->SignIn(
+                    GetServiceRegistry()->apiService->GetAuthClient()->SignIn(
                         request,
                         [this](const models::dto::APIResult<models::dto::SignInResponse>& result) {
                             m_isProcessing = false;
@@ -93,7 +93,7 @@ void AuthenticationForm::OnRender()
                             if (result.Success)
                             {
                                 // Notify application about successful login
-                                GetSessionContext()->eventDispatcher->QueueEvent(
+                                GetServiceRegistry()->eventDispatcher->QueueEvent(
                                     events::IdentitySignedInEvent{
                                         result.Result.IdentityId,
                                         result.Result.Email,
@@ -166,7 +166,7 @@ void AuthenticationForm::OnRender()
                     request.Email = m_emailBuf;
                     request.Password = m_passwordBuf;
 
-                    GetSessionContext()->apiService->GetAuthClient()->SignUp(
+                    GetServiceRegistry()->apiService->GetAuthClient()->SignUp(
                         request,
                         [this](const models::dto::APIResult<models::dto::SignUpResponse>& result) {
                             m_isProcessing = false;
