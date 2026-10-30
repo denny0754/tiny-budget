@@ -20,6 +20,12 @@ public:
 		std::shared_ptr<tb::core::Session> session
 	);
 
+	void Render();
+
+	void Update();
+
+	void Shutdown();
+
 private:
 
 	void OnLocalComponentPush(const tb::events::PushLocalComponentEvent& event);

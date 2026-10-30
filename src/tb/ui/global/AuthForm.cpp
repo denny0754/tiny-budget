@@ -1,0 +1,214 @@
+#include <tb/ui/global/AuthForm.hpp>
+#include <tb/api/AuthClient.hpp>
+#include <tb/models/dto/Common.hpp>
+#include <tb/models/dto/Auth.hpp>
+#include <tb/events/session/IdentitySignedInEvent.hpp>
+
+#include <imgui.h>
+
+namespace tb::ui
+{
+
+void AuthForm::OnInit()
+{
+
+}
+
+void AuthForm::OnRender()
+{
+    // Center window on viewport
+    ImGuiIO& io = ImGui::GetIO();
+    ImVec2 centerPos{ io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f };
+    ImGui::SetNextWindowPos(centerPos, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowSize({ 480.0f, 0.0f }, ImGuiCond_Always);
+
+    ImGui::Begin(
+        "TinyBudget - Authentication",
+        nullptr,
+        ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoSavedSettings |
+        //ImGuiWindowFlags_NoDecoration |
+        ImGuiWindowFlags_NoMove
+    );
+
+    float fullWidth = ImGui::GetContentRegionAvail().x;
+
+    // --- FORM MODE TABS (Sign-In / Sign-Up) ---
+    if (ImGui::BeginTabBar("AuthTabBar"))
+    {
+        // ==================== SIGN-IN TAB ====================
+        if (ImGui::BeginTabItem("Sign-In"))
+        {
+            m_isSignUpMode = false;
+            ImGui::Spacing();
+
+            ImGui::InputText("Email", m_emailBuf, sizeof(m_emailBuf));
+            ImGui::InputText("Password", m_passwordBuf, sizeof(m_passwordBuf), ImGuiInputTextFlags_Password);
+
+            ImGui::Spacing();
+
+            // Disable button during pending async requests
+            if (m_isProcessing) ImGui::BeginDisabled();
+
+            if (ImGui::Button("Sign-In", { fullWidth, 32.0f }))
+            {
+                m_errorMessage.clear();
+
+                // Basic client-side validation
+                if (std::strlen(m_emailBuf) == 0 || std::strlen(m_passwordBuf) == 0)
+                {
+                    m_errorMessage = "Please enter both email and password.";
+                }
+                else
+                {
+                    m_isProcessing = true;
+
+                    tb::models::dto::SignInRequest request;
+                    request.Email = m_emailBuf;
+                    request.Password = m_passwordBuf;
+
+                    GetSession()->GetService()->GetClient<tb::api::AuthClient>()->SignIn(
+                        request,
+                        [this](const models::dto::APIResult<models::dto::SignInResponse>& result) {
+                            m_isProcessing = false;
+
+                            if (result.Success)
+                            {
+                                // Close authentication window
+                                this->GetEventDispatcher()->Enqueue(
+                                    std::make_unique<tb::events::IdentitySignedInEvent>(
+                                        result.Data.IdentityId,
+                                        result.Data.Email,
+                                        result.Data.FirstName,
+                                        result.Data.LastName
+                                    )
+                                );
+                                Close();
+                            }
+                            else
+                            {
+                                m_errorMessage = result.ErrorMessage.empty()
+                                    ? "Invalid email or password."
+                                    : result.ErrorMessage;
+                            }
+                        }
+                    );
+                }
+            }
+
+            if (m_isProcessing) ImGui::EndDisabled();
+
+            ImGui::EndTabItem();
+        }
+
+        // ==================== SIGN-UP TAB ====================
+        if (ImGui::BeginTabItem("Sign-Up"))
+        {
+            m_isSignUpMode = true;
+            ImGui::Spacing();
+
+            // Render success feedback banner in green
+            if (!m_successMessage.empty())
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.3f, 0.9f, 0.3f, 1.0f));
+                ImGui::TextWrapped("%s", m_successMessage.c_str());
+                ImGui::PopStyleColor();
+                ImGui::Spacing();
+            }
+
+            ImGui::InputText("First Name", m_firstNameBuf, sizeof(m_firstNameBuf));
+            ImGui::InputText("Last Name", m_lastNameBuf, sizeof(m_lastNameBuf));
+            ImGui::InputText("Email", m_emailBuf, sizeof(m_emailBuf));
+            ImGui::InputText("Password", m_passwordBuf, sizeof(m_passwordBuf), ImGuiInputTextFlags_Password);
+
+            ImGui::Spacing();
+
+            if (m_isProcessing) ImGui::BeginDisabled();
+
+            if (ImGui::Button("Sign-Up", { fullWidth, 32.0f }))
+            {
+                m_errorMessage.clear();
+                m_successMessage.clear();
+
+                // Basic client-side validation
+                if (std::strlen(m_emailBuf) == 0 || std::strlen(m_passwordBuf) == 0 ||
+                    std::strlen(m_firstNameBuf) == 0 || std::strlen(m_lastNameBuf) == 0)
+                {
+                    m_errorMessage = "Please fill in all required fields.";
+                }
+                else
+                {
+                    m_isProcessing = true;
+
+                    models::dto::SignUpRequest request;
+                    request.FirstName = m_firstNameBuf;
+                    request.LastName = m_lastNameBuf;
+                    request.Email = m_emailBuf;
+                    request.Password = m_passwordBuf;
+
+                    GetSession()->GetService()->GetClient<tb::api::AuthClient>()->SignUp(
+                        request,
+                        [this](const models::dto::APIResult<models::dto::SignUpResponse>& result) {
+                            m_isProcessing = false;
+
+                            if (result.Success)
+                            {
+                                // 1. Set temporary success message
+                                m_successMessage = "Sign up successful! Please switch to Sign-In to log in.";
+
+                                // 2. Clear sensitive input fields
+                                m_passwordBuf[0] = '\0';
+                                m_firstNameBuf[0] = '\0';
+                                m_lastNameBuf[0] = '\0';
+
+                                // NOTE: Window remains OPEN and UserAuthenticatedEvent is NOT dispatched.
+                            }
+                            else
+                            {
+                                m_errorMessage = result.ErrorMessage.empty()
+                                    ? "Sign-Up failed. Please check your data."
+                                    : result.ErrorMessage;
+                            }
+                        }
+                    );
+                }
+            }
+
+            if (m_isProcessing) ImGui::EndDisabled();
+
+            ImGui::EndTabItem();
+        }
+
+        ImGui::EndTabBar();
+    }
+
+    // Display error feedback banner if any API operation failed
+    if (!m_errorMessage.empty())
+    {
+        ImGui::Separator();
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.3f, 0.3f, 1.0f));
+        ImGui::TextWrapped("%s", m_errorMessage.c_str());
+        ImGui::PopStyleColor();
+        ImGui::Spacing();
+    }
+
+    ImGui::End();
+}
+
+void AuthForm::OnUpdate()
+{
+
+}
+
+void AuthForm::OnShutdown()
+{
+
+}
+
+const char* AuthForm::GetComponentId() const
+{
+	return "AuthForm";
+}
+
+}

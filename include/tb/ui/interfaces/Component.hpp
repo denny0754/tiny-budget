@@ -11,8 +11,8 @@ class Component
 {
 public:
 	Component(
-		std::shared_ptr<tb::events::EventDispatcher> dispatcher,
-		std::shared_ptr<tb::core::Session> session
+		const std::shared_ptr<tb::events::EventDispatcher>& dispatcher,
+		const std::shared_ptr<tb::core::Session>& session
 	)
 		: m_eventDispatcher(dispatcher), m_session(session)
 	{
@@ -60,6 +60,34 @@ private:
 
 	bool m_isClosed{ false };
 }; // cl Component
+
+
+class GlobalComponent : public tb::ui::Component
+{
+public:
+	GlobalComponent(
+		const std::shared_ptr<tb::events::EventDispatcher>& dispatcher,
+		const std::shared_ptr<tb::core::Session>& session
+	)
+		: tb::ui::Component(dispatcher, session)
+	{
+
+	}
+}; // cl GlobalComponent
+
+class LocalComponent : public tb::ui::Component
+{
+public:
+	LocalComponent(
+		const std::shared_ptr<tb::events::EventDispatcher>& dispatcher,
+		const std::shared_ptr<tb::core::Session>& session
+	)
+		: tb::ui::Component(dispatcher, session)
+	{
+
+	}
+
+}; // cl LocalComponent
 
 } // ns tb::ui
 

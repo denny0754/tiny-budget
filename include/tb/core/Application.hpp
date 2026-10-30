@@ -20,6 +20,8 @@ public:
 
     void Run();
 
+    void Stop();
+
     ~Application();
 
 protected:

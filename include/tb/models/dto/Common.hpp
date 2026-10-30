@@ -14,7 +14,7 @@ struct APIResult
 	std::string ErrorMessage{};
 	bool Success;
 
-	T Result;
+	T Data;
 }; // st APIResult
 
 template<typename T>

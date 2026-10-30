@@ -9,6 +9,7 @@
 #include <typeindex>
 #include <memory>
 #include <unordered_map>
+#include <algorithm>
 
 namespace tb::events
 {
@@ -21,9 +22,9 @@ using SubscriptionId = uint32_t;
 class EventDispatcher
 {
 public:
-	EventDispatcher();
+	EventDispatcher() = default;
 
-	~EventDispatcher();
+	~EventDispatcher() = default;
 
 	template<typename ECls>
 	SubscriptionId Subscribe(EventListenerRef<ECls> listener, int priority = 0)
@@ -125,6 +126,8 @@ private:
 	};
 
 	std::unordered_map<std::type_index, std::vector<EventHandlerData>> m_listeners;
+
+	SubscriptionId m_nextSubId{ 0 };
 }; // cl EventBus
 
 } // ns tb::events

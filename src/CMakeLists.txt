@@ -4,20 +4,17 @@ add_executable (
 	"main.cpp"
 
 	"tb/core/Application.cpp"
-
-	"tb/app/modules/Session.cpp"
+	"tb/core/Session.cpp"
 	
-	"tb/app/ui/Controller.cpp"
-	"tb/app/ui/AuthenticationForm.cpp"
-	"tb/app/ui/MenuBar.cpp"
-	"tb/app/ui/FinancialBookSetup.cpp"
-
-	"tb/api/local/LocalApiService.cpp"
-	"tb/api/local/LocalAuthClient.cpp"
-	"tb/api/local/LocalFinancialBookClient.cpp"
+	"tb/ui/Controller.cpp"
+	"tb/ui/global/AuthForm.cpp"
+	"tb/ui/global/SideMenu.cpp"
 
 	"tb/tools/Security.cpp"
 	"tb/tools/Logging.cpp"
+
+	"tb/api/Service.cpp"
+	"tb/api/AuthClient.cpp"
 )
 
 set_target_properties(TinyBudget PROPERTIES

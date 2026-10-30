@@ -67,3 +67,6 @@ vcpkg_installed/
 Testing/
 .cache/
 .vs/
+
+docs/
+Doxyfile

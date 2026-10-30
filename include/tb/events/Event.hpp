@@ -15,9 +15,31 @@ public:
 
 }; // cl Event
 
-struct SystemEvent : public Event {};
-struct SessionEvent : public Event {};
-struct UserInterfaceEvent : public Event {};
+struct SystemEvent : public Event
+{
+public:
+	virtual const char* GetName() = 0;
+
+	virtual ~SystemEvent() = default;
+};
+
+struct SessionEvent : public Event
+{
+public:
+	virtual const char* GetName() = 0;
+
+	virtual ~SessionEvent() = default;
+};
+
+
+struct UserInterfaceEvent : public Event
+{
+public:
+	virtual const char* GetName() = 0;
+
+	virtual ~UserInterfaceEvent() = default;
+};
+
 
 } // tb::events
 

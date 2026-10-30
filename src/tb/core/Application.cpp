@@ -1,6 +1,7 @@
 #include <tb/core/Application.hpp>
 #include <tb/events/system/WindowCloseEvent.hpp>
 #include <tb/tools/Logging.hpp>
+#include <tb/ui/global/AuthForm.hpp>
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -180,15 +181,27 @@ Application::Application()
     //m_context->eventBus->Subscribe<events::PopModuleEvent>(TB_BIND_EVENT_FN(OnPopModule));
     //m_context->eventBus->Subscribe<events::WindowCloseEvent>(TB_BIND_EVENT_FN(OnShutdown));
 
-    //PushModule(std::make_shared<tb::app::modules::Session>());
-
     m_eventDispatcher = std::make_shared<tb::events::EventDispatcher>();
 
     m_session = std::make_shared<tb::core::Session>(m_eventDispatcher);
-    m_uiController = std::make_shared<tb::ui::Controller>(m_eventDispatcher);
+    m_uiController = std::make_shared<tb::ui::Controller>(m_eventDispatcher, m_session);
 
     m_eventDispatcher->Subscribe<tb::events::WindowCloseEvent>(
         TB_BIND_EVENT_FN(OnShutdown)
+    );
+
+    glfwSetWindowCloseCallback(m_nativeWindow, [](GLFWwindow* window) {
+        Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+        app->Stop();
+    });
+
+    m_eventDispatcher->Enqueue<tb::events::PushGlobalComponentEvent>(
+        std::make_unique<tb::events::PushGlobalComponentEvent>(
+            [](const std::shared_ptr<tb::events::EventDispatcher>& dispatcher,
+                const std::shared_ptr<tb::core::Session>& session) -> std::unique_ptr<tb::ui::AuthForm> {
+                return std::make_unique<tb::ui::AuthForm>(dispatcher, session);
+            }
+        )
     );
 
     tb::tools::log::GetCoreLogger()->info("Application succesfully initialized. Ready to run.");
@@ -212,6 +225,8 @@ void Application::Update()
     glfwPollEvents();
 
     m_eventDispatcher->Flush();
+
+    m_uiController->Update();
 }
 
 void Application::Render()
@@ -223,6 +238,8 @@ void Application::Render()
     ImGui::NewFrame();
 
     ApplyCustomTheme();
+
+    m_uiController->Render();
 
     ImGui::Render();
     int display_w, display_h;
@@ -237,6 +254,7 @@ void Application::Render()
 
 void Application::OnShutdown(const tb::events::WindowCloseEvent& event)
 {
+    m_uiController->Shutdown();
     m_ready = false;
 }
 
@@ -249,6 +267,11 @@ Application::~Application()
     glfwDestroyWindow(m_nativeWindow);
     glfwTerminate();
     m_nativeWindow = nullptr;
+}
+
+void Application::Stop()
+{
+    m_ready = false;
 }
 
 } // ns tb::core
