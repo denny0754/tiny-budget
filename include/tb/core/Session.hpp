@@ -35,6 +35,8 @@ private:
 
 }; // cl Session
 
+using ConstSessionRef = const std::shared_ptr<tb::core::Session>&;
+
 } // ns tb::core
 
 #endif

@@ -197,8 +197,7 @@ Application::Application()
 
     m_eventDispatcher->Enqueue<tb::events::PushGlobalComponentEvent>(
         std::make_unique<tb::events::PushGlobalComponentEvent>(
-            [](const std::shared_ptr<tb::events::EventDispatcher>& dispatcher,
-                const std::shared_ptr<tb::core::Session>& session) -> std::unique_ptr<tb::ui::AuthForm> {
+            [](tb::events::ConstEventDispatcherRef dispatcher, tb::core::ConstSessionRef session) -> std::unique_ptr<tb::ui::AuthForm> {
                 return std::make_unique<tb::ui::AuthForm>(dispatcher, session);
             }
         )

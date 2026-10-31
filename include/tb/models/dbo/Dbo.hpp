@@ -26,6 +26,7 @@ class Transaction;
 class TransactionItem;
 class Product;
 class CodeList;
+class Currency;
 } // ns tb::models::dbo
 
 #define TB_WT_DBO_ID_STRING_TRAIT(full_class) namespace Wt::Dbo \
@@ -50,6 +51,7 @@ TB_WT_DBO_ID_STRING_TRAIT(tb::models::dbo::Transaction)
 TB_WT_DBO_ID_STRING_TRAIT(tb::models::dbo::TransactionItem)
 TB_WT_DBO_ID_STRING_TRAIT(tb::models::dbo::Product)
 TB_WT_DBO_ID_STRING_TRAIT(tb::models::dbo::CodeList)
+TB_WT_DBO_ID_STRING_TRAIT(tb::models::dbo::Currency)
 
 namespace tb::models::dbo
 {
@@ -181,6 +183,7 @@ public:
         Wt::Dbo::belongsTo(action, m_identity, "identity");
         Wt::Dbo::field(action, m_name, "name");
         Wt::Dbo::field(action, m_description, "description");
+        Wt::Dbo::belongsTo(action, m_defaultCurrency, "default_currency");
 
         Wt::Dbo::hasMany(action, m_accounts, Wt::Dbo::ManyToOne, "financial_book");
         Wt::Dbo::hasMany(action, m_transactions, Wt::Dbo::ManyToOne, "financial_book");
@@ -193,15 +196,18 @@ public:
     inline Wt::Dbo::collection<Wt::Dbo::ptr<Account>> GetAccounts() const { return m_accounts; }
     inline Wt::Dbo::collection<Wt::Dbo::ptr<Transaction>> GetTransactions() const { return m_transactions; }
     inline Wt::Dbo::collection<Wt::Dbo::ptr<Partner>> GetPartners() const { return m_partners; }
+    inline Wt::Dbo::ptr<Currency> GetDefaultCurrency() const { return m_defaultCurrency; }
 
     inline void SetIdentity(const Wt::Dbo::ptr<Identity>& identity) { m_identity = identity; }
     inline void SetName(const std::string& name) { m_name = name; }
     inline void SetDescription(const std::string& description) { m_description = description; }
+    inline void SetDefaultCurrency(const Wt::Dbo::ptr<Currency>& currency) { m_defaultCurrency = currency; }
 
 private:
     Wt::Dbo::ptr<Identity> m_identity;
     std::string m_name;
     std::string m_description;
+    Wt::Dbo::ptr<Currency> m_defaultCurrency;
 
     Wt::Dbo::collection<Wt::Dbo::ptr<Account>> m_accounts;
     Wt::Dbo::collection<Wt::Dbo::ptr<Transaction>> m_transactions;
@@ -549,6 +555,26 @@ private:
     std::string m_name;
     std::string m_description;
 }; // cl Product
+
+
+class Currency : public BaseEntity
+{
+public:
+    Currency() = default;
+
+    inline const std::string& GetName() const { return m_name; }
+    inline const std::string& GetLabel() const { return m_label; }
+    inline const std::string& GetSymbol() const { return m_symbol; }
+
+    inline void SetName(const std::string& name) { m_name = name; }
+    inline void SetLabel(const std::string& label) { m_label = label; }
+    inline void SetSymbol(const std::string& symbol) { m_symbol = symbol; }
+
+private:
+    std::string m_name;
+    std::string m_label;
+    std::string m_symbol;
+}; // cl Currency
 
 } // ns tb::models::dbo
 

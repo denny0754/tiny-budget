@@ -1,4 +1,6 @@
 #include <tb/ui/global/SideMenu.hpp>
+#include <tb/events/ui/PushLocalComponentEvent.hpp>
+#include <tb/ui/local/NewFinancialBookForm.hpp>
 
 #include <imgui.h>
 
@@ -59,6 +61,13 @@ void SideMenu::OnRender()
             if (ImGui::Selectable("Create New Book..."))
             {
                 // Launching "FinancialBookSetup" Window
+                GetEventDispatcher()->Enqueue<tb::events::PushLocalComponentEvent>(
+                    std::make_unique<tb::events::PushLocalComponentEvent>(
+                        [](tb::events::ConstEventDispatcherRef dispatcher, tb::core::ConstSessionRef session) -> std::unique_ptr<tb::ui::NewFinancialBookForm> {
+                            return std::make_unique<tb::ui::NewFinancialBookForm>(dispatcher, session);
+                        }
+                    )
+                );
             }
 
             if (ImGui::Selectable("Manage Books...")) {}

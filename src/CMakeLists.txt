@@ -9,6 +9,7 @@ add_executable (
 	"tb/ui/Controller.cpp"
 	"tb/ui/global/AuthForm.cpp"
 	"tb/ui/global/SideMenu.cpp"
+	"tb/ui/local/NewFinancialBookForm.cpp"
 
 	"tb/tools/Security.cpp"
 	"tb/tools/Logging.cpp"

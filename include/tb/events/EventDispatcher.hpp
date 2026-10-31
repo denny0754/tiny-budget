@@ -130,6 +130,8 @@ private:
 	SubscriptionId m_nextSubId{ 0 };
 }; // cl EventBus
 
+using ConstEventDispatcherRef = const std::shared_ptr<tb::events::EventDispatcher>&;
+
 } // ns tb::events
 
 #define TB_BIND_EVENT_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
