@@ -63,8 +63,8 @@ void SideMenu::OnRender()
                 // Launching "FinancialBookSetup" Window
                 GetEventDispatcher()->Enqueue<tb::events::PushLocalComponentEvent>(
                     std::make_unique<tb::events::PushLocalComponentEvent>(
-                        [](tb::events::ConstEventDispatcherRef dispatcher, tb::core::ConstSessionRef session) -> std::unique_ptr<tb::ui::NewFinancialBookForm> {
-                            return std::make_unique<tb::ui::NewFinancialBookForm>(dispatcher, session);
+                        [](tb::events::ConstEventDispatcherRef dispatcher, tb::core::ConstSessionRef session, std::unique_ptr<tb::ui::ComponentData> data) -> std::unique_ptr<tb::ui::NewFinancialBookForm> {
+                            return std::make_unique<tb::ui::NewFinancialBookForm>(dispatcher, session, std::move(data));
                         }
                     )
                 );

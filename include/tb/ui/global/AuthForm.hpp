@@ -11,9 +11,10 @@ class AuthForm : public tb::ui::GlobalComponent
 public:
 	AuthForm(
 		const std::shared_ptr<tb::events::EventDispatcher>& dispatcher,
-		const std::shared_ptr<tb::core::Session>& session
+		const std::shared_ptr<tb::core::Session>& session,
+		std::unique_ptr<tb::ui::ComponentData> data = nullptr
 	)
-		: tb::ui::GlobalComponent(dispatcher, session)
+		: tb::ui::GlobalComponent(dispatcher, session, std::move(data))
 	{
 
 	}

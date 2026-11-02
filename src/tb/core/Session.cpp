@@ -21,9 +21,8 @@ void Session::OnIdentitySignedIn(const tb::events::IdentitySignedInEvent& event)
 {
     m_eventDispatcher->Enqueue<tb::events::PushGlobalComponentEvent>(
         std::make_unique<tb::events::PushGlobalComponentEvent>(
-            [](const std::shared_ptr<tb::events::EventDispatcher>& dispatcher,
-                const std::shared_ptr<tb::core::Session>& session) -> std::unique_ptr<tb::ui::SideMenu> {
-                    return std::make_unique<tb::ui::SideMenu>(dispatcher, session);
+            [](tb::events::ConstEventDispatcherRef dispatcher, tb::core::ConstSessionRef session, std::unique_ptr<tb::ui::ComponentData> data) -> std::unique_ptr<tb::ui::SideMenu> {
+                    return std::make_unique<tb::ui::SideMenu>(dispatcher, session, std::move(data));
             }
         )
     );

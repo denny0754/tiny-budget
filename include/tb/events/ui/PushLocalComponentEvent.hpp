@@ -13,13 +13,14 @@ namespace tb::events
 class PushLocalComponentEvent: public tb::events::UserInterfaceEvent
 {
 public:
-	using ComponentFactory = std::function<std::unique_ptr<tb::ui::LocalComponent>(
+	using ComponentFactory = std::function < std::unique_ptr<tb::ui::LocalComponent>(
 		const std::shared_ptr<tb::events::EventDispatcher>& dispatcher,
-		const std::shared_ptr<tb::core::Session>& session
+		const std::shared_ptr<tb::core::Session>& session,
+		std::unique_ptr<tb::ui::ComponentData> data
 	)>;
 
-	explicit PushLocalComponentEvent(ComponentFactory factory)
-		: m_factory(factory)
+	explicit PushLocalComponentEvent(ComponentFactory factory, std::unique_ptr<tb::ui::ComponentData> data = nullptr)
+		: m_factory(std::move(factory)), m_data(std::move(data))
 	{
 
 	}
@@ -28,13 +29,15 @@ public:
 		const std::shared_ptr<tb::events::EventDispatcher>& dispatcher,
 		const std::shared_ptr<tb::core::Session>& session) const
 	{
-		return m_factory ? m_factory(dispatcher, session) : nullptr;
+		return m_factory ? m_factory(dispatcher, session, std::move(m_data)) : nullptr;
 	}
 
 	const char* GetName() override { return "PushLocalComponentEvent"; }
 
 private:
 	ComponentFactory m_factory;
+
+	mutable std::unique_ptr<tb::ui::ComponentData> m_data;
 };
 
 } // ns tb::events

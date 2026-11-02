@@ -7,14 +7,22 @@
 namespace tb::ui
 {
 
+struct ComponentData
+{
+public:
+	~ComponentData() = default;
+
+}; // st ComponentData
+
 class Component
 {
 public:
 	Component(
 		const std::shared_ptr<tb::events::EventDispatcher>& dispatcher,
-		const std::shared_ptr<tb::core::Session>& session
+		const std::shared_ptr<tb::core::Session>& session,
+		std::unique_ptr<tb::ui::ComponentData> data
 	)
-		: m_eventDispatcher(dispatcher), m_session(session)
+		: m_eventDispatcher(dispatcher), m_session(session), m_data(std::move(data))
 	{
 
 	}
@@ -48,6 +56,11 @@ protected:
 		return m_session;
 	}
 
+	const std::unique_ptr<tb::ui::ComponentData>& GetData()
+	{
+		return m_data;
+	}
+
 	void Close()
 	{
 		m_isClosed = true;
@@ -58,6 +71,8 @@ private:
 
 	std::shared_ptr<tb::core::Session> m_session;
 
+	std::unique_ptr<tb::ui::ComponentData> m_data;
+
 	bool m_isClosed{ false };
 }; // cl Component
 
@@ -67,9 +82,10 @@ class GlobalComponent : public tb::ui::Component
 public:
 	GlobalComponent(
 		const std::shared_ptr<tb::events::EventDispatcher>& dispatcher,
-		const std::shared_ptr<tb::core::Session>& session
+		const std::shared_ptr<tb::core::Session>& session,
+		std::unique_ptr<tb::ui::ComponentData> data
 	)
-		: tb::ui::Component(dispatcher, session)
+		: tb::ui::Component(dispatcher, session, std::move(data))
 	{
 
 	}
@@ -80,9 +96,10 @@ class LocalComponent : public tb::ui::Component
 public:
 	LocalComponent(
 		const std::shared_ptr<tb::events::EventDispatcher>& dispatcher,
-		const std::shared_ptr<tb::core::Session>& session
+		const std::shared_ptr<tb::core::Session>& session,
+		std::unique_ptr<tb::ui::ComponentData> data
 	)
-		: tb::ui::Component(dispatcher, session)
+		: tb::ui::Component(dispatcher, session, std::move(data))
 	{
 
 	}
