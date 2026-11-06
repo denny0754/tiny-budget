@@ -27,8 +27,6 @@ public:
 
 	void OnShutdown() override;
 
-	const char* GetComponentId() const override;
-
 private:
 	int m_sessionTypeInt = 0; // 0 = Local, 1 = Remote
 	bool m_isSignUpMode = false;

@@ -27,8 +27,6 @@ public:
 
 	void OnShutdown() override;
 
-	const char* GetComponentId() const override;
-
 }; // cl SideMenu
 
 } // ns tb::ui

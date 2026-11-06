@@ -2,7 +2,12 @@
 #define TB_UI_INTERFACES_COMPONENT_HPP
 
 #include <tb/events/EventDispatcher.hpp>
+#include <tb/ui/Common.hpp>
 #include <tb/core/Session.hpp>
+
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace tb::ui
 {
@@ -24,7 +29,8 @@ public:
 	)
 		: m_eventDispatcher(dispatcher), m_session(session), m_data(std::move(data))
 	{
-
+		static thread_local boost::uuids::random_generator gen;
+		m_id = boost::uuids::to_string(gen());
 	}
 
 	virtual ~Component() = default;
@@ -42,7 +48,10 @@ public:
 		return m_isClosed;
 	}
 
-	virtual const char* GetComponentId() const = 0;
+	virtual const std::string& GetComponentId()
+	{
+		return m_id;
+	}
 
 protected:
 
@@ -61,6 +70,13 @@ protected:
 		return m_data;
 	}
 
+	template<typename T>
+	const T* GetDataAs()
+	{
+		static_assert(std::is_base_of_v<tb::ui::ComponentData, T>, "T must derive from tb::ui::ComponentData");
+		return static_cast<T*>(m_data.get());
+	}
+
 	void Close()
 	{
 		m_isClosed = true;
@@ -74,6 +90,8 @@ private:
 	std::unique_ptr<tb::ui::ComponentData> m_data;
 
 	bool m_isClosed{ false };
+
+	std::string m_id;
 }; // cl Component
 
 

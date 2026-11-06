@@ -1,6 +1,7 @@
 #include <tb/ui/global/SideMenu.hpp>
 #include <tb/events/ui/PushLocalComponentEvent.hpp>
-#include <tb/ui/local/NewFinancialBookForm.hpp>
+#include <tb/ui/local/BookEditorDialog.hpp>
+#include <tb/tools/Logging.hpp>
 
 #include <imgui.h>
 
@@ -63,8 +64,18 @@ void SideMenu::OnRender()
                 // Launching "FinancialBookSetup" Window
                 GetEventDispatcher()->Enqueue<tb::events::PushLocalComponentEvent>(
                     std::make_unique<tb::events::PushLocalComponentEvent>(
-                        [](tb::events::ConstEventDispatcherRef dispatcher, tb::core::ConstSessionRef session, std::unique_ptr<tb::ui::ComponentData> data) -> std::unique_ptr<tb::ui::NewFinancialBookForm> {
-                            return std::make_unique<tb::ui::NewFinancialBookForm>(dispatcher, session, std::move(data));
+                        [](tb::events::ConstEventDispatcherRef dispatcher, tb::core::ConstSessionRef session, std::unique_ptr<tb::ui::ComponentData> data) -> std::unique_ptr<tb::ui::BookEditorDialog> {
+                            auto bookEditorData = std::make_unique<tb::ui::BookEditorData>(
+                                tb::ui::EditorMode::New
+                            );
+                            tb::tools::log::GetCoreLogger()->debug("Creating instance of BookEditorDialog...");
+                            bookEditorData->Mode = tb::ui::EditorMode::New;
+
+                            return std::make_unique<tb::ui::BookEditorDialog>(
+                                dispatcher,
+                                session,
+                                std::move(bookEditorData)
+                            );
                         }
                     )
                 );
@@ -120,11 +131,6 @@ void SideMenu::OnUpdate()
 void SideMenu::OnShutdown()
 {
 
-}
-
-const char* SideMenu::GetComponentId() const
-{
-    return "MenuBar";
 }
 
 } // ns tb::ui

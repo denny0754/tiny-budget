@@ -206,9 +206,4 @@ void AuthForm::OnShutdown()
 
 }
 
-const char* AuthForm::GetComponentId() const
-{
-	return "AuthForm";
-}
-
 }

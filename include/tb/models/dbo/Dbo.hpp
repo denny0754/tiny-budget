@@ -562,6 +562,17 @@ class Currency : public BaseEntity
 public:
     Currency() = default;
 
+    template<class Action>
+    void persist(Action& action)
+    {
+        BaseEntity::persist(action);
+
+        Wt::Dbo::field(action, m_name, "name");
+        Wt::Dbo::field(action, m_label, "label");
+        Wt::Dbo::field(action, m_isoCode, "iso_code");
+        Wt::Dbo::field(action, m_symbol, "symbol");
+    }
+
     inline const std::string& GetName() const { return m_name; }
     inline const std::string& GetLabel() const { return m_label; }
     inline const std::string& GetSymbol() const { return m_symbol; }
@@ -572,6 +583,7 @@ public:
 
 private:
     std::string m_name;
+    std::string m_isoCode;
     std::string m_label;
     std::string m_symbol;
 }; // cl Currency

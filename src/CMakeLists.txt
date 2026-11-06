@@ -9,13 +9,14 @@ add_executable (
 	"tb/ui/Controller.cpp"
 	"tb/ui/global/AuthForm.cpp"
 	"tb/ui/global/SideMenu.cpp"
-	"tb/ui/local/NewFinancialBookForm.cpp"
+	"tb/ui/local/BookEditorDialog.cpp"
 
 	"tb/tools/Security.cpp"
 	"tb/tools/Logging.cpp"
 
 	"tb/api/Service.cpp"
 	"tb/api/AuthClient.cpp"
+	"tb/api/BookClient.cpp"
 )
 
 set_target_properties(TinyBudget PROPERTIES

@@ -33,6 +33,7 @@ Service::Service(std::shared_ptr<tb::core::SessionContext> ctx)
     m_dbSession->mapClass<tb::models::dbo::TransactionItem>("transaction_item");
     m_dbSession->mapClass<tb::models::dbo::Product>("product");
     m_dbSession->mapClass<tb::models::dbo::CodeList>("code_list");
+    m_dbSession->mapClass<tb::models::dbo::Currency>("currency");
 
     try
     {
