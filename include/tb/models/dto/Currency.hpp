@@ -19,6 +19,40 @@ struct GetCurrencyResponse
 
 }; // st GetCurrencyResponse
 
+struct CreateCurrencyRequest
+{
+	std::string IsoCode;
+
+	std::string Label;
+
+	std::string Symbol;
+};
+
+struct CreateCurrencyResponse
+{
+	std::string Id;
+};
+
+struct UpdateCurrencyRequest
+{
+	std::string IsoCode;
+
+	std::string Label;
+
+	std::string Symbol;
+};
+
+struct UpdateCurrencyResponse
+{
+	std::string IsoCode;
+
+	std::string Label;
+
+	std::string Symbol;
+};
+
+struct DeleteCurrencyResponse { };
+
 } // ns tb::models::dto
 
 #endif

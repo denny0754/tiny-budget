@@ -18,9 +18,46 @@ public:
 
 	}
 
-	void GetCurrency(
-		tb::models::dto::APIQueryParams params,
-		tb::models::dto::PaginatedAPIResult<tb::models::dto::GetCurrencyResponse> result
+	void Create(
+		const tb::models::dto::CreateCurrencyRequest& data,
+		tb::models::dto::APICallback<tb::models::dto::CreateCurrencyResponse> callback
+	);
+
+	void UpdateById(
+		const std::string& id,
+		const tb::models::dto::UpdateCurrencyRequest& data,
+		tb::models::dto::APICallback<tb::models::dto::UpdateCurrencyResponse> callback
+	);
+
+	void UpdateByIsoCode(
+		const std::string& id,
+		const tb::models::dto::UpdateCurrencyRequest& data,
+		tb::models::dto::APICallback<tb::models::dto::UpdateCurrencyResponse> callback
+	);
+
+	void DeleteById(
+		const std::string& id,
+		tb::models::dto::APICallback<tb::models::dto::DeleteCurrencyResponse> callback
+	);
+
+	void DeleteByIsoCode(
+		const std::string& isoCode,
+		tb::models::dto::APICallback<tb::models::dto::DeleteCurrencyResponse> callback
+	);
+
+	void GetById(
+		const std::string& id,
+		tb::models::dto::APICallback<tb::models::dto::GetCurrencyResponse> callback
+	);
+
+	void GetByIsoCode(
+		const std::string& isoCode,
+		tb::models::dto::APICallback<tb::models::dto::GetCurrencyResponse> callback
+	);
+
+	void GetAny(
+		const tb::models::dto::APIQueryParams& params,
+		tb::models::dto::PaginatedAPICallback<tb::models::dto::GetCurrencyResponse> callback
 	);
 
 }; // cl CurrencyClient

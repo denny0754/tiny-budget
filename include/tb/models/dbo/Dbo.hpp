@@ -576,10 +576,12 @@ public:
     inline const std::string& GetName() const { return m_name; }
     inline const std::string& GetLabel() const { return m_label; }
     inline const std::string& GetSymbol() const { return m_symbol; }
+    inline const std::string& GetIsoCode() const { return m_isoCode; }
 
     inline void SetName(const std::string& name) { m_name = name; }
     inline void SetLabel(const std::string& label) { m_label = label; }
     inline void SetSymbol(const std::string& symbol) { m_symbol = symbol; }
+    inline void SetIsoCode(const std::string& isoCode) { m_isoCode = isoCode; }
 
 private:
     std::string m_name;
