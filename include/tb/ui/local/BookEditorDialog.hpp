@@ -2,6 +2,7 @@
 #define TB_UI_LOCAL_BOOK_EDITOR_DIALOG_HPP
 
 #include <tb/ui/interfaces/Component.hpp>
+#include <tb/models/dto/Currency.hpp>
 
 namespace tb::ui
 {
@@ -27,11 +28,7 @@ public:
 		const std::shared_ptr<tb::events::EventDispatcher>& dispatcher,
 		const std::shared_ptr<tb::core::Session>& session,
 		std::unique_ptr<tb::ui::BookEditorData> data
-	)
-		: tb::ui::LocalComponent(dispatcher, session, std::move(data))
-	{
-
-	}
+	);
 
 	void OnInit();
 
@@ -47,6 +44,18 @@ private:
 	void Render_Edit();
 
 	void Render_New();
+
+	// Form input buffers
+	char m_nameBuffer[128]{ "" };
+	char m_descriptionBuffer[512]{ "" };
+
+	// Currency selection cache
+	std::vector<tb::models::dto::GetCurrencyResponse> m_currencies;
+	int m_selectedCurrencyIndex{ -1 };
+
+	// State tracking
+	std::string m_errorMessage;
+	bool m_isSubmitting{ false };
 
 }; // cl BookEditorDialog
 

@@ -17,6 +17,7 @@ add_executable (
 	"tb/api/Service.cpp"
 	"tb/api/AuthClient.cpp"
 	"tb/api/BookClient.cpp"
+	"tb/api/CurrencyClient.cpp"
 )
 
 set_target_properties(TinyBudget PROPERTIES

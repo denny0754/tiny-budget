@@ -18,9 +18,10 @@ void CurrencyClient::Create(
 	{
 		Wt::Dbo::Transaction trx{ *GetDatabaseSession() };
 
-		auto existingCurrency = session->find<tb::models::dbo::Currency>()
+		auto existingCurrency = GetDatabaseSession()->find<tb::models::dbo::Currency>()
 			.where("isoCode = ?")
-			.bind(data.IsoCode);
+			.bind(data.IsoCode)
+			.resultValue();
 
 		if (existingCurrency)
 		{
@@ -32,10 +33,10 @@ void CurrencyClient::Create(
 
 		auto rawCurrency = std::make_unique<tb::models::dbo::Currency>();
 		rawCurrency->SetIsoCode(data.IsoCode);
-		rawCurrency->SetName(data.Name);
+		rawCurrency->SetName(data.Label);
 		rawCurrency->SetSymbol(data.Symbol);
 
-		Wt::Dbo::ptr<tb::models::dbo::Currency> currencyPtr = session->add(std::move(rawCurrency));
+		Wt::Dbo::ptr<tb::models::dbo::Currency> currencyPtr = GetDatabaseSession()->add(std::move(rawCurrency));
 		trx.commit();
 
 		result.Success = true;
@@ -69,9 +70,10 @@ void CurrencyClient::UpdateById(
 	{
 		Wt::Dbo::Transaction trx{ *GetDatabaseSession() };
 
-		auto currencyRec = session->find<tb::models::dbo::Currency>()
+		auto currencyRec = GetDatabaseSession()->find<tb::models::dbo::Currency>()
 			.where("id = ?")
-			.bind(id);
+			.bind(id)
+			.resultValue();
 
 		if (!currencyRec)
 		{
@@ -81,10 +83,11 @@ void CurrencyClient::UpdateById(
 			return;
 		}
 
-		auto duplicateIso = session->find<tb::models::dbo::Currency>()
+		auto duplicateIso = GetDatabaseSession()->find<tb::models::dbo::Currency>()
 			.where("isoCode = ? AND id != ?")
 			.bind(data.IsoCode)
-			.bind(id);
+			.bind(id)
+			.resultValue();
 
 		if (duplicateIso)
 		{
@@ -97,16 +100,15 @@ void CurrencyClient::UpdateById(
 		{
 			auto currency = currencyRec.modify();
 			currency->SetIsoCode(data.IsoCode);
-			currency->SetName(data.Name);
+			currency->SetName(data.Label);
 			currency->SetSymbol(data.Symbol);
 		}
 
 		trx.commit();
 
 		result.Success = true;
-		result.Data.Id = currencyRec.id();
 		result.Data.IsoCode = currencyRec->GetIsoCode();
-		result.Data.Name = currencyRec->GetName();
+		result.Data.Label = currencyRec->GetLabel();
 		result.Data.Symbol = currencyRec->GetSymbol();
 	}
 	catch (const Wt::Dbo::Exception& e)
@@ -137,22 +139,24 @@ void CurrencyClient::UpdateByIsoCode(
 	{
 		Wt::Dbo::Transaction trx{ *GetDatabaseSession() };
 
-		auto currencyRec = session->find<tb::models::dbo::Currency>()
+		auto currencyRec = GetDatabaseSession()->find<tb::models::dbo::Currency>()
 			.where("isoCode = ?")
-			.bind(isoCode);
+			.bind(isoCode)
+			.resultValue();
 
 		if (!currencyRec)
 		{
 			result.Success = false;
-			result.ErrorMessage = std::format("Currency with ISO code '{}' not found.", targetIsoCode);
+			result.ErrorMessage = std::format("Currency with ISO code '{}' not found.", isoCode);
 			callback(result);
 			return;
 		}
 
-		auto duplicateIso = session->find<tb::models::dbo::Currency>()
+		auto duplicateIso = GetDatabaseSession()->find<tb::models::dbo::Currency>()
 			.where("isoCode = ? AND id != ?")
 			.bind(data.IsoCode)
-			.bind(currencyRec.id());
+			.bind(currencyRec->GetId())
+			.resultValue();
 
 		if (duplicateIso)
 		{
@@ -165,16 +169,15 @@ void CurrencyClient::UpdateByIsoCode(
 		{
 			auto currency = currencyRec.modify();
 			currency->SetIsoCode(data.IsoCode);
-			currency->SetName(data.Name);
+			currency->SetName(data.Label);
 			currency->SetSymbol(data.Symbol);
 		}
 
 		trx.commit();
 
 		result.Success = true;
-		result.Data.Id = currencyRec.id();
 		result.Data.IsoCode = currencyRec->GetIsoCode();
-		result.Data.Name = currencyRec->GetName();
+		result.Data.Label = currencyRec->GetLabel();
 		result.Data.Symbol = currencyRec->GetSymbol();
 	}
 	catch (const Wt::Dbo::Exception& e)
@@ -204,9 +207,10 @@ void CurrencyClient::DeleteById(
 	{
 		Wt::Dbo::Transaction trx{ *GetDatabaseSession() };
 
-		auto currencyRec = session->find<tb::models::dbo::Currency>()
+		auto currencyRec = GetDatabaseSession()->find<tb::models::dbo::Currency>()
 			.where("id = ?")
-			.bind(id);
+			.bind(id)
+			.resultValue();
 
 		if (!currencyRec)
 		{
@@ -248,9 +252,10 @@ void CurrencyClient::DeleteByIsoCode(
 	{
 		Wt::Dbo::Transaction trx{ *GetDatabaseSession() };
 
-		auto currencyRec = session->find<tb::models::dbo::Currency>()
+		auto currencyRec = GetDatabaseSession()->find<tb::models::dbo::Currency>()
 			.where("isoCode = ?")
-			.bind(isoCode);
+			.bind(isoCode)
+			.resultValue();
 
 		if (!currencyRec)
 		{
@@ -390,7 +395,7 @@ void CurrencyClient::GetAny(
 	{
 		Wt::Dbo::Transaction trx{ *GetDatabaseSession() };
 
-		auto query = session->find<tb::models::dbo::Currency>();
+		auto query = GetDatabaseSession()->find<tb::models::dbo::Currency>();
 
 		for (const auto& [key, value] : params.Filters)
 		{
@@ -420,7 +425,7 @@ void CurrencyClient::GetAny(
 			tb::models::dto::GetCurrencyResponse currency;
 			currency.Id = currencyRec.id();
 			currency.IsoCode = currencyRec->GetIsoCode();
-			currency.Name = currencyRec->GetName();
+			currency.Label = currencyRec->GetLabel();
 			currency.Symbol = currencyRec->GetSymbol();
 
 			result.Data.push_back(std::move(currency));
