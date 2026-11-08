@@ -18,6 +18,9 @@ add_executable (
 	"tb/api/AuthClient.cpp"
 	"tb/api/BookClient.cpp"
 	"tb/api/CurrencyClient.cpp"
+
+	"tb/models/bdo/Common.cpp"
+	"tb/models/bdo/Identity.cpp"
 )
 
 set_target_properties(TinyBudget PROPERTIES
