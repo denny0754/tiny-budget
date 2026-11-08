@@ -1,6 +1,7 @@
 #include <tb/api/Service.hpp>
 #include <tb/api/AuthClient.hpp>
 #include <tb/api/CurrencyClient.hpp>
+#include <tb/api/BookClient.hpp>
 #include <tb/models/dbo/Dbo.hpp>
 #include <tb/tools/Security.hpp>
 #include <tb/tools/Logging.hpp>
@@ -70,7 +71,7 @@ Service::Service(std::shared_ptr<tb::core::SessionContext> ctx)
 
 	RegisterClient<tb::api::AuthClient>();
     RegisterClient<tb::api::CurrencyClient>();
-    
+    RegisterClient<tb::api::BookClient>();    
 }
 
 Service::~Service()

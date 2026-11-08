@@ -2,6 +2,7 @@
 #include <tb/api/Service.hpp>
 #include <tb/events/ui/PushGlobalComponentEvent.hpp>
 #include <tb/ui/global/SideMenu.hpp>
+#include <tb/tools/Logging.hpp>
 
 namespace tb::core
 {
@@ -26,6 +27,8 @@ void Session::OnIdentitySignedIn(const tb::events::IdentitySignedInEvent& event)
             }
         )
     );
+    GetService()->GetSessionContext()->IdentityId = event.GetIdentityId();
+    tb::tools::log::GetSessionLogger()->info("Idenity Signed In: {}", GetService()->GetSessionContext()->IdentityId);
 }
 
 void Session::OnIdentitySignedOut(const tb::events::IdentitySignedOutEvent& event)

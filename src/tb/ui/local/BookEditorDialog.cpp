@@ -1,5 +1,7 @@
 #include <tb/ui/local/BookEditorDialog.hpp>
 #include <tb/api/CurrencyClient.hpp>
+#include <tb/api/BookClient.hpp>
+#include <tb/tools/Logging.hpp>
 
 #include <imgui.h>
 
@@ -175,8 +177,24 @@ void BookEditorDialog::Render_New()
 
 		if (ImGui::Button("Create Book", ImVec2(buttonWidth, 0.0f)))
 		{
-			//TODO: Call GetSession()->GetService()->GetClient<tb::api::BookClient>()->Create(...) once implemented.
-			Close();
+			tb::models::dto::CreateBookRequest newBookRequest;
+			newBookRequest.Name = m_nameBuffer;
+			newBookRequest.Description = m_descriptionBuffer;
+			newBookRequest.DefaultCurrencyIsoCode = m_currencies[m_selectedCurrencyIndex].IsoCode;
+			GetSession()->GetService()->GetClient<tb::api::BookClient>()->Create(
+				newBookRequest,
+				[this](const tb::models::dto::APIResult<tb::models::dto::CreateBookResponse>& response) {
+					if (response.Success)
+					{
+						Close();
+					}
+					else
+					{
+						tb::tools::log::GetApiLogger()->error(response.ErrorMessage);
+						this->m_errorMessage = "An error occured while trying to create a new Financial Book.";
+					}
+				}
+			);
 		}
 
 		ImGui::PopStyleColor(3);

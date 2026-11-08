@@ -6,7 +6,20 @@
 namespace tb::models::dto
 {
 
-struct NewBookRequest
+struct GetBookResponse
+{
+	std::string Id;
+
+	std::string Name;
+
+	std::string Description;
+
+	std::string DefaultCurrencyLabel;
+
+	std::string DefaultCurrencyIsoCode;
+}; // st GetBookResponse
+
+struct CreateBookRequest
 {
 	std::string Name;
 
@@ -17,10 +30,34 @@ struct NewBookRequest
 }; // st NewBookRequest
 
 
-struct NewBookResponse
+struct CreateBookResponse
 {
-	std::string BookId;
+	std::string Id;
 }; // st NewBookResponse
+
+
+struct UpdateBookRequest
+{
+	std::string Id;
+
+	std::string Name;
+
+	std::string Description;
+
+	std::string DefaultCurrencyIsoCode;
+}; // st UpdateBookRequest
+
+struct UpdateBookResponse
+{
+	std::string Id;
+
+	std::string Name;
+
+	std::string Description;
+
+	std::string DefaultCurrencyIsoCode;
+}; // st UpdateBookResponse
+
 
 } // ns tb::models::dto
 

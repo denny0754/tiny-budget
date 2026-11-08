@@ -18,9 +18,25 @@ public:
 
 	}
 
-	void CreateBook(
-		const tb::models::dto::NewBookRequest& data,
-		tb::models::dto::APICallback<tb::models::dto::NewBookResponse> callback
+	void Create(
+		const tb::models::dto::CreateBookRequest& data,
+		tb::models::dto::APICallback<tb::models::dto::CreateBookResponse> callback
+	);
+
+	void UpdateById(
+		const std::string& id,
+		const tb::models::dto::UpdateBookRequest& data,
+		tb::models::dto::APICallback<tb::models::dto::UpdateBookResponse> callback
+	);
+
+	void GetById(
+		const std::string& id,
+		tb::models::dto::APICallback<tb::models::dto::GetBookResponse> callback
+	);
+
+	void GetAny(
+		const tb::models::dto::APIQueryParams& params,
+		tb::models::dto::PaginatedAPICallback<tb::models::dto::GetBookResponse> callback
 	);
 
 }; // cl BookClient
