@@ -1,5 +1,17 @@
-#ifndef TB_MODELS_DTO_AUTHENTICATION_HPP
-#define TB_MODELS_DTO_AUTHENTICATION_HPP
+/*
+================================================================================
+ CHANGE LOG
+================================================================================
+ Date       | Author        | Task ID       | Description
+------------+---------------+---------------+-----------------------------------
+ 2026-11-09 | Diego Vaccher | API-0000001-M | API Response model refactor
+================================================================================
+*/
+
+#ifndef TB_MODELS_DTO_AUTH_HPP
+#define TB_MODELS_DTO_AUTH_HPP
+
+#include <tb/models/dto/Common.hpp>
 
 #include <string>
 
@@ -18,13 +30,13 @@ struct SignUpRequest
 
 }; // st SignUpRequest
 
-struct SignUpResponse
+struct SignUpResponseData
 {
-	std::string IdentityId;
+	std::string IdentityGuid;
 
 	std::string Email;
 
-}; // st SignUpResponse
+}; // st SignUpResponseData
 
 struct SignInRequest
 {
@@ -34,19 +46,16 @@ struct SignInRequest
 
 }; // st SignInRequest
 
-struct SignInResponse
+struct SignInResponseData
 {
-	//TODO: When RemoteAPIProvider will be available, JWT members should be added
-	//		such as "AccessToken", "RefreshToken", "IAT", "EXP", etc...
-	//		As of now, these are the one necessary to allow a local session.
-	std::string IdentityId;
+	std::string IdentityGuid;
 
 	std::string Email;
+}; // st SignInResponseData
 
-	std::string FirstName;
-
-	std::string LastName;
-}; // st SignInResponse
+// Template Initialization
+using SignInResponse = tb::models::dto::APIResponse<SignInResponseData>;
+using SignUpResponse = tb::models::dto::APIResponse<SignUpResponseData>;
 
 } // ns tb::models::dto
 

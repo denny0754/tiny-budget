@@ -1,8 +1,17 @@
+/*
+================================================================================
+ CHANGE LOG
+================================================================================
+ Date       | Author        | Task ID       | Description
+------------+---------------+---------------+-----------------------------------
+ 2026-11-09 | Diego Vaccher | API-0000001-M | API Response model refactor
+================================================================================
+*/
+
 #ifndef TB_API_BOOK_CLIENT_HPP
 #define TB_API_BOOK_CLIENT_HPP
 
 #include <tb/api/Client.hpp>
-#include <tb/models/dto/Common.hpp>
 #include <tb/models/dto/Book.hpp>
 
 namespace tb::api
@@ -18,25 +27,21 @@ public:
 
 	}
 
-	void Create(
-		const tb::models::dto::CreateBookRequest& data,
-		tb::models::dto::APICallback<tb::models::dto::CreateBookResponse> callback
+	tb::models::dto::CreateBookResponse Create(
+		const tb::models::dto::CreateBookRequest& data
 	);
 
-	void UpdateById(
+	tb::models::dto::UpdateBookResponse UpdateById(
 		const std::string& id,
-		const tb::models::dto::UpdateBookRequest& data,
-		tb::models::dto::APICallback<tb::models::dto::UpdateBookResponse> callback
+		const tb::models::dto::UpdateBookRequest& data
 	);
 
-	void GetById(
-		const std::string& id,
-		tb::models::dto::APICallback<tb::models::dto::GetBookResponse> callback
+	tb::models::dto::GetBookResponse GetById(
+		const std::string& id
 	);
 
-	void GetAny(
-		const tb::models::dto::APIQueryParams& params,
-		tb::models::dto::PaginatedAPICallback<tb::models::dto::GetBookResponse> callback
+	tb::models::dto::GetBookResponse GetAny(
+		//TODO: Add query parameters
 	);
 
 }; // cl BookClient

@@ -1,3 +1,13 @@
+/*
+================================================================================
+ CHANGE LOG
+================================================================================
+ Date       | Author        | Task ID       | Description
+------------+---------------+---------------+-----------------------------------
+ 2026-11-09 | Diego Vaccher | API-0000001-M | API Response model refactor
+================================================================================
+*/
+
 #include <tb/api/BookClient.hpp>
 #include <tb/tools/Logging.hpp>
 #include <tb/models/dbo/Dbo.hpp>
@@ -9,271 +19,255 @@
 namespace tb::api
 {
 
-void BookClient::Create(
-	const tb::models::dto::CreateBookRequest& data,
-	tb::models::dto::APICallback<tb::models::dto::CreateBookResponse> callback
+tb::models::dto::CreateBookResponse BookClient::Create(
+	const tb::models::dto::CreateBookRequest& data
 )
 {
-	tb::models::dto::APIResult<tb::models::dto::CreateBookResponse> result;
+	bool error{ false };
+	std::string errorMsg{ "" };
+	tb::models::dto::CreateBookResponseData responseData{};
 
 	try
 	{
-		auto session = GetDatabaseSession();
-		Wt::Dbo::Transaction trx{ *session };
+		auto dbSession = GetDbSession();
+		Wt::Dbo::Transaction trx{ *dbSession };
 
-		auto currencyRec = session->find<tb::models::dbo::Currency>()
+		auto currencyRec = dbSession->find<tb::models::dbo::Currency>()
 			.where("iso_code = ?")
 			.bind(data.DefaultCurrencyIsoCode)
 			.resultValue();
 
 		if (!currencyRec)
 		{
-			result.Success = false;
-			result.ErrorMessage = std::format("Currency code '{}' is invalid.", data.DefaultCurrencyIsoCode);
-			callback(result);
-			return;
+			error = true;
+			errorMsg = std::format("Currency code '{}' is invalid.", data.DefaultCurrencyIsoCode);
 		}
-
-		auto identityRec = session->find<tb::models::dbo::Identity>()
-			.where("guid = ?")
-			.bind(GetSessionContext()->IdentityId)
-			.resultValue();
-
-		if (!identityRec)
+		else
 		{
-			result.Success = false;
-			result.ErrorMessage = "User is not authorized or identity was not found.";
-			callback(result);
-			return;
+			auto identityRec = dbSession->find<tb::models::dbo::Identity>()
+				.where("guid = ?")
+				.bind(GetSessionCtx()->IdentityId)
+				.resultValue();
+
+			if (!identityRec)
+			{
+				error = true;
+				errorMsg = "User is not authorized or identity was not found.";
+			}
+			else
+			{
+				auto rawBook = std::make_unique<tb::models::dbo::FinancialBook>();
+				rawBook->SetName(data.Name);
+				rawBook->SetDescription(data.Description);
+				rawBook->SetDefaultCurrency(currencyRec);
+				rawBook->SetIdentity(identityRec);
+
+				Wt::Dbo::ptr<tb::models::dbo::FinancialBook> bookPtr = dbSession->add(std::move(rawBook));
+				trx.commit();
+
+				error = false;
+				responseData.Guid = bookPtr.id();
+			}
 		}
-
-		auto rawBook = std::make_unique<tb::models::dbo::FinancialBook>();
-		rawBook->SetName(data.Name);
-		rawBook->SetDescription(data.Description);
-		rawBook->SetDefaultCurrency(currencyRec);
-		rawBook->SetIdentity(identityRec);
-
-		Wt::Dbo::ptr<tb::models::dbo::FinancialBook> bookPtr = session->add(std::move(rawBook));
-		trx.commit();
-
-		result.Success = true;
-		result.Data.Id = bookPtr.id();
 	}
 	catch (const Wt::Dbo::Exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "Database error while creating financial book.";
+		error = true;
+		errorMsg = "Database error while creating financial book.";
 		tb::tools::log::GetApiLogger()->error("Wt::Dbo Exception in BookClient::Create: {}", e.what());
 	}
 	catch (const std::exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "An unexpected error occurred.";
+		error = true;
+		errorMsg = "An unexpected error occurred.";
 		tb::tools::log::GetApiLogger()->error("Unhandled Exception in BookClient::Create: {}", e.what());
 	}
 
-	callback(result);
+	return tb::models::dto::CreateBookResponse({ responseData }, 0, error, errorMsg);
 }
 
-void BookClient::UpdateById(
+tb::models::dto::UpdateBookResponse BookClient::UpdateById(
 	const std::string& id,
-	const tb::models::dto::UpdateBookRequest& data,
-	tb::models::dto::APICallback<tb::models::dto::UpdateBookResponse> callback
+	const tb::models::dto::UpdateBookRequest& data
 )
 {
-	tb::models::dto::APIResult<tb::models::dto::UpdateBookResponse> result;
+	bool error{ false };
+	std::string errorMsg{ "" };
+	tb::models::dto::UpdateBookResponseData responseData{};
 
 	try
 	{
-		auto session = GetDatabaseSession();
-		Wt::Dbo::Transaction trx{ *session };
+		auto dbSession = GetDbSession();
+		Wt::Dbo::Transaction trx{ *dbSession };
 
-		auto bookRec = session->find<tb::models::dbo::FinancialBook>()
+		auto bookRec = dbSession->find<tb::models::dbo::FinancialBook>()
 			.where("guid = ? AND identity_id = ?")
 			.bind(id)
-			.bind(GetSessionContext()->IdentityId)
+			.bind(GetSessionCtx()->IdentityId)
 			.resultValue();
 
 		if (!bookRec)
 		{
-			result.Success = false;
-			result.ErrorMessage = std::format("Book with ID '{}' not found or access denied.", id);
-			callback(result);
-			return;
+			error = true;
+			errorMsg = std::format("Book with ID '{}' not found or access denied.", id);
 		}
-
-		Wt::Dbo::ptr<tb::models::dbo::Currency> currencyRec;
-		if (!data.DefaultCurrencyIsoCode.empty())
+		else
 		{
-			currencyRec = session->find<tb::models::dbo::Currency>()
-				.where("iso_code = ?")
-				.bind(data.DefaultCurrencyIsoCode);
-
-			if (!currencyRec)
+			Wt::Dbo::ptr<tb::models::dbo::Currency> currencyRec;
+			if (!data.CurrencyGuid.empty())
 			{
-				result.Success = false;
-				result.ErrorMessage = std::format("Currency code '{}' is invalid.", data.DefaultCurrencyIsoCode);
-				callback(result);
-				return;
-			}
-		}
+				currencyRec = dbSession->find<tb::models::dbo::Currency>()
+					.where("guid = ?")
+					.bind(data.CurrencyGuid);
 
-		{
-			auto book = bookRec.modify();
-			book->SetName(data.Name);
-			book->SetDescription(data.Description);
-			if (currencyRec)
+				if (!currencyRec)
+				{
+					error = true;
+					errorMsg = std::format("Currency '{}' is invalid.", data.CurrencyGuid);
+				}
+			}
+
 			{
-				book->SetDefaultCurrency(currencyRec);
+				auto book = bookRec.modify();
+				book->SetName(data.Name);
+				book->SetDescription(data.Description);
+				if (currencyRec)
+				{
+					book->SetDefaultCurrency(currencyRec);
+				}
 			}
-		}
 
-		trx.commit();
+			trx.commit();
 
-		result.Success = true;
-		result.Data.Id = bookRec.id();
-		result.Data.Name = bookRec->GetName();
-		result.Data.Description = bookRec->GetDescription();
-		if (bookRec->GetDefaultCurrency())
-		{
-			result.Data.DefaultCurrencyIsoCode = bookRec->GetDefaultCurrency()->GetIsoCode();
+			error = false;
+			responseData.Guid = bookRec.id();
+			responseData.Name = bookRec->GetName();
+			responseData.Description = bookRec->GetDescription();
+			if (bookRec->GetDefaultCurrency())
+			{
+				responseData.CurrencyGuid = bookRec->GetDefaultCurrency()->GetId();
+			}
 		}
 	}
 	catch (const Wt::Dbo::Exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "Database error while updating financial book.";
+		error = true;
+		errorMsg = "Database error while updating financial book.";
 		tb::tools::log::GetApiLogger()->error("Wt::Dbo Exception in BookClient::UpdateById: {}", e.what());
 	}
 	catch (const std::exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "An unexpected error occurred.";
+		error = true;
+		errorMsg = "An unexpected error occurred.";
 		tb::tools::log::GetApiLogger()->error("Unhandled Exception in BookClient::UpdateById: {}", e.what());
 	}
 
-	callback(result);
+	return tb::models::dto::UpdateBookResponse({ responseData }, 0, error, errorMsg);
 }
 
-void BookClient::GetById(
-	const std::string& id,
-	tb::models::dto::APICallback<tb::models::dto::GetBookResponse> callback
+tb::models::dto::GetBookResponse BookClient::GetById(
+	const std::string& id
 )
 {
-	tb::models::dto::APIResult<tb::models::dto::GetBookResponse> result;
+	bool error{ false };
+	std::string errorMsg{ "" };
+	tb::models::dto::GetBookResponseData responseData{};
 
 	try
 	{
-		auto session = GetDatabaseSession();
-		Wt::Dbo::Transaction trx{ *session };
+		auto dbSession = GetDbSession();
+		Wt::Dbo::Transaction trx{ *dbSession };
 
-		auto bookRec = session->find<tb::models::dbo::FinancialBook>()
+		auto bookRec = dbSession->find<tb::models::dbo::FinancialBook>()
 			.where("guid = ? AND identity_id = ?")
 			.bind(id)
-			.bind(GetSessionContext()->IdentityId)
+			.bind(GetSessionCtx()->IdentityId)
 			.resultValue();
 
 		if (!bookRec)
 		{
-			result.Success = false;
-			result.ErrorMessage = std::format("Book with ID '{}' not found or access denied.", id);
-			callback(result);
-			return;
+			error = false;
+			errorMsg = std::format("Book with ID '{}' not found or access denied.", id);
 		}
-
-		result.Success = true;
-		result.Data.Id = bookRec.id();
-		result.Data.Name = bookRec->GetName();
-		result.Data.Description = bookRec->GetDescription();
-		if (bookRec->GetDefaultCurrency())
+		else
 		{
-			result.Data.DefaultCurrencyIsoCode = bookRec->GetDefaultCurrency()->GetIsoCode();
-		}
+			error = false;
+			responseData.Guid = bookRec.id();
+			responseData.Name = bookRec->GetName();
+			responseData.Description = bookRec->GetDescription();
+			if (bookRec->GetDefaultCurrency())
+			{
+				responseData.CurrencyGuid= bookRec->GetDefaultCurrency()->GetId();
+			}
 
-		trx.commit();
+			trx.commit();
+		}
 	}
 	catch (const Wt::Dbo::Exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "Database error while fetching financial book.";
+		error = true;
+		errorMsg = "Database error while fetching financial book.";
 		tb::tools::log::GetApiLogger()->error("Wt::Dbo Exception in BookClient::GetById: {}", e.what());
 	}
 	catch (const std::exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "An unexpected error occurred.";
+		error = true;
+		errorMsg = "An unexpected error occurred.";
 		tb::tools::log::GetApiLogger()->error("Unhandled Exception in BookClient::GetById: {}", e.what());
 	}
 
-	callback(result);
+	return tb::models::dto::GetBookResponse({ responseData }, 0, error, errorMsg);
 }
 
-void BookClient::GetAny(
-	const tb::models::dto::APIQueryParams& params,
-	tb::models::dto::PaginatedAPICallback<tb::models::dto::GetBookResponse> callback
+tb::models::dto::GetBookResponse BookClient::GetAny(
 )
 {
-	tb::models::dto::PaginatedAPIResult<tb::models::dto::GetBookResponse> result;
+	bool error{ false };
+	std::string errorMsg{ "" };
+	std::vector<tb::models::dto::GetBookResponseData> responseData{};
 
 	try
 	{
-		auto session = GetDatabaseSession();
-		Wt::Dbo::Transaction trx{ *session };
+		auto dbSession = GetDbSession();
+		Wt::Dbo::Transaction trx{ *dbSession };
 
-		auto query = session->find<tb::models::dbo::FinancialBook>()
+		auto query = dbSession->find<tb::models::dbo::FinancialBook>()
 			.where("identity_id = ?")
-			.bind(GetSessionContext()->IdentityId);
-
-		for (const auto& [key, value] : params.Filters)
-		{
-			if (key == "name")
-			{
-				query.where("name LIKE ?").bind("%" + value + "%");
-			}
-			else if (key == "description")
-			{
-				query.where("description LIKE ?").bind("%" + value + "%");
-			}
-		}
-
-		const unsigned int offset = params.Page * params.PageSize;
-		query.offset(static_cast<int>(offset))
-			.limit(static_cast<int>(params.PageSize));
+			.bind(GetSessionCtx()->IdentityId);
 
 		auto books = query.resultList();
-		result.Data.reserve(books.size());
-
+		
 		for (const auto& bookRec : books)
 		{
-			tb::models::dto::GetBookResponse dto;
-			dto.Id = bookRec.id();
+			tb::models::dto::GetBookResponseData dto;
+			dto.Guid = bookRec.id();
 			dto.Name = bookRec->GetName();
 			dto.Description = bookRec->GetDescription();
 			if (bookRec->GetDefaultCurrency())
 			{
-				dto.DefaultCurrencyIsoCode = bookRec->GetDefaultCurrency()->GetIsoCode();
+				dto.CurrencyGuid = bookRec->GetDefaultCurrency()->GetId();
 			}
 
-			result.Data.push_back(std::move(dto));
+			responseData.push_back(std::move(dto));
 		}
 
 		trx.commit();
-		result.Success = true;
+		error = false;
 	}
 	catch (const Wt::Dbo::Exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "Database error while fetching financial books.";
+		error = true;
+		errorMsg = "Database error while fetching financial books.";
 		tb::tools::log::GetApiLogger()->error("Wt::Dbo Exception in BookClient::GetAny: {}", e.what());
 	}
 	catch (const std::exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "An unexpected error occurred.";
+		error = true;
+		errorMsg = "An unexpected error occurred.";
 		tb::tools::log::GetApiLogger()->error("Unhandled Exception in BookClient::GetAny: {}", e.what());
 	}
 
-	callback(result);
+	return tb::models::dto::GetBookResponse({ responseData }, 0, error, errorMsg);
 }
 
 } // ns tb::api

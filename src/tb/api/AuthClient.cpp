@@ -1,3 +1,13 @@
+/*
+================================================================================
+ CHANGE LOG
+================================================================================
+ Date       | Author        | Task ID       | Description
+------------+---------------+---------------+-----------------------------------
+ 2026-11-09 | Diego Vaccher | API-0000001-M | API Response model refactor
+================================================================================
+*/
+
 #include <tb/api/AuthClient.hpp>
 #include <tb/models/dbo/Dbo.hpp>
 #include <tb/tools/Security.hpp>
@@ -8,76 +18,79 @@
 namespace tb::api
 {
 
-void AuthClient::SignUp(
-	const tb::models::dto::SignUpRequest& data,
-	tb::models::dto::APICallback<tb::models::dto::SignUpResponse> callback
+tb::models::dto::SignUpResponse AuthClient::SignUp(
+	const tb::models::dto::SignUpRequest& data
 )
 {
-	tb::models::dto::APIResult<tb::models::dto::SignUpResponse> result;
+	bool error{ false };
+	std::string errorMsg{ "Invalid email or password." };
+	tb::models::dto::SignUpResponseData responseData{};
 
 	try
 	{
-		Wt::Dbo::Transaction trx{ *GetDatabaseSession() };
+		auto dbSession = GetDbSession();
+		Wt::Dbo::Transaction trx{ *dbSession };
 
-		int count = GetDatabaseSession()->query<int>("select count(*) from identity")
+		int count = dbSession->query<int>("select count(*) from identity")
 			.where("email = ?")
 			.bind(data.Email);
 
 		if (count > 0)
 		{
-			result.Success = false;
-			result.ErrorMessage = "An account with this email address already exists.";
-			callback(result);
-			return;
+			error = true;
+			errorMsg = "An account with this email address already exists.";
 		}
+		else
+		{
+			auto identity = std::make_unique<tb::models::dbo::Identity>();
+			auto credential = std::make_unique<tb::models::dbo::PasswordCredential>();
 
-		auto identity = std::make_unique<tb::models::dbo::Identity>();
-		auto credential = std::make_unique<tb::models::dbo::PasswordCredential>();
+			auto currentDateTime = Wt::WDateTime::currentDateTime();
+			identity->SetFirstName(data.FirstName);
+			identity->SetLastName(data.LastName);
+			identity->SetEmail(data.Email);
+			auto identityPtr = dbSession->add(std::move(identity));
 
-		auto currentDateTime = Wt::WDateTime::currentDateTime();
-		identity->SetFirstName(data.FirstName);
-		identity->SetLastName(data.LastName);
-		identity->SetEmail(data.Email);
-		auto identityPtr = GetDatabaseSession()->add(std::move(identity));
+			std::string pwd_hash = tb::tools::Security::HashPassword(data.Password);
+			credential->SetPasswordHash(pwd_hash);
+			credential->SetIdentity(identityPtr);
+			dbSession->add(std::move(credential));
 
-		std::string pwd_hash = tb::tools::Security::HashPassword(data.Password);
-		credential->SetPasswordHash(pwd_hash);
-		credential->SetIdentity(identityPtr);
-		GetDatabaseSession()->add(std::move(credential));
+			trx.commit();
 
-		trx.commit();
-
-		result.Success = true;
-		result.Data.Email = data.Email;
+			error = false;
+			responseData.Email = data.Email;
+			responseData.IdentityGuid = identityPtr.id();
+		}
 	}
 	catch (const Wt::Dbo::Exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "Error while trying to write to the Database...";
-		tb::tools::log::GetApiLogger()->error("Wt::Dbo Exception: {}", e.what());
-		//GetSessionContext()->Clear();
+		error = true;
+		errorMsg = "Database error while processing sign-in.";
 	}
 
-	callback(result);
+	if (error)
+	{
+		responseData = tb::models::dto::SignUpResponseData();
+	}
+
+	return tb::models::dto::SignUpResponse({ responseData }, 0, error, errorMsg);
 }
 
-void AuthClient::SignIn(
-	const tb::models::dto::SignInRequest& data,
-	tb::models::dto::APICallback<tb::models::dto::SignInResponse> callback
+tb::models::dto::SignInResponse AuthClient::SignIn(
+	const tb::models::dto::SignInRequest& data
 )
 {
-	// Resetting API Session Context
-	//GetSessionContext()->Clear();
-
-	tb::models::dto::APIResult<tb::models::dto::SignInResponse> result;
-	result.Success = false;
-	result.ErrorMessage = "Invalid email or password."; // Default fallback error
-
+	bool error{ false };
+	std::string errorMsg{ "Invalid email or password." };
+	tb::models::dto::SignInResponseData responseData{};
+	
 	try
 	{
-		Wt::Dbo::Transaction trx{ *GetDatabaseSession()};
+		auto dbSession = GetDbSession();
+		Wt::Dbo::Transaction trx{ *dbSession };
 
-		auto identities = GetDatabaseSession()->find<tb::models::dbo::Identity>()
+		auto identities = dbSession->find<tb::models::dbo::Identity>()
 			.where("email = ?")
 			.bind(data.Email)
 			.resultList();
@@ -98,31 +111,27 @@ void AuthClient::SignIn(
 
 				if (isPasswordValid)
 				{
-					//GetSessionContext()->CurrentFinancialBookId = "";
-					//GetSessionContext()->Email = identity->GetEmail();
-					//GetSessionContext()->FirstName = identity->GetFirstName();
-					//GetSessionContext()->LastName = identity->GetLastName();
-					//GetSessionContext()->IdentityId = identity->GetId();
-
-					result.Success = true;
-					result.ErrorMessage = "";
-					result.Data.Email = identity->GetEmail();
-					result.Data.FirstName = identity->GetFirstName();
-					result.Data.LastName = identity->GetLastName();
-					result.Data.IdentityId = identity->GetId();
-
-					tb::tools::log::GetApiLogger()->info("User {} logged in succesfully.", result.Data.IdentityId);
+					error = false;
+					errorMsg = std::string("");
+					responseData.IdentityGuid = identity->GetId();
+					responseData.Email = identity->GetEmail();
+					tb::tools::log::GetApiLogger()->info("User {} logged in succesfully.", identity->GetId());
 				}
 			}
 		}
 	}
 	catch (const Wt::Dbo::Exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "Database error while processing sign-in.";
+		error = true;
+		errorMsg = "Database error while processing sign-in.";
 	}
 
-	callback(result);
+	if (error)
+	{
+		responseData = tb::models::dto::SignInResponseData();
+	}
+
+	return tb::models::dto::SignInResponse({ responseData }, 0, error, errorMsg);
 }
 
 } // ns tb::api

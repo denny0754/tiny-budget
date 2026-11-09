@@ -1,8 +1,17 @@
+/*
+================================================================================
+ CHANGE LOG
+================================================================================
+ Date       | Author        | Task ID       | Description
+------------+---------------+---------------+-----------------------------------
+ 2026-11-09 | Diego Vaccher | API-0000001-M | API Response model refactor
+================================================================================
+*/
+
 #ifndef TB_API_AUTH_CLIENT_HPP
 #define TB_API_AUTH_CLIENT_HPP
 
 #include <tb/api/Client.hpp>
-#include <tb/models/dto/Common.hpp>
 #include <tb/models/dto/Auth.hpp>
 
 namespace tb::api
@@ -18,14 +27,12 @@ public:
 
 	}
 
-	void SignIn(
-		const tb::models::dto::SignInRequest& data,
-		tb::models::dto::APICallback<tb::models::dto::SignInResponse> callback
+	tb::models::dto::SignInResponse SignIn(
+		const tb::models::dto::SignInRequest& data
 	);
 
-	void SignUp(
-		const tb::models::dto::SignUpRequest& data,
-		tb::models::dto::APICallback<tb::models::dto::SignUpResponse> callback
+	tb::models::dto::SignUpResponse SignUp(
+		const tb::models::dto::SignUpRequest& data
 	);
 
 };

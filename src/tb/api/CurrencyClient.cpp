@@ -1,3 +1,13 @@
+/*
+================================================================================
+ CHANGE LOG
+================================================================================
+ Date       | Author        | Task ID       | Description
+------------+---------------+---------------+-----------------------------------
+ 2026-11-09 | Diego Vaccher | API-0000001-M | API Response model refactor
+================================================================================
+*/
+
 #include <tb/api/CurrencyClient.hpp>
 #include <tb/models/dbo/Dbo.hpp>
 #include <tb/tools/Logging.hpp>
@@ -7,447 +17,402 @@
 namespace tb::api
 {
 
-void CurrencyClient::Create(
-	const tb::models::dto::CreateCurrencyRequest& data,
-	tb::models::dto::APICallback<tb::models::dto::CreateCurrencyResponse> callback
+tb::models::dto::CreateCurrencyResponse CurrencyClient::Create(
+	const tb::models::dto::CreateCurrencyRequest& data
 )
 {
-	tb::models::dto::APIResult<tb::models::dto::CreateCurrencyResponse> result;
+	bool error{ false };
+	std::string errorMsg{ "" };
+	tb::models::dto::CreateCurrencyResponseData responseData{};
 
 	try
 	{
-		Wt::Dbo::Transaction trx{ *GetDatabaseSession() };
+		auto dbSession = GetDbSession();
 
-		auto existingCurrency = GetDatabaseSession()->find<tb::models::dbo::Currency>()
+		Wt::Dbo::Transaction trx{ *dbSession };
+
+		auto existingCurrency = dbSession->find<tb::models::dbo::Currency>()
 			.where("isoCode = ?")
 			.bind(data.IsoCode)
 			.resultValue();
 
 		if (existingCurrency)
 		{
-			result.Success = false;
-			result.ErrorMessage = std::format("Currency with ISO code '{}' already exists.", data.IsoCode);
-			callback(result);
-			return;
+			error = true;
+			errorMsg = std::format("Currency with ISO code '{}' already exists.", data.IsoCode);
 		}
+		else
+		{
+			auto rawCurrency = std::make_unique<tb::models::dbo::Currency>();
+			rawCurrency->SetIsoCode(data.IsoCode);
+			rawCurrency->SetName(data.Label);
+			rawCurrency->SetSymbol(data.Symbol);
 
-		auto rawCurrency = std::make_unique<tb::models::dbo::Currency>();
-		rawCurrency->SetIsoCode(data.IsoCode);
-		rawCurrency->SetName(data.Label);
-		rawCurrency->SetSymbol(data.Symbol);
+			Wt::Dbo::ptr<tb::models::dbo::Currency> currencyPtr = dbSession->add(std::move(rawCurrency));
+			trx.commit();
 
-		Wt::Dbo::ptr<tb::models::dbo::Currency> currencyPtr = GetDatabaseSession()->add(std::move(rawCurrency));
-		trx.commit();
-
-		result.Success = true;
-		result.Data.Id = currencyPtr.id();
+			error = false;
+			responseData.Guid = currencyPtr.id();
+		}
 	}
 	catch (const Wt::Dbo::Exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "Database error occurred while creating currency.";
+		error = true;
+		errorMsg = "Database error occurred while creating currency.";
 		tb::tools::log::GetApiLogger()->error("Wt::Dbo Exception: {}", e.what());
 	}
 	catch (const std::exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "An unexpected error occurred.";
+		error = true;
+		errorMsg = "An unexpected error occurred.";
 		tb::tools::log::GetApiLogger()->error("Unhandled Exception: {}", e.what());
 	}
 
-	callback(result);
+	return tb::models::dto::CreateCurrencyResponse({ responseData }, 0, error, errorMsg);
 }
 
-void CurrencyClient::UpdateById(
+tb::models::dto::UpdateCurrencyResponse CurrencyClient::UpdateById(
 	const std::string& id,
-	const tb::models::dto::UpdateCurrencyRequest& data,
-	tb::models::dto::APICallback<tb::models::dto::UpdateCurrencyResponse> callback
+	const tb::models::dto::UpdateCurrencyRequest& data
 )
 {
-	tb::models::dto::APIResult<tb::models::dto::UpdateCurrencyResponse> result;
+	bool error{ false };
+	std::string errorMsg{ "" };
+	tb::models::dto::UpdateCurrencyResponseData responseData{};
 
 	try
 	{
-		Wt::Dbo::Transaction trx{ *GetDatabaseSession() };
+		auto dbSession = GetDbSession();
 
-		auto currencyRec = GetDatabaseSession()->find<tb::models::dbo::Currency>()
+		Wt::Dbo::Transaction trx{ *dbSession };
+
+		auto currencyRec = dbSession->find<tb::models::dbo::Currency>()
 			.where("id = ?")
 			.bind(id)
 			.resultValue();
 
 		if (!currencyRec)
 		{
-			result.Success = false;
-			result.ErrorMessage = std::format("Currency with ID '{}' not found.", id);
-			callback(result);
-			return;
+			error = true;
+			errorMsg = std::format("Currency with ID '{}' not found.", id);
 		}
-
-		auto duplicateIso = GetDatabaseSession()->find<tb::models::dbo::Currency>()
-			.where("isoCode = ? AND id != ?")
-			.bind(data.IsoCode)
-			.bind(id)
-			.resultValue();
-
-		if (duplicateIso)
+		else
 		{
-			result.Success = false;
-			result.ErrorMessage = std::format("ISO code '{}' is already in use by another currency.", data.IsoCode);
-			callback(result);
-			return;
+			auto duplicateIso = dbSession->find<tb::models::dbo::Currency>()
+				.where("isoCode = ? AND id != ?")
+				.bind(data.IsoCode)
+				.bind(id)
+				.resultValue();
+
+			if (duplicateIso)
+			{
+				error = true;
+				errorMsg = std::format("ISO code '{}' is already in use by another currency.", data.IsoCode);
+			}
+			else
+			{
+				auto currency = currencyRec.modify();
+				currency->SetIsoCode(data.IsoCode);
+				currency->SetName(data.Label);
+				currency->SetSymbol(data.Symbol);
+
+				trx.commit();
+
+				error = false;
+				responseData.IsoCode = currencyRec->GetIsoCode();
+				responseData.Label = currencyRec->GetLabel();
+				responseData.Symbol = currencyRec->GetSymbol();
+				responseData.Guid = currencyRec.id();
+			}
+
 		}
-
-		{
-			auto currency = currencyRec.modify();
-			currency->SetIsoCode(data.IsoCode);
-			currency->SetName(data.Label);
-			currency->SetSymbol(data.Symbol);
-		}
-
-		trx.commit();
-
-		result.Success = true;
-		result.Data.IsoCode = currencyRec->GetIsoCode();
-		result.Data.Label = currencyRec->GetLabel();
-		result.Data.Symbol = currencyRec->GetSymbol();
 	}
 	catch (const Wt::Dbo::Exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "Database error occurred while updating currency by ID.";
+		error = true;
+		errorMsg  = "Database error occurred while updating currency by ID.";
 		tb::tools::log::GetApiLogger()->error("Wt::Dbo Exception in UpdateById: {}", e.what());
 	}
 	catch (const std::exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "An unexpected error occurred.";
+		error = true;
+		errorMsg = "An unexpected error occurred.";
 		tb::tools::log::GetApiLogger()->error("Unhandled Exception in UpdateById: {}", e.what());
 	}
 
-	callback(result);
+	return tb::models::dto::UpdateCurrencyResponse({ responseData }, 0, error, errorMsg);
 }
 
-void CurrencyClient::UpdateByIsoCode(
+tb::models::dto::UpdateCurrencyResponse CurrencyClient::UpdateByIsoCode(
 	const std::string& isoCode,
-	const tb::models::dto::UpdateCurrencyRequest& data,
-	tb::models::dto::APICallback<tb::models::dto::UpdateCurrencyResponse> callback
+	const tb::models::dto::UpdateCurrencyRequest& data
 )
 {
-	tb::models::dto::APIResult<tb::models::dto::UpdateCurrencyResponse> result;
+	bool error{ false };
+	std::string errorMsg{ "" };
+	tb::models::dto::UpdateCurrencyResponseData responseData{};
 
 	try
 	{
-		Wt::Dbo::Transaction trx{ *GetDatabaseSession() };
+		auto dbSession = GetDbSession();
 
-		auto currencyRec = GetDatabaseSession()->find<tb::models::dbo::Currency>()
+		Wt::Dbo::Transaction trx{ *dbSession };
+
+		auto currencyRec = dbSession->find<tb::models::dbo::Currency>()
 			.where("isoCode = ?")
 			.bind(isoCode)
 			.resultValue();
 
 		if (!currencyRec)
 		{
-			result.Success = false;
-			result.ErrorMessage = std::format("Currency with ISO code '{}' not found.", isoCode);
-			callback(result);
-			return;
+			error = true;
+			errorMsg = std::format("Currency with ISO code '{}' not found.", isoCode);
 		}
-
-		auto duplicateIso = GetDatabaseSession()->find<tb::models::dbo::Currency>()
-			.where("isoCode = ? AND id != ?")
-			.bind(data.IsoCode)
-			.bind(currencyRec->GetId())
-			.resultValue();
-
-		if (duplicateIso)
+		else
 		{
-			result.Success = false;
-			result.ErrorMessage = std::format("ISO code '{}' is already in use by another currency.", data.IsoCode);
-			callback(result);
-			return;
+			auto duplicateIso = dbSession->find<tb::models::dbo::Currency>()
+				.where("isoCode = ? AND id != ?")
+				.bind(data.IsoCode)
+				.bind(currencyRec->GetId())
+				.resultValue();
+
+			if (duplicateIso)
+			{
+				error = true;
+				errorMsg = std::format("ISO code '{}' is already in use by another currency.", data.IsoCode);
+			}
+			else
+			{
+				auto currency = currencyRec.modify();
+				currency->SetIsoCode(data.IsoCode);
+				currency->SetName(data.Label);
+				currency->SetSymbol(data.Symbol);
+
+				trx.commit();
+
+				error = false;
+				errorMsg = std::string();
+				responseData.IsoCode = currencyRec->GetIsoCode();
+				responseData.Label = currencyRec->GetLabel();
+				responseData.Symbol = currencyRec->GetSymbol();
+				responseData.Guid = currencyRec.id();
+			}
 		}
-
-		{
-			auto currency = currencyRec.modify();
-			currency->SetIsoCode(data.IsoCode);
-			currency->SetName(data.Label);
-			currency->SetSymbol(data.Symbol);
-		}
-
-		trx.commit();
-
-		result.Success = true;
-		result.Data.IsoCode = currencyRec->GetIsoCode();
-		result.Data.Label = currencyRec->GetLabel();
-		result.Data.Symbol = currencyRec->GetSymbol();
 	}
 	catch (const Wt::Dbo::Exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "Database error occurred while updating currency by ISO code.";
+		error = true;
+		errorMsg = "Database error occurred while updating currency by ISO code.";
 		tb::tools::log::GetApiLogger()->error("Wt::Dbo Exception {}", e.what());
 	}
 	catch (const std::exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "An unexpected error occurred.";
+		error = true;
+		errorMsg = "An unexpected error occurred.";
 		tb::tools::log::GetApiLogger()->error("Unhandled Exception: {}", e.what());
 	}
 
-	callback(result);
+	return tb::models::dto::UpdateCurrencyResponse({ responseData }, 0, error, errorMsg);
 }
 
-void CurrencyClient::DeleteById(
-	const std::string& id,
-	tb::models::dto::APICallback<tb::models::dto::DeleteCurrencyResponse> callback
+tb::models::dto::DeleteCurrencyResponse CurrencyClient::Delete(
+	const std::string& id
 )
 {
-	tb::models::dto::APIResult<tb::models::dto::DeleteCurrencyResponse> result;
+	bool error{ false };
+	std::string errorMsg{ "" };
+	tb::models::dto::DeleteCurrencyResponseData responseData{};
 
 	try
 	{
-		Wt::Dbo::Transaction trx{ *GetDatabaseSession() };
+		auto dbSession = GetDbSession();
 
-		auto currencyRec = GetDatabaseSession()->find<tb::models::dbo::Currency>()
+		Wt::Dbo::Transaction trx{ *dbSession };
+
+		auto currencyRec = dbSession->find<tb::models::dbo::Currency>()
 			.where("id = ?")
 			.bind(id)
 			.resultValue();
 
 		if (!currencyRec)
 		{
-			result.Success = false;
-			result.ErrorMessage = std::format("Currency with ID '{}' not found.", id);
-			callback(result);
-			return;
+			error = true;
+			errorMsg = std::format("Currency with ID '{}' not found.", id);
 		}
-
-		currencyRec.purge();
-		trx.commit();
-
-		result.Success = true;
-	}
-	catch (const Wt::Dbo::Exception& e)
-	{
-		result.Success = false;
-		result.ErrorMessage = "Database error occurred while deleting currency by ID.";
-		tb::tools::log::GetApiLogger()->error("Wt::Dbo Exception: {}", e.what());
-	}
-	catch (const std::exception& e)
-	{
-		result.Success = false;
-		result.ErrorMessage = "An unexpected error occurred.";
-		tb::tools::log::GetApiLogger()->error("Unhandled Exception: {}", e.what());
-	}
-
-	callback(result);
-}
-
-void CurrencyClient::DeleteByIsoCode(
-	const std::string& isoCode,
-	tb::models::dto::APICallback<tb::models::dto::DeleteCurrencyResponse> callback
-)
-{
-	tb::models::dto::APIResult<tb::models::dto::DeleteCurrencyResponse> result;
-
-	try
-	{
-		Wt::Dbo::Transaction trx{ *GetDatabaseSession() };
-
-		auto currencyRec = GetDatabaseSession()->find<tb::models::dbo::Currency>()
-			.where("isoCode = ?")
-			.bind(isoCode)
-			.resultValue();
-
-		if (!currencyRec)
+		else
 		{
-			result.Success = false;
-			result.ErrorMessage = std::format("Currency with ISO code '{}' not found.", isoCode);
-			callback(result);
-			return;
+			currencyRec.purge();
+			error = false;
+			errorMsg = std::string("");
 		}
 
-		currencyRec.purge();
 		trx.commit();
-
-		result.Success = true;
 	}
 	catch (const Wt::Dbo::Exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "Database error occurred while deleting currency by ISO code.";
+		error = true;
+		errorMsg = "Database error occurred while deleting currency by ID.";
 		tb::tools::log::GetApiLogger()->error("Wt::Dbo Exception: {}", e.what());
 	}
 	catch (const std::exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "An unexpected error occurred.";
+		error = true;
+		errorMsg = "An unexpected error occurred.";
 		tb::tools::log::GetApiLogger()->error("Unhandled Exception: {}", e.what());
 	}
 
-	callback(result);
+	return tb::models::dto::DeleteCurrencyResponse({ responseData }, 0, error, errorMsg);
 }
 
-void CurrencyClient::GetById(
-	const std::string& id,
-	tb::models::dto::APICallback<tb::models::dto::GetCurrencyResponse> callback
+tb::models::dto::GetCurrencyResponse CurrencyClient::GetById(
+	const std::string& id
 )
 {
-	tb::models::dto::APIResult<tb::models::dto::GetCurrencyResponse> result;
+	bool error{ false };
+	std::string errorMsg{ "" };
+	tb::models::dto::GetCurrencyResponseData responseData{};
 
 	try
 	{
-		Wt::Dbo::Transaction trx{ *GetDatabaseSession() };
+		auto dbSession = GetDbSession();
 
-		auto currencyRec = GetDatabaseSession()->find<tb::models::dbo::Currency>()
+		Wt::Dbo::Transaction trx{ *dbSession };
+
+		auto currencyRec = dbSession->find<tb::models::dbo::Currency>()
 			.where("id = ?")
 			.bind(id)
 			.resultValue();
 
 		if (currencyRec)
 		{
-			result.Success = true;
-			result.ErrorMessage = std::string("");
-			result.Data.Id = currencyRec->GetId();
-			result.Data.IsoCode = currencyRec->GetIsoCode();
-			result.Data.Label = currencyRec->GetLabel();
-			result.Data.Symbol = currencyRec->GetSymbol();
+			error = false;
+			errorMsg = std::string("");
+			responseData.Guid = currencyRec->GetId();
+			responseData.IsoCode = currencyRec->GetIsoCode();
+			responseData.Label = currencyRec->GetLabel();
+			responseData.Symbol = currencyRec->GetSymbol();
 		}
 		else
 		{
-			result.Success = false;
-			result.ErrorMessage = std::format("Currency with id {} not found.", id);
+			error = true;
+			errorMsg = std::format("Currency with id {} not found.", id);
 		}
 
 		trx.commit();
 	}
 	catch (const Wt::Dbo::Exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "Error while trying to write to the Database...";
+		error = true;
+		errorMsg = "Error while trying to write to the Database...";
 		tb::tools::log::GetApiLogger()->error("Wt::Dbo Exception: {}", e.what());
 	}
 	catch (const std::exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "An unexpected error occurred.";
+		error = true;
+		errorMsg = "An unexpected error occurred.";
 		tb::tools::log::GetApiLogger()->error("Unhandled Exception: {}", e.what());
 	}
 
-	callback(result);
+	return tb::models::dto::GetCurrencyResponse({ responseData }, 0, error, errorMsg);
 }
 
-void CurrencyClient::GetByIsoCode(
-	const std::string& isoCode,
-	tb::models::dto::APICallback<tb::models::dto::GetCurrencyResponse> callback
+tb::models::dto::GetCurrencyResponse CurrencyClient::GetByIsoCode(
+	const std::string& isoCode
 )
 {
-	tb::models::dto::APIResult<tb::models::dto::GetCurrencyResponse> result;
+	bool error{ false };
+	std::string errorMsg{ "" };
+	tb::models::dto::GetCurrencyResponseData responseData{};
 
 	try
 	{
-		Wt::Dbo::Transaction trx{ *GetDatabaseSession() };
+		auto dbSession = GetDbSession();
 
-		auto currencyRec = GetDatabaseSession()->find<tb::models::dbo::Currency>()
+		Wt::Dbo::Transaction trx{ *dbSession };
+
+		auto currencyRec = dbSession->find<tb::models::dbo::Currency>()
 			.where("iso_code = ?")
 			.bind(isoCode)
 			.resultValue();
 
 		if (currencyRec)
 		{
-			result.Success = true;
-			result.ErrorMessage = std::string("");
-			result.Data.Id = currencyRec->GetId();
-			result.Data.IsoCode = currencyRec->GetIsoCode();
-			result.Data.Label = currencyRec->GetLabel();
-			result.Data.Symbol = currencyRec->GetSymbol();
+			error = false;
+			errorMsg = std::string("");
+			responseData.Guid = currencyRec->GetId();
+			responseData.IsoCode = currencyRec->GetIsoCode();
+			responseData.Label = currencyRec->GetLabel();
+			responseData.Symbol = currencyRec->GetSymbol();
 		}
 		else
 		{
-			result.Success = false;
-			result.ErrorMessage = std::format("Currency with ISO Code {} not found.", isoCode);
+			error = true;
+			errorMsg = std::format("Currency with ISO Code {} not found.", isoCode);
 		}
 
 		trx.commit();
 	}
 	catch (const Wt::Dbo::Exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "Error while trying to write to the Database...";
+		error = true;
+		errorMsg = "Database error while fetching currencies.";
 		tb::tools::log::GetApiLogger()->error("Wt::Dbo Exception: {}", e.what());
 	}
 	catch (const std::exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "An unexpected error occurred.";
+		error = true;
+		errorMsg = "An unexpected error occurred.";
 		tb::tools::log::GetApiLogger()->error("Unhandled Exception: {}", e.what());
 	}
 
-	callback(result);
+	return tb::models::dto::GetCurrencyResponse({ responseData }, 0, error, errorMsg);
 }
 
-void CurrencyClient::GetAny(
-	const tb::models::dto::APIQueryParams& params,
-	tb::models::dto::PaginatedAPICallback<tb::models::dto::GetCurrencyResponse> callback
+tb::models::dto::GetCurrencyResponse CurrencyClient::GetAny(
 )
 {
-	tb::models::dto::PaginatedAPIResult<tb::models::dto::GetCurrencyResponse> result;
+	bool error{ false };
+	std::string errorMsg{ "" };
+	std::vector<tb::models::dto::GetCurrencyResponseData> responseData{};
 
 	try
 	{
-		Wt::Dbo::Transaction trx{ *GetDatabaseSession() };
+		auto dbSession = GetDbSession();
 
-		auto query = GetDatabaseSession()->find<tb::models::dbo::Currency>();
+		Wt::Dbo::Transaction trx{ *dbSession };
 
-		for (const auto& [key, value] : params.Filters)
-		{
-			if (key == "isoCode")
-			{
-				query.where("isoCode LIKE ?").bind("%" + value + "%");
-			}
-			else if (key == "name")
-			{
-				query.where("name LIKE ?").bind("%" + value + "%");
-			}
-			else if (key == "symbol")
-			{
-				query.where("symbol LIKE ?").bind("%" + value + "%");
-			}
-		}
-
-		const unsigned int offset = params.Page * params.PageSize;
-		query.offset(static_cast<int>(offset))
-			.limit(static_cast<int>(params.PageSize));
+		auto query = dbSession->find<tb::models::dbo::Currency>();
 
 		auto currencies = query.resultList();
-		result.Data.reserve(currencies.size());
-
+		
 		for (const auto& currencyRec : currencies)
 		{
-			tb::models::dto::GetCurrencyResponse currency;
-			currency.Id = currencyRec.id();
+			tb::models::dto::GetCurrencyResponseData currency;
+			currency.Guid = currencyRec.id();
 			currency.IsoCode = currencyRec->GetIsoCode();
 			currency.Label = currencyRec->GetLabel();
 			currency.Symbol = currencyRec->GetSymbol();
 
-			result.Data.push_back(std::move(currency));
+			responseData.push_back(std::move(currency));
 		}
 
 		trx.commit();
-		result.Success = true;
+		error = false;
 	}
 	catch (const Wt::Dbo::Exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "Database error while fetching currencies.";
+		error = true;
+		errorMsg = "Database error while fetching currencies.";
 		tb::tools::log::GetApiLogger()->error("Wt::Dbo Exception: {}", e.what());
 	}
 	catch (const std::exception& e)
 	{
-		result.Success = false;
-		result.ErrorMessage = "An unexpected error occurred.";
+		error = true;
+		errorMsg = "An unexpected error occurred.";
 		tb::tools::log::GetApiLogger()->error("Unhandled Exception: {}", e.what());
 	}
 
-	callback(result);
+	return tb::models::dto::GetCurrencyResponse(responseData, 0, error, errorMsg);
 }
 
 } // ns tb::api
