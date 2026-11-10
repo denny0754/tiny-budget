@@ -1,3 +1,13 @@
+/*
+================================================================================
+ CHANGE LOG
+================================================================================
+ Date       | Author        | Task ID       | Description
+------------+---------------+---------------+-----------------------------------
+ 2026-11-10 | Diego Vaccher | UI-0000002-M  | UI API calls refactor
+================================================================================
+*/
+
 #ifndef TB_UI_LOCAL_BOOK_EDITOR_DIALOG_HPP
 #define TB_UI_LOCAL_BOOK_EDITOR_DIALOG_HPP
 
@@ -50,12 +60,12 @@ private:
 	char m_descriptionBuffer[512]{ "" };
 
 	// Currency selection cache
-	std::vector<tb::models::dto::GetCurrencyResponse> m_currencies;
+	std::vector<tb::models::dto::GetCurrencyResponseData> m_currencies;
 	int m_selectedCurrencyIndex{ -1 };
 
 	// State tracking
 	std::string m_errorMessage;
-	bool m_isSubmitting{ false };
+	bool m_isProcessing{ false };
 
 }; // cl BookEditorDialog
 

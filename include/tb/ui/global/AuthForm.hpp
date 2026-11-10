@@ -1,3 +1,13 @@
+/*
+================================================================================
+ CHANGE LOG
+================================================================================
+ Date       | Author        | Task ID       | Description
+------------+---------------+---------------+-----------------------------------
+ 2026-11-10 | Diego Vaccher | UI-0000002-M  | UI API calls refactor
+================================================================================
+*/
+
 #ifndef TB_UI_GLOBAL_AUTH_FORM_HPP
 #define TB_UI_GLOBAL_AUTH_FORM_HPP
 
@@ -28,8 +38,9 @@ public:
 	void OnShutdown() override;
 
 private:
-	int m_sessionTypeInt = 0; // 0 = Local, 1 = Remote
-	bool m_isSignUpMode = false;
+	void RenderSignUpForm();
+
+	void RenderSignInForm();
 
 	char m_emailBuf[128] = "";
 	char m_passwordBuf[128] = "";

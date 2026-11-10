@@ -1,3 +1,13 @@
+/*
+================================================================================
+ CHANGE LOG
+================================================================================
+ Date       | Author        | Task ID       | Description
+------------+---------------+---------------+-----------------------------------
+ 2026-11-10 | Diego Vaccher | UI-0000002-M  | UI API calls refactor
+================================================================================
+*/
+
 #include <tb/ui/local/BookEditorDialog.hpp>
 #include <tb/api/CurrencyClient.hpp>
 #include <tb/api/BookClient.hpp>
@@ -15,26 +25,20 @@ BookEditorDialog::BookEditorDialog(
 )
 	: tb::ui::LocalComponent(dispatcher, session, std::move(data))
 {
+	std::thread(
+		[this]() {
+			tb::models::dto::GetCurrencyResponse response = GetSession()->GetService()->GetClient<tb::api::CurrencyClient>()->GetAny();
 
-	tb::models::dto::APIQueryParams params;
-	params.Page = 0;
-	params.PageSize = 250;
-
-	GetSession()->GetService()->GetClient<tb::api::CurrencyClient>()->GetAny(params, [this](const tb::models::dto::PaginatedAPIResult<tb::models::dto::GetCurrencyResponse>& result) {
-		if (result.Success)
-		{
-			m_currencies = result.Data;
-
-			if (!m_currencies.empty())
+			if (response.Ok())
 			{
-				m_selectedCurrencyIndex = 0;
+				m_currencies = response.GetData();
+			}
+			else
+			{
+				m_errorMessage = "Failed to retrieve currencies list.";
 			}
 		}
-		else
-		{
-			m_errorMessage = result.ErrorMessage;
-		}
-		});
+	).detach();
 }
 
 void BookEditorDialog::OnInit()
@@ -88,6 +92,8 @@ void BookEditorDialog::Render_New()
 
 	if (ImGui::Begin(std::format("Create New Financial Book##{}", GetComponentId()).c_str(), nullptr, windowFlags))
 	{
+		ImGui::BeginDisabled(m_isProcessing);
+
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.22f, 0.82f, 0.52f, 1.00f));
 		ImGui::TextUnformatted("Set Up Your Financial Book");
 		ImGui::PopStyleColor();
@@ -177,24 +183,30 @@ void BookEditorDialog::Render_New()
 
 		if (ImGui::Button("Create Book", ImVec2(buttonWidth, 0.0f)))
 		{
-			tb::models::dto::CreateBookRequest newBookRequest;
-			newBookRequest.Name = m_nameBuffer;
-			newBookRequest.Description = m_descriptionBuffer;
-			newBookRequest.DefaultCurrencyIsoCode = m_currencies[m_selectedCurrencyIndex].IsoCode;
-			GetSession()->GetService()->GetClient<tb::api::BookClient>()->Create(
-				newBookRequest,
-				[this](const tb::models::dto::APIResult<tb::models::dto::CreateBookResponse>& response) {
-					if (response.Success)
+			m_isProcessing = true;
+
+			std::thread(
+				[this]() {
+					tb::models::dto::CreateBookRequest newBookRequest;
+					newBookRequest.Name = m_nameBuffer;
+					newBookRequest.Description = m_descriptionBuffer;
+					newBookRequest.DefaultCurrencyIsoCode = m_currencies[m_selectedCurrencyIndex].IsoCode;
+					tb::models::dto::CreateBookResponse response = GetSession()->GetService()->GetClient<tb::api::BookClient>()->Create(
+						newBookRequest
+					);
+
+					if (response.Ok())
 					{
 						Close();
 					}
 					else
 					{
-						tb::tools::log::GetApiLogger()->error(response.ErrorMessage);
+						tb::tools::log::GetApiLogger()->error(response.GetErrorMessage());
 						this->m_errorMessage = "An error occured while trying to create a new Financial Book.";
 					}
+					m_isProcessing = false;
 				}
-			);
+			).detach();
 		}
 
 		ImGui::PopStyleColor(3);
@@ -215,6 +227,7 @@ void BookEditorDialog::Render_New()
 			}
 		}
 
+		ImGui::EndDisabled();
 		ImGui::End();
 	}
 }
