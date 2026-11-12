@@ -1,3 +1,13 @@
+/*
+================================================================================
+ CHANGE LOG
+================================================================================
+ Date       | Author        | Task ID       | Description
+------------+---------------+---------------+-----------------------------------
+ 2026-11-10 | Diego Vaccher | UI-0000006-M  | Visualize Active Books on Side Menu
+================================================================================
+*/
+
 #include <tb/ui/global/SideMenu.hpp>
 #include <tb/events/ui/PushLocalComponentEvent.hpp>
 #include <tb/ui/local/BookEditorDialog.hpp>
@@ -51,12 +61,11 @@ void SideMenu::OnRender()
         if (ImGui::CollapsingHeader("Financial Books", ImGuiTreeNodeFlags_DefaultOpen))
         {
             ImGui::TextDisabled(" Active Book:");
-
-            // Radio/Selection style for active book
-            //for (const auto& [bookId, bookName] : m_financialBooksList)
-            //{
-            //    if (ImGui::Selectable(bookName.c_str(), false)) {}
-            //}
+            auto& activeBooks = GetSession()->GetService()->GetSessionContext()->ActiveBooks;
+            for (const auto& book : activeBooks)
+            {
+                if (ImGui::Selectable(std::format("{}##{}", book.GetName(), book.GetGuid()).c_str(), false));
+            }
 
             ImGui::Separator();
             if (ImGui::Selectable("Create New Book..."))

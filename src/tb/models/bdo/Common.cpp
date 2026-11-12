@@ -25,7 +25,7 @@ const std::chrono::system_clock::time_point& BaseDataObject::GetCreatedOn() cons
 
 const std::chrono::system_clock::time_point& BaseDataObject::GetUpdatedOn() const
 {
-	returnn m_updatedOn;
+	return m_updatedOn;
 }
 
 } // ns tb::models::bdo

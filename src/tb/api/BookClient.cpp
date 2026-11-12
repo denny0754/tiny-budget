@@ -101,7 +101,7 @@ tb::models::dto::UpdateBookResponse BookClient::UpdateById(
 		Wt::Dbo::Transaction trx{ *dbSession };
 
 		auto bookRec = dbSession->find<tb::models::dbo::FinancialBook>()
-			.where("guid = ? AND identity_id = ?")
+			.where("guid = ? AND identity_guid = ?")
 			.bind(id)
 			.bind(GetSessionCtx()->IdentityId)
 			.resultValue();
@@ -179,7 +179,7 @@ tb::models::dto::GetBookResponse BookClient::GetById(
 		Wt::Dbo::Transaction trx{ *dbSession };
 
 		auto bookRec = dbSession->find<tb::models::dbo::FinancialBook>()
-			.where("guid = ? AND identity_id = ?")
+			.where("guid = ? AND identity_guid = ?")
 			.bind(id)
 			.bind(GetSessionCtx()->IdentityId)
 			.resultValue();
@@ -232,7 +232,7 @@ tb::models::dto::GetBookResponse BookClient::GetAny(
 		Wt::Dbo::Transaction trx{ *dbSession };
 
 		auto query = dbSession->find<tb::models::dbo::FinancialBook>()
-			.where("identity_id = ?")
+			.where("identity_guid = ?")
 			.bind(GetSessionCtx()->IdentityId);
 
 		auto books = query.resultList();

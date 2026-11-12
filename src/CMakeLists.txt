@@ -21,6 +21,7 @@ add_executable (
 
 	"tb/models/bdo/Common.cpp"
 	"tb/models/bdo/Identity.cpp"
+	"tb/models/bdo/Book.cpp"
 )
 
 set_target_properties(TinyBudget PROPERTIES

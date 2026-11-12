@@ -3,6 +3,10 @@
 #include <tb/events/ui/PushGlobalComponentEvent.hpp>
 #include <tb/ui/global/SideMenu.hpp>
 #include <tb/tools/Logging.hpp>
+#include <tb/api/BookClient.hpp>
+
+#include <chrono>
+#include <thread>
 
 namespace tb::core
 {
@@ -29,6 +33,30 @@ void Session::OnIdentitySignedIn(const tb::events::IdentitySignedInEvent& event)
     );
     GetService()->GetSessionContext()->IdentityId = event.GetIdentityId();
     tb::tools::log::GetSessionLogger()->info("Idenity Signed In: {}", GetService()->GetSessionContext()->IdentityId);
+
+    std::thread(
+        [this]() {
+            auto response = GetService()->GetClient<tb::api::BookClient>()->GetAny();
+            if (response.Ok())
+            {
+                GetService()->GetSessionContext()->ActiveBooks.clear();
+                auto responseData = response.GetData();
+                for (auto book : responseData)
+                {
+                    tb::models::bdo::Book bookData = tb::models::bdo::Book(
+                        book.Guid,
+                        std::chrono::system_clock::now(),
+                        std::chrono::system_clock::now(),
+                        GetService()->GetSessionContext()->IdentityId,
+                        book.Name,
+                        book.Description,
+                        book.CurrencyGuid
+                    );
+                    GetService()->GetSessionContext()->ActiveBooks.push_back(bookData);
+                }
+            }
+        }
+    ).detach();
 }
 
 void Session::OnIdentitySignedOut(const tb::events::IdentitySignedOutEvent& event)
