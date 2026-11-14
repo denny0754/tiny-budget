@@ -5,7 +5,8 @@
  Date       | Author        | Task ID       | Description
 ------------+---------------+---------------+-----------------------------------
  2026-11-12 | Diego Vaccher | DM-0000010-M  | Data Model Refactor
-================================================================================
+ 2026-11-14 | Diego Vaccher | DM-0000012-H  | Fix Data Model Types
+ ================================================================================
 */
 
 #ifndef TB_MODELS_DBO_IDENTITY_HPP
@@ -161,7 +162,7 @@ public:
         Wt::Dbo::field(action, m_lastName, "last_name");
 
         Wt::Dbo::hasOne(action, m_passwordCredential, "identity");
-        Wt::Dbo::hasMany(action, m_books, Wt::Dbo::ManyToOne, "identity");
+        Wt::Dbo::hasMany(action, m_books, Wt::Dbo::RelationType::ManyToOne, "identity");
     }
 
     void SetEmail(const std::string& email) { m_email = email; }
@@ -172,7 +173,7 @@ public:
     const std::string& GetFirstName() const { return m_firstName; }
     const std::string& GetLastName() const { return m_lastName; }
     inline Wt::Dbo::weak_ptr<tb::models::dbo::PasswordCredential> GetPasswordCredential() const { return m_passwordCredential; }
-    inline Wt::Dbo::collection<tb::models::dbo::Book> GetFinancialBooks() const { return m_books; }
+    inline Wt::Dbo::collection<Wt::Dbo::ptr<tb::models::dbo::Book>> GetFinancialBooks() const { return m_books; }
 
 private:
     std::string m_firstName;
@@ -181,7 +182,7 @@ private:
     std::string m_email;
 
     Wt::Dbo::weak_ptr<tb::models::dbo::PasswordCredential> m_passwordCredential;
-    Wt::Dbo::collection<tb::models::dbo::Book> m_books;
+    Wt::Dbo::collection<Wt::Dbo::ptr<tb::models::dbo::Book>> m_books;
 }; // cl Identity
 
 /*
@@ -506,7 +507,7 @@ public:
     void SetIdentity(const Wt::Dbo::ptr<tb::models::dbo::Identity>& identity) { m_identity = identity; }
 
 private:
-    std::uint32_t m_lineNumber{ 0 };
+    std::int32_t m_lineNumber{ 0 };
     std::int64_t m_amount{ 0 };
     double m_quantity{ 0.0 };
     std::string m_memo;
