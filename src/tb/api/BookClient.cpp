@@ -1,11 +1,12 @@
 /*
-================================================================================
+=================================================================================
  CHANGE LOG
-================================================================================
- Date       | Author        | Task ID       | Description
-------------+---------------+---------------+-----------------------------------
- 2026-11-09 | Diego Vaccher | API-0000001-M | API Response model refactor
-================================================================================
+=================================================================================
+ Date       | Author        | Task ID        | Description
+------------+---------------+----------------+-----------------------------------
+ 2026-11-09 | Diego Vaccher | API-0000001-M  | API Response model refactor
+ 2026-11-14 | Diego Vaccher | CORE-0000011-M | Fix Data Model references
+=================================================================================
 */
 
 #include <tb/api/BookClient.hpp>
@@ -56,13 +57,12 @@ tb::models::dto::CreateBookResponse BookClient::Create(
 			}
 			else
 			{
-				auto rawBook = std::make_unique<tb::models::dbo::FinancialBook>();
+ 				auto rawBook = std::make_unique<tb::models::dbo::Book>();
 				rawBook->SetName(data.Name);
 				rawBook->SetDescription(data.Description);
-				rawBook->SetDefaultCurrency(currencyRec);
 				rawBook->SetIdentity(identityRec);
 
-				Wt::Dbo::ptr<tb::models::dbo::FinancialBook> bookPtr = dbSession->add(std::move(rawBook));
+				Wt::Dbo::ptr<tb::models::dbo::Book> bookPtr = dbSession->add(std::move(rawBook));
 				trx.commit();
 
 				error = false;
@@ -100,7 +100,7 @@ tb::models::dto::UpdateBookResponse BookClient::UpdateById(
 		auto dbSession = GetDbSession();
 		Wt::Dbo::Transaction trx{ *dbSession };
 
-		auto bookRec = dbSession->find<tb::models::dbo::FinancialBook>()
+		auto bookRec = dbSession->find<tb::models::dbo::Book>()
 			.where("guid = ? AND identity_guid = ?")
 			.bind(id)
 			.bind(GetSessionCtx()->IdentityId)
@@ -113,29 +113,10 @@ tb::models::dto::UpdateBookResponse BookClient::UpdateById(
 		}
 		else
 		{
-			Wt::Dbo::ptr<tb::models::dbo::Currency> currencyRec;
-			if (!data.CurrencyGuid.empty())
-			{
-				currencyRec = dbSession->find<tb::models::dbo::Currency>()
-					.where("guid = ?")
-					.bind(data.CurrencyGuid);
 
-				if (!currencyRec)
-				{
-					error = true;
-					errorMsg = std::format("Currency '{}' is invalid.", data.CurrencyGuid);
-				}
-			}
-
-			{
-				auto book = bookRec.modify();
-				book->SetName(data.Name);
-				book->SetDescription(data.Description);
-				if (currencyRec)
-				{
-					book->SetDefaultCurrency(currencyRec);
-				}
-			}
+			auto book = bookRec.modify();
+			book->SetName(data.Name);
+			book->SetDescription(data.Description);
 
 			trx.commit();
 
@@ -143,10 +124,6 @@ tb::models::dto::UpdateBookResponse BookClient::UpdateById(
 			responseData.Guid = bookRec.id();
 			responseData.Name = bookRec->GetName();
 			responseData.Description = bookRec->GetDescription();
-			if (bookRec->GetDefaultCurrency())
-			{
-				responseData.CurrencyGuid = bookRec->GetDefaultCurrency()->GetId();
-			}
 		}
 	}
 	catch (const Wt::Dbo::Exception& e)
@@ -178,7 +155,7 @@ tb::models::dto::GetBookResponse BookClient::GetById(
 		auto dbSession = GetDbSession();
 		Wt::Dbo::Transaction trx{ *dbSession };
 
-		auto bookRec = dbSession->find<tb::models::dbo::FinancialBook>()
+		auto bookRec = dbSession->find<tb::models::dbo::Book>()
 			.where("guid = ? AND identity_guid = ?")
 			.bind(id)
 			.bind(GetSessionCtx()->IdentityId)
@@ -195,10 +172,6 @@ tb::models::dto::GetBookResponse BookClient::GetById(
 			responseData.Guid = bookRec.id();
 			responseData.Name = bookRec->GetName();
 			responseData.Description = bookRec->GetDescription();
-			if (bookRec->GetDefaultCurrency())
-			{
-				responseData.CurrencyGuid= bookRec->GetDefaultCurrency()->GetId();
-			}
 
 			trx.commit();
 		}
@@ -231,7 +204,7 @@ tb::models::dto::GetBookResponse BookClient::GetAny(
 		auto dbSession = GetDbSession();
 		Wt::Dbo::Transaction trx{ *dbSession };
 
-		auto query = dbSession->find<tb::models::dbo::FinancialBook>()
+		auto query = dbSession->find<tb::models::dbo::Book>()
 			.where("identity_guid = ?")
 			.bind(GetSessionCtx()->IdentityId);
 
@@ -243,10 +216,6 @@ tb::models::dto::GetBookResponse BookClient::GetAny(
 			dto.Guid = bookRec.id();
 			dto.Name = bookRec->GetName();
 			dto.Description = bookRec->GetDescription();
-			if (bookRec->GetDefaultCurrency())
-			{
-				dto.CurrencyGuid = bookRec->GetDefaultCurrency()->GetId();
-			}
 
 			responseData.push_back(std::move(dto));
 		}

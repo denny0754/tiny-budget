@@ -1,3 +1,13 @@
+/*
+=================================================================================
+ CHANGE LOG
+=================================================================================
+ Date       | Author        | Task ID        | Description
+------------+---------------+----------------+-----------------------------------
+ 2026-11-14 | Diego Vaccher | CORE-0000011-M | Fix Data Model references
+=================================================================================
+*/
+
 #include <tb/api/Service.hpp>
 #include <tb/api/AuthClient.hpp>
 #include <tb/api/CurrencyClient.hpp>
@@ -26,16 +36,15 @@ Service::Service(std::shared_ptr<tb::core::SessionContext> ctx)
 
     m_dbSession->mapClass<tb::models::dbo::Identity>("identity");
     m_dbSession->mapClass<tb::models::dbo::PasswordCredential>("password_credential");
-    m_dbSession->mapClass<tb::models::dbo::FinancialBook>("financial_book");
+    m_dbSession->mapClass<tb::models::dbo::Book>("book");
     m_dbSession->mapClass<tb::models::dbo::Partner>("partner");
-    m_dbSession->mapClass<tb::models::dbo::PartnerAddress>("partner_address");
-    m_dbSession->mapClass<tb::models::dbo::PartnerCommunication>("partner_communication");
     m_dbSession->mapClass<tb::models::dbo::Account>("account");
     m_dbSession->mapClass<tb::models::dbo::Transaction>("transaction");
     m_dbSession->mapClass<tb::models::dbo::TransactionItem>("transaction_item");
     m_dbSession->mapClass<tb::models::dbo::Product>("product");
-    m_dbSession->mapClass<tb::models::dbo::CodeList>("code_list");
+    m_dbSession->mapClass<tb::models::dbo::BookStatus>("book_status");
     m_dbSession->mapClass<tb::models::dbo::Currency>("currency");
+    m_dbSession->mapClass<tb::models::dbo::AccountType>("account_type");
 
     try
     {

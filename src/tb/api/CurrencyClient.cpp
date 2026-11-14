@@ -1,11 +1,12 @@
 /*
-================================================================================
+=================================================================================
  CHANGE LOG
-================================================================================
- Date       | Author        | Task ID       | Description
-------------+---------------+---------------+-----------------------------------
- 2026-11-09 | Diego Vaccher | API-0000001-M | API Response model refactor
-================================================================================
+=================================================================================
+ Date       | Author        | Task ID        | Description
+------------+---------------+----------------+-----------------------------------
+ 2026-11-09 | Diego Vaccher | API-0000001-M  | API Response model refactor
+ 2026-11-14 | Diego Vaccher | CORE-0000011-M | Fix Data Model references
+=================================================================================
 */
 
 #include <tb/api/CurrencyClient.hpp>
@@ -44,7 +45,7 @@ tb::models::dto::CreateCurrencyResponse CurrencyClient::Create(
 		else
 		{
 			auto rawCurrency = std::make_unique<tb::models::dbo::Currency>();
-			rawCurrency->SetIsoCode(data.IsoCode);
+			rawCurrency->SetCode(data.IsoCode);
 			rawCurrency->SetName(data.Label);
 			rawCurrency->SetSymbol(data.Symbol);
 
@@ -112,15 +113,15 @@ tb::models::dto::UpdateCurrencyResponse CurrencyClient::UpdateById(
 			else
 			{
 				auto currency = currencyRec.modify();
-				currency->SetIsoCode(data.IsoCode);
+				currency->SetCode(data.IsoCode);
 				currency->SetName(data.Label);
 				currency->SetSymbol(data.Symbol);
 
 				trx.commit();
 
 				error = false;
-				responseData.IsoCode = currencyRec->GetIsoCode();
-				responseData.Label = currencyRec->GetLabel();
+				responseData.IsoCode = currencyRec->GetCode();
+				responseData.Label = currencyRec->GetName();
 				responseData.Symbol = currencyRec->GetSymbol();
 				responseData.Guid = currencyRec.id();
 			}
@@ -184,7 +185,7 @@ tb::models::dto::UpdateCurrencyResponse CurrencyClient::UpdateByIsoCode(
 			else
 			{
 				auto currency = currencyRec.modify();
-				currency->SetIsoCode(data.IsoCode);
+				currency->SetCode(data.IsoCode);
 				currency->SetName(data.Label);
 				currency->SetSymbol(data.Symbol);
 
@@ -192,8 +193,8 @@ tb::models::dto::UpdateCurrencyResponse CurrencyClient::UpdateByIsoCode(
 
 				error = false;
 				errorMsg = std::string();
-				responseData.IsoCode = currencyRec->GetIsoCode();
-				responseData.Label = currencyRec->GetLabel();
+				responseData.IsoCode = currencyRec->GetCode();
+				responseData.Label = currencyRec->GetName();
 				responseData.Symbol = currencyRec->GetSymbol();
 				responseData.Guid = currencyRec.id();
 			}
@@ -288,8 +289,8 @@ tb::models::dto::GetCurrencyResponse CurrencyClient::GetById(
 			error = false;
 			errorMsg = std::string("");
 			responseData.Guid = currencyRec->GetId();
-			responseData.IsoCode = currencyRec->GetIsoCode();
-			responseData.Label = currencyRec->GetLabel();
+			responseData.IsoCode = currencyRec->GetCode();
+			responseData.Label = currencyRec->GetName();
 			responseData.Symbol = currencyRec->GetSymbol();
 		}
 		else
@@ -340,8 +341,8 @@ tb::models::dto::GetCurrencyResponse CurrencyClient::GetByIsoCode(
 			error = false;
 			errorMsg = std::string("");
 			responseData.Guid = currencyRec->GetId();
-			responseData.IsoCode = currencyRec->GetIsoCode();
-			responseData.Label = currencyRec->GetLabel();
+			responseData.IsoCode = currencyRec->GetCode();
+			responseData.Label = currencyRec->GetName();
 			responseData.Symbol = currencyRec->GetSymbol();
 		}
 		else
@@ -389,8 +390,8 @@ tb::models::dto::GetCurrencyResponse CurrencyClient::GetAny(
 		{
 			tb::models::dto::GetCurrencyResponseData currency;
 			currency.Guid = currencyRec.id();
-			currency.IsoCode = currencyRec->GetIsoCode();
-			currency.Label = currencyRec->GetLabel();
+			currency.IsoCode = currencyRec->GetCode();
+			currency.Label = currencyRec->GetName();
 			currency.Symbol = currencyRec->GetSymbol();
 
 			responseData.push_back(std::move(currency));
