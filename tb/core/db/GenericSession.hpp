@@ -1,13 +1,3 @@
-/*
-==========================================================================
- CHANGE LOG
-==========================================================================
- Date       | Author        | Task ID | Description
-------------+---------------+---------+-----------------------------------
- 2026-11-19 | Diego Vaccher | TB-11   | Definition of Generic Session
-==========================================================================
-*/
-
 #ifndef TB_CORE_DB_GENERIC_SESSION_HPP
 #define TB_CORE_DB_GENERIC_SESSION_HPP
 
@@ -32,7 +22,6 @@ public:
 	GenericSession(GenericSession&&) = delete;
 	GenericSession& operator=(GenericSession&&) = delete;
 
-protected:
 	/**
 	 * @brief Opens or creates an encrypted SQLite3 database, verifies header decryption,
 	 *        configures connection pragmas (WAL, foreign keys), maps DBO entities, and
@@ -41,7 +30,7 @@ protected:
 	 * @param hexKey256 64-character hexadecimal string encoding the 256-bit encryption key.
 	 * @throws Wt::Dbo::Exception If database initialization, key verification, or migration fails.
 	*/
-	void Initialize(
+	void Open(
 		const std::filesystem::path& dbPath,
 		const std::string& hexKey256
 	);
@@ -52,6 +41,7 @@ protected:
 	 */
 	[[nodiscard]] const std::shared_ptr<Wt::Dbo::Session>& Session() noexcept;
 
+protected:
 	/**
 	 * @brief Pure virtual method used by the derived class to apply the mappings between
 	 * database tables and Wt::Dbo objects.

@@ -1,22 +1,11 @@
-/*
-==========================================================================
- CHANGE LOG
-==========================================================================
- Date       | Author        | Task ID | Description
-------------+---------------+---------+-----------------------------------
- 2026-11-19 | Diego Vaccher | TB-11   | Definition of Generic Session
-==========================================================================
-*/
-
 #include "GenericSession.hpp"
 
 #include <Wt/Dbo/backend/Sqlite3.h>
-#include <sodium.h>
 
 namespace tb::core::db
 {
 
-void GenericSession::Initialize(
+void GenericSession::Open(
 	const std::filesystem::path& dbPath,
 	const std::string& hexKey256
 )
@@ -50,7 +39,7 @@ void GenericSession::Initialize(
 	}
 }
 
-const std::shared_ptr<Wt::Dbo::Session>& GenericSession::Session()
+const std::shared_ptr<Wt::Dbo::Session>& GenericSession::Session() noexcept
 {
 	return m_session;
 }
