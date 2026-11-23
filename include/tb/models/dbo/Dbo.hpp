@@ -6,7 +6,8 @@
 ------------+---------------+---------------+-----------------------------------
  2026-11-12 | Diego Vaccher | DM-0000010-M  | Data Model Refactor
  2026-11-14 | Diego Vaccher | DM-0000012-H  | Fix Data Model Types
- ================================================================================
+ 2026-11-16 | Diego Vaccher | CORE-0000007-H | Application Architecture Refactor
+================================================================================
 */
 
 #ifndef TB_MODELS_DBO_IDENTITY_HPP
@@ -173,7 +174,6 @@ public:
     const std::string& GetFirstName() const { return m_firstName; }
     const std::string& GetLastName() const { return m_lastName; }
     inline Wt::Dbo::weak_ptr<tb::models::dbo::PasswordCredential> GetPasswordCredential() const { return m_passwordCredential; }
-    inline Wt::Dbo::collection<Wt::Dbo::ptr<tb::models::dbo::Book>> GetFinancialBooks() const { return m_books; }
 
 private:
     std::string m_firstName;
@@ -182,7 +182,6 @@ private:
     std::string m_email;
 
     Wt::Dbo::weak_ptr<tb::models::dbo::PasswordCredential> m_passwordCredential;
-    Wt::Dbo::collection<Wt::Dbo::ptr<tb::models::dbo::Book>> m_books;
 }; // cl Identity
 
 /*
@@ -235,7 +234,6 @@ private:
     |   updated_on  | TIMESTAMPTZ |              Wt::WDateTime              |     BaseEntity::m_updatedOn    | Auto-filled                                                 |
     |      name     |   VARCHAR   |               std::string               |          Book::m_name          | Name of the Book                                            |
     |  description  |   VARCHAR   |               std::string               |       Book::m_description      | Description of the Book                                     |
-    | identity_guid |     UUID    | Wt::Dbo::ptr<tb::models::dbo::Identity> | PasswordCredential::m_identity | Foreign key and reference to the Password Credential record |
 */
 class Book : public tb::models::dbo::BaseEntity
 {
@@ -247,21 +245,17 @@ public:
     {
         BaseEntity::persist(action);
 
-        Wt::Dbo::belongsTo(action, m_identity, "identity");
         Wt::Dbo::field(action, m_name, "name");
         Wt::Dbo::field(action, m_description, "description");
     }
 
-    inline Wt::Dbo::ptr<Identity> GetIdentity() const { return m_identity; }
     inline const std::string& GetName() const { return m_name; }
     inline const std::string& GetDescription() const { return m_description; }
 
-    inline void SetIdentity(const Wt::Dbo::ptr<Identity>& identity) { m_identity = identity; }
     inline void SetName(const std::string& name) { m_name = name; }
     inline void SetDescription(const std::string& description) { m_description = description; }
 
 private:
-    Wt::Dbo::ptr<Identity> m_identity;
     std::string m_name;
     std::string m_description;
 
@@ -282,7 +276,6 @@ private:
     |     name2     |   VARCHAR   |               std::string               |     Partner::m_name2    | Name 2 of the Partner                            |
     |     name3     |   VARCHAR   |               std::string               |     Partner::m_name3    | Name 3 of the Partner                            |
     |   book_guid   |     UUID    |   Wt::Dbo::ptr<tb::models::dbo::Book>   |     Partner::m_book     | Foreign key and reference to the Book record     |
-    | identity_guid |     UUID    | Wt::Dbo::ptr<tb::models::dbo::Identity> |   Partner::m_identity   | Foreign key and reference to the Identity record |
 */
 class Partner : public  tb::models::dbo::BaseEntity
 {
@@ -297,7 +290,6 @@ public:
         Wt::Dbo::field(action, m_name1, "name1");
         Wt::Dbo::field(action, m_name2, "name2");
         Wt::Dbo::field(action, m_name3, "name3");
-        Wt::Dbo::belongsTo(action, m_identity, "identity");
         Wt::Dbo::belongsTo(action, m_book, "book");
     }
 
@@ -305,13 +297,11 @@ public:
     const std::string& GetName2() const { return m_name2; }
     const std::string& GetName3() const { return m_name3; }
     const Wt::Dbo::ptr<tb::models::dbo::Book>& GetBook() const { return m_book; }
-    const Wt::Dbo::ptr<tb::models::dbo::Identity>& GetIdentity() const { return m_identity; }
 
     void SetName1(const std::string& name) { m_name1 = name; }
     void SetName2(const std::string& name) { m_name2 = name; }
     void SetName3(const std::string& name) { m_name3 = name; }
     void SetBook(const Wt::Dbo::ptr<tb::models::dbo::Book>& book) { m_book = book; }
-    void SetIdentity(const Wt::Dbo::ptr<tb::models::dbo::Identity>& identity) { m_identity = identity; }
 
 private:
 
@@ -319,7 +309,6 @@ private:
     std::string m_name2;
     std::string m_name3;
     Wt::Dbo::ptr<tb::models::dbo::Book> m_book;
-    Wt::Dbo::ptr<tb::models::dbo::Identity> m_identity;
 }; // cl Partner
 
 /*
@@ -334,7 +323,6 @@ private:
     |     name2     |   VARCHAR   |               std::string               |     Account::m_name2    | Name 2 of the Account                            |
     |     name3     |   VARCHAR   |               std::string               |     Account::m_name3    | Name 3 of the Account                            |
     |   book_guid   |     UUID    |   Wt::Dbo::ptr<tb::models::dbo::Book>   |     Partner::m_book     | Foreign key and reference to the Book record     |
-    | identity_guid |   VARCHAR   | Wt::Dbo::ptr<tb::models::dbo::Identity> |   Partner::m_identity   | Foreign key and reference to the Identity record |
 */
 class Account : public  tb::models::dbo::BaseEntity
 {
@@ -349,7 +337,6 @@ public:
         Wt::Dbo::field(action, m_name1, "name1");
         Wt::Dbo::field(action, m_name2, "name2");
         Wt::Dbo::field(action, m_name3, "name3");
-        Wt::Dbo::belongsTo(action, m_identity, "identity");
         Wt::Dbo::belongsTo(action, m_book, "book");
     }
 
@@ -357,13 +344,11 @@ public:
     const std::string& GetName2() const { return m_name2; }
     const std::string& GetName3() const { return m_name3; }
     const Wt::Dbo::ptr<tb::models::dbo::Book>& GetBook() const { return m_book; }
-    const Wt::Dbo::ptr<tb::models::dbo::Identity>& GetIdentity() const { return m_identity; }
 
     void SetName1(const std::string& name) { m_name1 = name; }
     void SetName2(const std::string& name) { m_name2 = name; }
     void SetName3(const std::string& name) { m_name3 = name; }
     void SetBook(const Wt::Dbo::ptr<tb::models::dbo::Book>& book) { m_book = book; }
-    void SetIdentity(const Wt::Dbo::ptr<tb::models::dbo::Identity>& identity) { m_identity = identity; }
 
 private:
 
@@ -371,7 +356,6 @@ private:
     std::string m_name2;
     std::string m_name3;
     Wt::Dbo::ptr<tb::models::dbo::Book> m_book;
-    Wt::Dbo::ptr<tb::models::dbo::Identity> m_identity;
 }; // cl Account
 
 
@@ -392,7 +376,6 @@ private:
     |  description  |   VARCHAR   |               std::string               | Transaction::m_description | Description                                               |
     | currency_guid |     UUID    | Wt::Dbo::ptr<tb::models::dbo::Currency> |   Transaction::m_currency  | Foreign key and reference to the Currency                 |
     |   book_guid   |     UUID    |   Wt::Dbo::ptr<tb::models::dbo::Book>   |     Transaction::m_book    | Foreign key and reference to the Book record              |
-    | identity_guid |     UUID    | Wt::Dbo::ptr<tb::models::dbo::Identity> |   Transaction::m_identity  | Foreign key and reference to the Identity record          |
 */
 class Transaction : public  tb::models::dbo::BaseEntity
 {
@@ -410,7 +393,6 @@ public:
         Wt::Dbo::field(action, m_description, "description");
         Wt::Dbo::belongsTo(action, m_currency, "currency");
         Wt::Dbo::belongsTo(action, m_book, "book");
-        Wt::Dbo::belongsTo(action, m_identity, "identity");
     }
 
     const Wt::WDateTime& GetExecutedOn() const { return m_executedOn; }
@@ -419,7 +401,6 @@ public:
     const std::string& GetDescription() const { return m_description; }
     const Wt::Dbo::ptr<tb::models::dbo::Currency>& GetCurrency() const { return m_currency; }
     const Wt::Dbo::ptr<tb::models::dbo::Book>& GetBook() const { return m_book; }
-    const Wt::Dbo::ptr<tb::models::dbo::Identity>& GetIdentity() const { return m_identity; }
 
     void SetExecutedOn(const Wt::WDateTime& executedOn) { m_executedOn = executedOn; }
     void SetSettledOn(const Wt::WDateTime& settledOn) { m_settledOn = settledOn; }
@@ -427,7 +408,6 @@ public:
     void SetDescription(const std::string& description) { m_description = description; }
     void SetCurrency(const Wt::Dbo::ptr<tb::models::dbo::Currency>& currency) { m_currency = currency; }
     void SetBook(const Wt::Dbo::ptr<tb::models::dbo::Book>& book) { m_book = book; }
-    void SetIdentity(const Wt::Dbo::ptr<tb::models::dbo::Identity>& identity) { m_identity = identity; }
 
 private:
     Wt::WDateTime m_executedOn;
@@ -436,7 +416,6 @@ private:
     std::string m_description;
     Wt::Dbo::ptr<tb::models::dbo::Currency> m_currency;
     Wt::Dbo::ptr<tb::models::dbo::Book> m_book;
-    Wt::Dbo::ptr<tb::models::dbo::Identity> m_identity;
 }; // cl Transaction
 
 /*
@@ -457,7 +436,6 @@ private:
     |   product_guid   |     UUID    |   Wt::Dbo::ptr<tb::models::dbo::Product>   |   Transaction::m_product   | Product used for the Transaction(Optional)                                 |
     |   currency_guid  |     UUID    |   Wt::Dbo::ptr<tb::models::dbo::Currency>  |   Transaction::m_currency  | Foreign key and reference to the Currency                                  |
     |     book_guid    |     UUID    |     Wt::Dbo::ptr<tb::models::dbo::Book>    |     Transaction::m_book    | Foreign key and reference to the Book record                               |
-    |   identity_guid  |     UUID    |   Wt::Dbo::ptr<tb::models::dbo::Identity>  |   Transaction::m_identity  | Foreign key and reference to the Identity record                           |
 */
 class TransactionItem : public  tb::models::dbo::BaseEntity
 {
@@ -479,7 +457,6 @@ public:
         Wt::Dbo::belongsTo(action, m_product, "product");
         Wt::Dbo::belongsTo(action, m_currency, "currency");
         Wt::Dbo::belongsTo(action, m_book, "book");
-        Wt::Dbo::belongsTo(action, m_identity, "identity");
     }
 
     std::uint32_t GetLineNumber() const { return m_lineNumber; }
@@ -492,7 +469,6 @@ public:
     const Wt::Dbo::ptr<tb::models::dbo::Product>& GetProduct() const { return m_product; }
     const Wt::Dbo::ptr<tb::models::dbo::Currency>& GetCurrency() const { return m_currency; }
     const Wt::Dbo::ptr<tb::models::dbo::Book>& GetBook() const { return m_book; }
-    const Wt::Dbo::ptr<tb::models::dbo::Identity>& GetIdentity() const { return m_identity; }
 
     void SetLineNumber(std::uint32_t lineNumber) { m_lineNumber = lineNumber; }
     void SetAmount(std::int64_t amount) { m_amount = amount; }
@@ -504,7 +480,6 @@ public:
     void SetProduct(const Wt::Dbo::ptr<tb::models::dbo::Product>& product) { m_product = product; }
     void SetCurrency(const Wt::Dbo::ptr<tb::models::dbo::Currency>& currency) { m_currency = currency; }
     void SetBook(const Wt::Dbo::ptr<tb::models::dbo::Book>& book) { m_book = book; }
-    void SetIdentity(const Wt::Dbo::ptr<tb::models::dbo::Identity>& identity) { m_identity = identity; }
 
 private:
     std::int32_t m_lineNumber{ 0 };
@@ -517,7 +492,6 @@ private:
     Wt::Dbo::ptr<tb::models::dbo::Product> m_product;
     Wt::Dbo::ptr<tb::models::dbo::Currency> m_currency;
     Wt::Dbo::ptr<tb::models::dbo::Book> m_book;
-    Wt::Dbo::ptr<tb::models::dbo::Identity> m_identity;
 }; // cl TransactionItem
 
 /*
@@ -540,7 +514,6 @@ private:
     |    currency_guid     |     UUID     | Wt::Dbo::ptr<tb::models::dbo::Currency> |     Product::m_currency     | Foreign key and reference to the Currency          |
     |    partner_guid      |     UUID     | Wt::Dbo::ptr<tb::models::dbo::Partner>  |     Product::m_partner      | Optional default Partner (vendor/provider)         |
     |      book_guid       |     UUID     |   Wt::Dbo::ptr<tb::models::dbo::Book>   |       Product::m_book       | Foreign key and reference to the Book record       |
-    |    identity_guid     |     UUID     | Wt::Dbo::ptr<tb::models::dbo::Identity> |     Product::m_identity     | Foreign key and reference to the Identity record   |
 */
 class Product : public  tb::models::dbo::BaseEntity
 {
@@ -563,7 +536,6 @@ public:
         Wt::Dbo::belongsTo(action, m_currency, "currency");
         Wt::Dbo::belongsTo(action, m_partner, "default_partner");
         Wt::Dbo::belongsTo(action, m_book, "book");
-        Wt::Dbo::belongsTo(action, m_identity, "identity");
     }
 
     const std::string& GetName() const { return m_name; }
@@ -577,7 +549,6 @@ public:
     const Wt::Dbo::ptr<tb::models::dbo::Currency>& GetCurrency() const { return m_currency; }
     const Wt::Dbo::ptr<tb::models::dbo::Partner>& GetPartner() const { return m_partner; }
     const Wt::Dbo::ptr<tb::models::dbo::Book>& GetBook() const { return m_book; }
-    const Wt::Dbo::ptr<tb::models::dbo::Identity>& GetIdentity() const { return m_identity; }
 
     void SetName(const std::string& name) { m_name = name; }
     void SetCode(const std::string& code) { m_code = code; }
@@ -590,7 +561,6 @@ public:
     void SetCurrency(const Wt::Dbo::ptr<tb::models::dbo::Currency>& currency) { m_currency = currency; }
     void SetPartner(const Wt::Dbo::ptr<tb::models::dbo::Partner>& partner) { m_partner = partner; }
     void SetBook(const Wt::Dbo::ptr<tb::models::dbo::Book>& book) { m_book = book; }
-    void SetIdentity(const Wt::Dbo::ptr<tb::models::dbo::Identity>& identity) { m_identity = identity; }
 
 private:
     std::string m_name;
@@ -605,7 +575,6 @@ private:
     Wt::Dbo::ptr<tb::models::dbo::Account> m_defaultAccount;
     Wt::Dbo::ptr<tb::models::dbo::Partner> m_partner;
     Wt::Dbo::ptr<tb::models::dbo::Book> m_book;
-    Wt::Dbo::ptr<tb::models::dbo::Identity> m_identity;
 }; // cl Product
 
 // -----------------------------------------------------------------------------
