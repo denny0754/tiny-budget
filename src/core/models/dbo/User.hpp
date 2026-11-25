@@ -59,6 +59,7 @@ DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::Product);
 DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::BookStatus);
 DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::BookStatusText);
 DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::Currency);
+DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::CurrencyText);
 DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::AccountType);
 DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::AccountTypeText);
 DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::Language);
@@ -446,13 +447,13 @@ public:
      * @brief Returns the monetary amount of the transaction item.
      * @return Monetary amount value.
      */
-    inline long double GetAmount() const { return m_amount; }
+    inline double GetAmount() const { return m_amount; }
 
     /**
      * @brief Returns the quantity of the transaction item.
      * @return Quantity value.
      */
-    inline long double GetQuantity() const { return m_quantity; }
+    inline double GetQuantity() const { return m_quantity; }
 
     /**
      * @brief Returns the memo associated with the transaction item.
@@ -500,13 +501,13 @@ public:
      * @brief Sets the monetary amount of the transaction item.
      * @param amount Monetary amount value to assign.
      */
-    void SetAmount(long double amount) { m_amount = amount; }
+    void SetAmount(double amount) { m_amount = amount; }
 
     /**
      * @brief Sets the quantity of the transaction item.
      * @param quantity Quantity value to assign.
      */
-    void SetQuantity(long double quantity) { m_quantity = quantity; }
+    void SetQuantity(double quantity) { m_quantity = quantity; }
 
     /**
      * @brief Sets the memo associated with the transaction item.
@@ -547,8 +548,8 @@ public:
 private:
 
     std::int32_t m_lineNumber;
-    long double m_amount;
-    long double m_quantity;
+    double m_amount;
+    double m_quantity;
     std::string m_memo;
 
     Wt::Dbo::ptr<tb::models::dbo::Transaction> m_transaction;
@@ -643,7 +644,7 @@ public:
      * @brief Returns the unit price of the product.
      * @return Monetary price value.
      */
-    inline long double GetPrice() const { return m_price; }
+    inline double GetPrice() const { return m_price; }
 
     /**
      * @brief Returns a pointer to the associated currency.
@@ -715,7 +716,7 @@ public:
      * @brief Sets the unit price of the product.
      * @param price Monetary price value to assign.
      */
-    void SetPrice(long double price) { m_price = price; }
+    void SetPrice(double price) { m_price = price; }
 
     /**
      * @brief Sets the associated currency.
@@ -749,97 +750,12 @@ private:
     Wt::WDateTime m_validFrom;
     Wt::WDateTime m_validTo;
 
-    long double m_price;
+    double m_price;
 
     Wt::Dbo::ptr<tb::models::dbo::Currency> m_currency;
     Wt::Dbo::ptr<tb::models::dbo::Partner> m_partner;
     Wt::Dbo::ptr<tb::models::dbo::Book> m_book;
 }; // cl Product
-
-class BookStatus : public tb::models::dbo::BaseObject
-{
-public:
-    /**
-     * @brief Default constructor.
-    */
-    BookStatus() = default;
-
-    /**
-     * @brief Performs a persistence mapping operation on the BookStatus instance.
-     * @tparam Action Wt::Dbo action type.
-     * @param action Database persistence action.
-     */
-    template<class Action>
-    void persist(Action& action)
-    {
-        tb::models::dbo::BaseObject::persist(action);
-
-        Wt::Dbo::field(action, m_code, "code", 4);
-        Wt::Dbo::field(action, m_isEnabled, "is_enabled");
-
-        Wt::Dbo::hasMany(action, m_localizedTexts, Wt::Dbo::RelationType::ManyToOne, "book_status");
-    }
-
-    /**
-     * @brief Returns the status code.
-     * @return Const reference to the status code string.
-     */
-    const std::string& GetCode() const { return m_code; }
-
-    /**
-     * @brief Checks whether the book status is currently enabled.
-     * @return True if enabled, false otherwise.
-     */
-    bool IsActive() const { return m_isEnabled; }
-
-    /**
-     * @brief Returns the collection of localized text entries for this book status.
-     * @return Collection of weak DBO pointers referencing BookStatusText entities.
-     */
-    const Wt::Dbo::collection<Wt::Dbo::weak_ptr<tb::models::dbo::BookStatusText>> GetLocalizedTexts() const { return m_localizedTexts; }
-
-    /**
-     * @brief Finds and returns the localized text entry matching the specified language code.
-     * @param language_code ISO language code to look up.
-     * @return Weak DBO pointer referencing the matching BookStatusText entity, or an empty pointer if not found.
-     */
-    const Wt::Dbo::weak_ptr<tb::models::dbo::BookStatusText> GetLocalizeText(const std::string& language_code) const
-    {
-        const auto it = std::find_if(
-            m_localizedTexts.begin(),
-            m_localizedTexts.end(),
-            [&language_code](const Wt::Dbo::weak_ptr<tb::models::dbo::BookStatusText>& text) {
-                return text->GetLanguageIsoCode() == language_code;
-            }
-        );
-
-        return (it != m_localizedTexts.end()) ? *it : Wt::Dbo::weak_ptr<tb::models::dbo::BookStatusText>{};
-    }
-
-    /**
-     * @brief Sets the status code.
-     * @param code Status code string to assign.
-     */
-    void SetCode(const std::string& code) { m_code = code; }
-
-    /**
-     * @brief Enables the book status.
-     */
-    void Enable() { m_isEnabled = true; }
-
-    /**
-     * @brief Disables the book status.
-     */
-    void Disable() { m_isEnabled = false; }
-
-private:
-
-    std::string m_code;
-    bool m_isEnabled;
-
-    Wt::Dbo::collection<Wt::Dbo::weak_ptr<tb::models::dbo::BookStatusText>> m_localizedTexts;
-
-}; // cl BookStatus
 
 class BookStatusText : public tb::models::dbo::BaseObject
 {
@@ -926,16 +842,16 @@ private:
 
 }; // cl BookStatusText
 
-class Currency : public tb::models::dbo::BaseObject
+class BookStatus : public tb::models::dbo::BaseObject
 {
 public:
     /**
-         * @brief Default constructor.
-         */
-    Currency() = default;
+     * @brief Default constructor.
+    */
+    BookStatus() = default;
 
     /**
-     * @brief Performs a persistence mapping operation on the Currency instance.
+     * @brief Performs a persistence mapping operation on the BookStatus instance.
      * @tparam Action Wt::Dbo action type.
      * @param action Database persistence action.
      */
@@ -944,83 +860,72 @@ public:
     {
         tb::models::dbo::BaseObject::persist(action);
 
-        Wt::Dbo::field(action, m_code, "code");
-        Wt::Dbo::field(action, m_symbol, "symbol");
-        Wt::Dbo::field(action, m_decimalPlaces, "decimal_places");
-        Wt::Dbo::hasMany(action, m_localizedTexts, Wt::Dbo::RelationType::ManyToOne, "currency");
+        Wt::Dbo::field(action, m_code, "code", 4);
+        Wt::Dbo::field(action, m_isEnabled, "is_enabled");
+
+        Wt::Dbo::hasMany(action, m_localizedTexts, Wt::Dbo::RelationType::ManyToOne, "book_status");
     }
 
     /**
-     * @brief Returns the ISO currency code.
-     * @return Const reference to the currency code string.
+     * @brief Returns the status code.
+     * @return Const reference to the status code string.
      */
-    inline const std::string& GetCode() const { return m_code; }
+    const std::string& GetCode() const { return m_code; }
 
     /**
-     * @brief Returns the currency symbol.
-     * @return Const reference to the currency symbol string.
+     * @brief Checks whether the book status is currently enabled.
+     * @return True if enabled, false otherwise.
      */
-    inline const std::string& GetSymbol() const { return m_symbol; }
+    bool IsActive() const { return m_isEnabled; }
 
     /**
-     * @brief Returns the number of decimal places supported by the currency.
-     * @return Number of decimal places.
+     * @brief Returns the collection of localized text entries for this book status.
+     * @return Collection of weak DBO pointers referencing BookStatusText entities.
      */
-    inline int GetDecimalPlaces() const { return m_decimalPlaces; }
-
-    /**
-     * @brief Returns the collection of localized text entries for this currency.
-     * @return Collection of weak DBO pointers referencing CurrencyText entities.
-     */
-    inline const Wt::Dbo::collection<Wt::Dbo::weak_ptr<tb::models::dbo::CurrencyText>> GetLocalizedTexts() const { return m_localizedTexts; }
+    const Wt::Dbo::collection<Wt::Dbo::ptr<tb::models::dbo::BookStatusText>> GetLocalizedTexts() const { return m_localizedTexts; }
 
     /**
      * @brief Finds and returns the localized text entry matching the specified language code.
      * @param language_code ISO language code to look up.
-     * @return Weak DBO pointer referencing the matching CurrencyText entity, or an empty pointer if not found.
+     * @return Weak DBO pointer referencing the matching BookStatusText entity, or an empty pointer if not found.
      */
-    inline const Wt::Dbo::weak_ptr<tb::models::dbo::CurrencyText> GetLocalizeText(const std::string& language_code) const
+    const Wt::Dbo::ptr<tb::models::dbo::BookStatusText> GetLocalizeText(const std::string& language_code) const
     {
-        const auto it = std::find_if(
+        auto it = std::find_if(
             m_localizedTexts.begin(),
             m_localizedTexts.end(),
-            [&language_code](const Wt::Dbo::weak_ptr<tb::models::dbo::CurrencyText>& text) {
+            [&language_code](const Wt::Dbo::ptr<tb::models::dbo::BookStatusText>& text) {
                 return text->GetLanguageIsoCode() == language_code;
             }
         );
-
-        return (it != m_localizedTexts.end()) ? *it : Wt::Dbo::weak_ptr<tb::models::dbo::CurrencyText>{};
+        
+        return (it != m_localizedTexts.end()) ? *it : Wt::Dbo::ptr<tb::models::dbo::BookStatusText>{};
     }
 
     /**
-     * @brief Sets the ISO currency code.
-     * @param code Currency code string to assign.
+     * @brief Sets the status code.
+     * @param code Status code string to assign.
      */
     void SetCode(const std::string& code) { m_code = code; }
 
     /**
-     * @brief Sets the currency symbol.
-     * @param symbol Currency symbol string to assign.
+     * @brief Enables the book status.
      */
-    void SetSymbol(const std::string& symbol) { m_symbol = symbol; }
+    void Enable() { m_isEnabled = true; }
 
     /**
-     * @brief Sets the number of decimal places supported by the currency.
-     * @param decimal_places Number of decimal places to assign.
+     * @brief Disables the book status.
      */
-    void SetDecimalPlaces(int decimal_places) { m_decimalPlaces = decimal_places; }
+    void Disable() { m_isEnabled = false; }
 
 private:
 
     std::string m_code;
+    bool m_isEnabled;
 
-    std::string m_symbol;
+    Wt::Dbo::collection<Wt::Dbo::ptr<tb::models::dbo::BookStatusText>> m_localizedTexts;
 
-    int m_decimalPlaces;
-
-    Wt::Dbo::collection<Wt::Dbo::weak_ptr<tb::models::dbo::CurrencyText>> m_localizedTexts;
-
-}; // cl Currency
+}; // cl BookStatus
 
 class CurrencyText : public tb::models::dbo::BaseObject
 {
@@ -1091,16 +996,16 @@ private:
 
 }; // cl CurrencyText
 
-class AccountType : public tb::models::dbo::BaseObject
+class Currency : public tb::models::dbo::BaseObject
 {
 public:
     /**
-     * @brief Default constructor.
-    */
-    AccountType() = default;
+         * @brief Default constructor.
+         */
+    Currency() = default;
 
     /**
-     * @brief Performs a persistence mapping operation on the AccountType instance.
+     * @brief Performs a persistence mapping operation on the Currency instance.
      * @tparam Action Wt::Dbo action type.
      * @param action Database persistence action.
      */
@@ -1110,52 +1015,84 @@ public:
         tb::models::dbo::BaseObject::persist(action);
 
         Wt::Dbo::field(action, m_code, "code");
-        Wt::Dbo::hasMany(action, m_localizedTexts, Wt::Dbo::RelationType::ManyToOne, "account_type");
+        Wt::Dbo::field(action, m_symbol, "symbol");
+        Wt::Dbo::field(action, m_decimalPlaces, "decimal_places");
+        Wt::Dbo::hasMany(action, m_localizedTexts, Wt::Dbo::RelationType::ManyToOne, "currency");
     }
 
     /**
-     * @brief Returns the account type code.
-     * @return Const reference to the account type code string.
+     * @brief Returns the ISO currency code.
+     * @return Const reference to the currency code string.
      */
     inline const std::string& GetCode() const { return m_code; }
 
     /**
-     * @brief Returns the collection of localized text entries for this account type.
-     * @return Collection of weak DBO pointers referencing AccountTypeText entities.
+     * @brief Returns the currency symbol.
+     * @return Const reference to the currency symbol string.
      */
-    inline const Wt::Dbo::collection<Wt::Dbo::weak_ptr<tb::models::dbo::AccountTypeText>> GetLocalizedTexts() const { return m_localizedTexts; }
+    inline const std::string& GetSymbol() const { return m_symbol; }
+
+    /**
+     * @brief Returns the number of decimal places supported by the currency.
+     * @return Number of decimal places.
+     */
+    inline int GetDecimalPlaces() const { return m_decimalPlaces; }
+
+    /**
+     * @brief Returns the collection of localized text entries for this currency.
+     * @return Collection of weak DBO pointers referencing CurrencyText entities.
+     */
+    inline const Wt::Dbo::collection<Wt::Dbo::ptr<tb::models::dbo::CurrencyText>> GetLocalizedTexts() const { return m_localizedTexts; }
 
     /**
      * @brief Finds and returns the localized text entry matching the specified language code.
      * @param language_code ISO language code to look up.
-     * @return Weak DBO pointer referencing the matching AccountTypeText entity, or an empty pointer if not found.
+     * @return Weak DBO pointer referencing the matching CurrencyText entity, or an empty pointer if not found.
      */
-    inline const Wt::Dbo::weak_ptr<tb::models::dbo::AccountTypeText> GetLocalizeText(const std::string& language_code) const
+    inline const Wt::Dbo::ptr<tb::models::dbo::CurrencyText> GetLocalizedText(const std::string& language_code) const
     {
-        const auto it = std::find_if(
+        auto it = std::find_if(
             m_localizedTexts.begin(),
             m_localizedTexts.end(),
-            [&language_code](const Wt::Dbo::weak_ptr<tb::models::dbo::AccountTypeText>& text) {
+            [&language_code](const Wt::Dbo::ptr<tb::models::dbo::CurrencyText>& text) {
                 return text->GetLanguageIsoCode() == language_code;
             }
         );
 
-        return (it != m_localizedTexts.end()) ? *it : Wt::Dbo::weak_ptr<tb::models::dbo::AccountTypeText>{};
+        return (it != m_localizedTexts.end()) ? *it : Wt::Dbo::ptr<tb::models::dbo::CurrencyText>{};
     }
 
     /**
-     * @brief Sets the account type code.
-     * @param code Account type code string to assign.
+     * @brief Sets the ISO currency code.
+     * @param code Currency code string to assign.
      */
     void SetCode(const std::string& code) { m_code = code; }
 
+    /**
+     * @brief Sets the currency symbol.
+     * @param symbol Currency symbol string to assign.
+     */
+    void SetSymbol(const std::string& symbol) { m_symbol = symbol; }
+
+    /**
+     * @brief Sets the number of decimal places supported by the currency.
+     * @param decimal_places Number of decimal places to assign.
+     */
+    void SetDecimalPlaces(int decimal_places) { m_decimalPlaces = decimal_places; }
+
 private:
+
     std::string m_code;
 
-    Wt::Dbo::collection<Wt::Dbo::weak_ptr<tb::models::dbo::AccountTypeText>> m_localizedTexts;
-}; // cl AccountType
+    std::string m_symbol;
 
-class AccountTypeText
+    int m_decimalPlaces;
+
+    Wt::Dbo::collection<Wt::Dbo::ptr<tb::models::dbo::CurrencyText>> m_localizedTexts;
+
+}; // cl Currency
+
+class AccountTypeText : public tb::models::dbo::BaseObject
 {
 public:
     /**
@@ -1221,6 +1158,70 @@ private:
 
     std::string m_label;
 }; // cl AccountTypeText
+
+class AccountType : public tb::models::dbo::BaseObject
+{
+public:
+    /**
+     * @brief Default constructor.
+    */
+    AccountType() = default;
+
+    /**
+     * @brief Performs a persistence mapping operation on the AccountType instance.
+     * @tparam Action Wt::Dbo action type.
+     * @param action Database persistence action.
+     */
+    template<class Action>
+    void persist(Action& action)
+    {
+        tb::models::dbo::BaseObject::persist(action);
+
+        Wt::Dbo::field(action, m_code, "code");
+        Wt::Dbo::hasMany(action, m_localizedTexts, Wt::Dbo::RelationType::ManyToOne, "account_type");
+    }
+
+    /**
+     * @brief Returns the account type code.
+     * @return Const reference to the account type code string.
+     */
+    inline const std::string& GetCode() const { return m_code; }
+
+    /**
+     * @brief Returns the collection of localized text entries for this account type.
+     * @return Collection of weak DBO pointers referencing AccountTypeText entities.
+     */
+    inline const Wt::Dbo::collection<Wt::Dbo::ptr<tb::models::dbo::AccountTypeText>> GetLocalizedTexts() const { return m_localizedTexts; }
+
+    /**
+     * @brief Finds and returns the localized text entry matching the specified language code.
+     * @param language_code ISO language code to look up.
+     * @return Weak DBO pointer referencing the matching AccountTypeText entity, or an empty pointer if not found.
+     */
+    inline const Wt::Dbo::ptr<tb::models::dbo::AccountTypeText> GetLocalizedText(const std::string& language_code) const
+    {
+        auto it = std::find_if(
+            m_localizedTexts.begin(),
+            m_localizedTexts.end(),
+            [&language_code](const Wt::Dbo::ptr<tb::models::dbo::AccountTypeText>& text) {
+                return text->GetLanguageIsoCode() == language_code;
+            }
+        );
+
+        return (it != m_localizedTexts.end()) ? *it : Wt::Dbo::ptr<tb::models::dbo::AccountTypeText>{};
+    }
+
+    /**
+     * @brief Sets the account type code.
+     * @param code Account type code string to assign.
+     */
+    void SetCode(const std::string& code) { m_code = code; }
+
+private:
+    std::string m_code;
+
+    Wt::Dbo::collection<Wt::Dbo::ptr<tb::models::dbo::AccountTypeText>> m_localizedTexts;
+}; // cl AccountType
 
 class Language : public tb::models::dbo::BaseObject
 {

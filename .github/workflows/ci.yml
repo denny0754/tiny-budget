@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  VCPKG_DEFAULT_BINARY_CACHE: ${{ runner.temp }}/vcpkg-cache
+
+jobs:
+  build-and-analyze:
+    name: Build & Static Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies and clang-tidy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libxinerama-dev \
+            libxcursor-dev \
+            xorg-dev \
+            libglu1-mesa-dev \
+            pkg-config \
+            clang-tidy
+
+      - name: Cache vcpkg external libraries
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: ${{ runner.os }}-vcpkg-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            ${{ runner.os }}-vcpkg-
+
+      - name: Setup vcpkg (latest) and install dependencies
+        uses: lukka/run-vcpkg@v11
+        with:
+          doNotCache: true
+
+      - name: Configure CMake
+        run: cmake --preset unix-debug
+
+      - name: Build
+        run: cmake --build --preset unix-debug --parallel
+
+      - name: Static analysis (clang-tidy)
+        run: >
+          find tb -name '*.cpp' -print0 |
+          xargs -0 clang-tidy -p out/build/unix-debug --header-filter='^.*/include/.*'

@@ -17,7 +17,7 @@ void GenericSession::Open(
 
 	try
 	{
-		std::unique_ptr<Wt::Dbo::backend::Sqlite3> sqliteBackend = std::make_unique<Wt::Dbo::backend::Sqlite3>(dbPath);
+		std::unique_ptr<Wt::Dbo::backend::Sqlite3> sqliteBackend = std::make_unique<Wt::Dbo::backend::Sqlite3>(dbPath.string());
 		sqliteBackend->executeSql(std::format("PRAGMA KEY {}", hexKey256));
 		sqliteBackend->executeSql("SELECT count(*) FROM sqlite_master;");
 		sqliteBackend->executeSql("PRAGMA journal_mode = WAL;");
@@ -46,9 +46,9 @@ const std::shared_ptr<Wt::Dbo::Session>& GenericSession::Session() noexcept
 
 void GenericSession::Migrate()
 {
-	Wt::Dbo::Transaction tx(m_session);
+	Wt::Dbo::Transaction tx(*m_session);
 
-	const int currentVersion = m_session.query<int>("PRAGMA user_version").resultValue();
+	const int currentVersion = m_session->query<int>("PRAGMA user_version").resultValue();
 	const int targetVersion = ApplyMigrations(currentVersion);
 
 	if (targetVersion < currentVersion)
@@ -64,7 +64,7 @@ void GenericSession::Migrate()
 
 	if (targetVersion > currentVersion)
 	{
-		m_session.execute(std::format("PRAGMA user_version = {};", targetVersion));
+		m_session->execute(std::format("PRAGMA user_version = {};", targetVersion));
 	}
 
 	tx.commit();
