@@ -10,8 +10,6 @@ jobs:
   build-and-analyze:
     name: Build & Static Analysis
     runs-on: ubuntu-latest
-    env:
-      VCPKG_DEFAULT_BINARY_CACHE: ${{ runner.temp }}/vcpkg-cache
 
     steps:
       - name: Checkout repository
@@ -28,11 +26,13 @@ jobs:
             libglu1-mesa-dev \
             pkg-config \
             clang-tidy
+          mkdir -p /tmp/vcpkg-cache
+          echo "VCPKG_DEFAULT_BINARY_CACHE=/tmp/vcpkg-cache" >> "$GITHUB_ENV"
 
       - name: Cache vcpkg external libraries
         uses: actions/cache@v4
         with:
-          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          path: /tmp/vcpkg-cache
           key: ${{ runner.os }}-vcpkg-${{ hashFiles('vcpkg.json') }}
           restore-keys: |
             ${{ runner.os }}-vcpkg-
