@@ -21,11 +21,19 @@ jobs:
           sudo apt-get install -y \
             build-essential \
             ninja-build \
+            curl \
+            zip \
+            unzip \
+            tar \
+            pkg-config \
+            autoconf \
+            automake \
+            libtool \
+            m4 \
             libxinerama-dev \
             libxcursor-dev \
             xorg-dev \
             libglu1-mesa-dev \
-            pkg-config \
             clang-tidy
           mkdir -p /tmp/vcpkg-cache
           echo "VCPKG_BINARY_SOURCES=clear;files,/tmp/vcpkg-cache,readwrite" >> "$GITHUB_ENV"
@@ -38,10 +46,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-vcpkg-
 
-      - name: Setup vcpkg (latest) and install dependencies
+      - name: Setup vcpkg (latest)
         uses: lukka/run-vcpkg@v11
         with:
           doNotCache: true
+
+      - name: Install vcpkg dependencies
+        run: $VCPKG_ROOT/vcpkg install --x-install-root=out/build/unix-debug/vcpkg_installed
 
       - name: Configure CMake
         run: cmake --preset unix-debug
