@@ -1,6 +1,6 @@
 #include "SecuritySession.hpp"
 
-#include "../models/dbo/Security.hpp"
+#include "core/models/dbo/Security.hpp"
 
 namespace tb::core::db
 {

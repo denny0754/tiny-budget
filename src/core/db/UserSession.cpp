@@ -1,6 +1,6 @@
 #include "UserSession.hpp"
 
-#include "../models/dbo/User.hpp"
+#include "core/models/dbo/User.hpp"
 
 namespace tb::core::db
 {
