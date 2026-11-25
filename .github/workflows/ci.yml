@@ -6,22 +6,22 @@ on:
   pull_request:
     branches: [ main ]
 
-env:
-  VCPKG_DEFAULT_BINARY_CACHE: ${{ runner.temp }}/vcpkg-cache
-
 jobs:
   build-and-analyze:
     name: Build & Static Analysis
     runs-on: ubuntu-latest
+    env:
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ runner.temp }}/vcpkg-cache
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install system dependencies and clang-tidy
+      - name: Install system dependencies, Ninja, and clang-tidy
         run: |
           sudo apt-get update
           sudo apt-get install -y \
+            ninja-build \
             libxinerama-dev \
             libxcursor-dev \
             xorg-dev \
