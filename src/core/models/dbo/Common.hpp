@@ -1,15 +1,5 @@
-/*
-==========================================================================
- CHANGE LOG
-==========================================================================
- Date       | Author        | Task ID | Description
-------------+---------------+---------+-----------------------------------
- 2026-11-20 | Diego Vaccher | TB-14   | Definition of Database Objects Model
-==========================================================================
-*/
-
-#ifndef TB_MODELS_DBO_COMMON_HPP
-#define TB_MODELS_DBO_COMMON_HPP
+#ifndef TB_CORE_MODELS_DBO_COMMON_HPP
+#define TB_CORE_MODELS_DBO_COMMON_HPP
 
 #include <Wt/Dbo/Dbo.h>
 #include <Wt/WDateTime.h>
@@ -31,12 +21,12 @@ struct dbo_traits<full_class> : public dbo_default_traits     \
 };                                                            \
 } // #define DEF_WT_DBO_STRING_TRAIT
 
-namespace tb::models::dbo
+namespace tb::dbo
 {
 
 class BaseObject;
 
-} // ns tb::models::dbo
+} // ns tb::dbo
 
 /*
     Note(https://www.webtoolkit.eu/wt/doc/reference/html/structWt_1_1Dbo_1_1dbo__traits.html):
@@ -44,9 +34,9 @@ class BaseObject;
     >> based on a forward declaration. This is necessary since the persist()
     >> function relies on this specialization.
 */
-DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::BaseObject);
+DEF_WT_DBO_STRING_TRAIT(tb::dbo::BaseObject);
 
-namespace tb::models::dbo
+namespace tb::dbo
 {
 
 class BaseObject
@@ -86,6 +76,6 @@ protected:
     Wt::WDateTime m_updatedOn;
 }; // cl BaseObject
 
-} // ns tb::models::dbo
+} // ns tb::dbo
 
 #endif

@@ -13,7 +13,7 @@
 
 #include "Common.hpp"
 
-namespace tb::models::dbo
+namespace tb::dbo
 {
 
 class Book;
@@ -42,7 +42,7 @@ class AccountTypeText;
 
 class Language;
 
-} // tb::models::dbo
+} // tb::dbo
 
 /*
     Note(https://www.webtoolkit.eu/wt/doc/reference/html/structWt_1_1Dbo_1_1dbo__traits.html):
@@ -50,24 +50,24 @@ class Language;
     >> based on a forward declaration. This is necessary since the persist()
     >> function relies on this specialization.
 */
-DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::Book);
-DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::Account);
-DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::Partner);
-DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::Transaction);
-DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::TransactionItem);
-DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::Product);
-DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::BookStatus);
-DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::BookStatusText);
-DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::Currency);
-DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::CurrencyText);
-DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::AccountType);
-DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::AccountTypeText);
-DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::Language);
+DEF_WT_DBO_STRING_TRAIT(tb::dbo::Book);
+DEF_WT_DBO_STRING_TRAIT(tb::dbo::Account);
+DEF_WT_DBO_STRING_TRAIT(tb::dbo::Partner);
+DEF_WT_DBO_STRING_TRAIT(tb::dbo::Transaction);
+DEF_WT_DBO_STRING_TRAIT(tb::dbo::TransactionItem);
+DEF_WT_DBO_STRING_TRAIT(tb::dbo::Product);
+DEF_WT_DBO_STRING_TRAIT(tb::dbo::BookStatus);
+DEF_WT_DBO_STRING_TRAIT(tb::dbo::BookStatusText);
+DEF_WT_DBO_STRING_TRAIT(tb::dbo::Currency);
+DEF_WT_DBO_STRING_TRAIT(tb::dbo::CurrencyText);
+DEF_WT_DBO_STRING_TRAIT(tb::dbo::AccountType);
+DEF_WT_DBO_STRING_TRAIT(tb::dbo::AccountTypeText);
+DEF_WT_DBO_STRING_TRAIT(tb::dbo::Language);
 
-namespace tb::models::dbo
+namespace tb::dbo
 {
 
-class Book : public tb::models::dbo::BaseObject
+class Book : public tb::dbo::BaseObject
 {
 public:
     /**
@@ -83,7 +83,7 @@ public:
     template<class Action>
     void persist(Action& action)
     {
-        tb::models::dbo::BaseObject::persist(action);
+        tb::dbo::BaseObject::persist(action);
 
         Wt::Dbo::field(action, m_name, "name");
         Wt::Dbo::field(action, m_description, "description");
@@ -121,7 +121,7 @@ private:
 
 }; // cl Book
 
-class Account : public tb::models::dbo::BaseObject
+class Account : public tb::dbo::BaseObject
 {
 public:
 
@@ -138,7 +138,7 @@ public:
     template<class Action>
     void persist(Action& action)
     {
-        tb::models::dbo::BaseObject::persist(action);
+        tb::dbo::BaseObject::persist(action);
 
         Wt::Dbo::field(action, m_name1, "name1");
         Wt::Dbo::field(action, m_name2, "name2");
@@ -169,13 +169,13 @@ public:
      * @brief Returns a pointer to the associated book.
      * @return Const reference to the DBO pointer referencing the Book entity.
      */
-    inline const Wt::Dbo::ptr<tb::models::dbo::Book>& GetBook() const { return m_book; }
+    inline const Wt::Dbo::ptr<tb::dbo::Book>& GetBook() const { return m_book; }
 
     /**
      * @brief Returns a pointer to the associated account type.
      * @return Const reference to the DBO pointer referencing the AccountType entity.
      */
-    inline const Wt::Dbo::ptr<tb::models::dbo::AccountType>& GetType() const { return m_type; }
+    inline const Wt::Dbo::ptr<tb::dbo::AccountType>& GetType() const { return m_type; }
 
     /**
      * @brief Sets the account's primary name.
@@ -199,24 +199,24 @@ public:
      * @brief Sets the associated book.
      * @param book DBO pointer referencing the Book entity to assign.
      */
-    void SetBook(const Wt::Dbo::ptr<tb::models::dbo::Book>& book) { m_book = book; }
+    void SetBook(const Wt::Dbo::ptr<tb::dbo::Book>& book) { m_book = book; }
 
     /**
      * @brief Sets the associated account type.
      * @param type DBO pointer referencing the AccountType entity to assign.
      */
-    void SetType(const Wt::Dbo::ptr<tb::models::dbo::AccountType>& type) { m_type = type; }
+    void SetType(const Wt::Dbo::ptr<tb::dbo::AccountType>& type) { m_type = type; }
 
 private:
     std::string m_name1;
     std::string m_name2;
     std::string m_name3;
 
-    Wt::Dbo::ptr<tb::models::dbo::AccountType> m_type;
-    Wt::Dbo::ptr<tb::models::dbo::Book> m_book;
+    Wt::Dbo::ptr<tb::dbo::AccountType> m_type;
+    Wt::Dbo::ptr<tb::dbo::Book> m_book;
 };
 
-class Partner : public  tb::models::dbo::BaseObject
+class Partner : public  tb::dbo::BaseObject
 {
 public:
     /**
@@ -232,7 +232,7 @@ public:
     template<class Action>
     void persist(Action& action)
     {
-        tb::models::dbo::BaseObject::persist(action);
+        tb::dbo::BaseObject::persist(action);
 
         Wt::Dbo::field(action, m_name1, "name1");
         Wt::Dbo::field(action, m_name2, "name2");
@@ -262,7 +262,7 @@ public:
      * @brief Returns a pointer to the associated book.
      * @return Const reference to the DBO pointer referencing the Book entity.
      */
-    inline const Wt::Dbo::ptr<tb::models::dbo::Book>& GetBook() const { return m_book; }
+    inline const Wt::Dbo::ptr<tb::dbo::Book>& GetBook() const { return m_book; }
 
     /**
      * @brief Sets the partner's primary name.
@@ -286,17 +286,17 @@ public:
      * @brief Sets the associated book.
      * @param book DBO pointer referencing the Book entity to assign.
      */
-    void SetBook(const Wt::Dbo::ptr<tb::models::dbo::Book>& book) { m_book = book; }
+    void SetBook(const Wt::Dbo::ptr<tb::dbo::Book>& book) { m_book = book; }
 
 private:
 
     std::string m_name1;
     std::string m_name2;
     std::string m_name3;
-    Wt::Dbo::ptr<tb::models::dbo::Book> m_book;
+    Wt::Dbo::ptr<tb::dbo::Book> m_book;
 }; // cl Partner
 
-class Transaction : public tb::models::dbo::BaseObject
+class Transaction : public tb::dbo::BaseObject
 {
 public:
     /**
@@ -312,7 +312,7 @@ public:
     template<class Action>
     void persist(Action& action)
     {
-        tb::models::dbo::BaseObject::persist(action);
+        tb::dbo::BaseObject::persist(action);
 
         Wt::Dbo::field(action, m_postedOn, "posted_date");
         Wt::Dbo::field(action, m_recordedAt, "recorded_at");
@@ -351,13 +351,13 @@ public:
      * @brief Returns a pointer to the associated currency.
      * @return Const reference to the DBO pointer referencing the Currency entity.
      */
-    inline const Wt::Dbo::ptr<tb::models::dbo::Currency>& GetCurrency() const { return m_currency; }
+    inline const Wt::Dbo::ptr<tb::dbo::Currency>& GetCurrency() const { return m_currency; }
 
     /**
      * @brief Returns a pointer to the associated book.
      * @return Const reference to the DBO pointer referencing the Book entity.
      */
-    inline const Wt::Dbo::ptr<tb::models::dbo::Book>& GetBook() const { return m_book; }
+    inline const Wt::Dbo::ptr<tb::dbo::Book>& GetBook() const { return m_book; }
 
     /**
      * @brief Sets the date the transaction was posted.
@@ -387,13 +387,13 @@ public:
      * @brief Sets the associated currency.
      * @param currency DBO pointer referencing the Currency entity to assign.
      */
-    void SetCurrency(const Wt::Dbo::ptr<tb::models::dbo::Currency>& currency) { m_currency = currency; }
+    void SetCurrency(const Wt::Dbo::ptr<tb::dbo::Currency>& currency) { m_currency = currency; }
 
     /**
      * @brief Sets the associated book.
      * @param book DBO pointer referencing the Book entity to assign.
      */
-    void SetBook(const Wt::Dbo::ptr<tb::models::dbo::Book>& book) { m_book = book; }
+    void SetBook(const Wt::Dbo::ptr<tb::dbo::Book>& book) { m_book = book; }
 
 private:
 
@@ -403,11 +403,11 @@ private:
     std::string m_description;
     std::string m_notes;
 
-    Wt::Dbo::ptr<tb::models::dbo::Currency> m_currency;
-    Wt::Dbo::ptr<tb::models::dbo::Book> m_book;
+    Wt::Dbo::ptr<tb::dbo::Currency> m_currency;
+    Wt::Dbo::ptr<tb::dbo::Book> m_book;
 }; // cl Transaction
 
-class TransactionItem : public tb::models::dbo::BaseObject
+class TransactionItem : public tb::dbo::BaseObject
 {
 public:
     /**
@@ -423,7 +423,7 @@ public:
     template<class Action>
     void persist(Action& action)
     {
-        tb::models::dbo::BaseObject::persist(action);
+        tb::dbo::BaseObject::persist(action);
 
         Wt::Dbo::field(action, m_lineNumber, "line_number");
         Wt::Dbo::field(action, m_amount, "amount");
@@ -465,31 +465,31 @@ public:
      * @brief Returns a pointer to the parent transaction.
      * @return Const reference to the DBO pointer referencing the Transaction entity.
      */
-    inline const Wt::Dbo::ptr<tb::models::dbo::Transaction>& GetTransaction() const { return m_transaction; }
+    inline const Wt::Dbo::ptr<tb::dbo::Transaction>& GetTransaction() const { return m_transaction; }
 
     /**
      * @brief Returns a pointer to the associated account.
      * @return Const reference to the DBO pointer referencing the Account entity.
      */
-    inline const Wt::Dbo::ptr<tb::models::dbo::Account>& GetAccount() const { return m_account; }
+    inline const Wt::Dbo::ptr<tb::dbo::Account>& GetAccount() const { return m_account; }
 
     /**
      * @brief Returns a pointer to the associated partner.
      * @return Const reference to the DBO pointer referencing the Partner entity.
      */
-    inline const Wt::Dbo::ptr<tb::models::dbo::Partner>& GetPartner() const { return m_partner; }
+    inline const Wt::Dbo::ptr<tb::dbo::Partner>& GetPartner() const { return m_partner; }
 
     /**
      * @brief Returns a pointer to the associated product.
      * @return Const reference to the DBO pointer referencing the Product entity.
      */
-    inline const Wt::Dbo::ptr<tb::models::dbo::Product>& GetProduct() const { return m_product; }
+    inline const Wt::Dbo::ptr<tb::dbo::Product>& GetProduct() const { return m_product; }
 
     /**
      * @brief Returns a pointer to the associated book.
      * @return Const reference to the DBO pointer referencing the Book entity.
      */
-    inline const Wt::Dbo::ptr<tb::models::dbo::Book>& GetBook() const { return m_book; }
+    inline const Wt::Dbo::ptr<tb::dbo::Book>& GetBook() const { return m_book; }
 
     /**
      * @brief Sets the line number of the transaction item.
@@ -519,31 +519,31 @@ public:
      * @brief Sets the parent transaction.
      * @param transaction DBO pointer referencing the Transaction entity to assign.
      */
-    void SetTransaction(const Wt::Dbo::ptr<tb::models::dbo::Transaction>& transaction) { m_transaction = transaction; }
+    void SetTransaction(const Wt::Dbo::ptr<tb::dbo::Transaction>& transaction) { m_transaction = transaction; }
 
     /**
      * @brief Sets the associated account.
      * @param account DBO pointer referencing the Account entity to assign.
      */
-    void SetAccount(const Wt::Dbo::ptr<tb::models::dbo::Account>& account) { m_account = account; }
+    void SetAccount(const Wt::Dbo::ptr<tb::dbo::Account>& account) { m_account = account; }
 
     /**
      * @brief Sets the associated partner.
      * @param partner DBO pointer referencing the Partner entity to assign.
      */
-    void SetPartner(const Wt::Dbo::ptr<tb::models::dbo::Partner>& partner) { m_partner = partner; }
+    void SetPartner(const Wt::Dbo::ptr<tb::dbo::Partner>& partner) { m_partner = partner; }
 
     /**
      * @brief Sets the associated product.
      * @param product DBO pointer referencing the Product entity to assign.
      */
-    void SetProduct(const Wt::Dbo::ptr<tb::models::dbo::Product>& product) { m_product = product; }
+    void SetProduct(const Wt::Dbo::ptr<tb::dbo::Product>& product) { m_product = product; }
 
     /**
      * @brief Sets the associated book.
      * @param book DBO pointer referencing the Book entity to assign.
      */
-    void SetBook(const Wt::Dbo::ptr<tb::models::dbo::Book>& book) { m_book = book; }
+    void SetBook(const Wt::Dbo::ptr<tb::dbo::Book>& book) { m_book = book; }
 
 private:
 
@@ -552,14 +552,14 @@ private:
     double m_quantity;
     std::string m_memo;
 
-    Wt::Dbo::ptr<tb::models::dbo::Transaction> m_transaction;
-    Wt::Dbo::ptr<tb::models::dbo::Account> m_account;
-    Wt::Dbo::ptr<tb::models::dbo::Partner> m_partner;
-    Wt::Dbo::ptr<tb::models::dbo::Product> m_product;
-    Wt::Dbo::ptr<tb::models::dbo::Book> m_book;
+    Wt::Dbo::ptr<tb::dbo::Transaction> m_transaction;
+    Wt::Dbo::ptr<tb::dbo::Account> m_account;
+    Wt::Dbo::ptr<tb::dbo::Partner> m_partner;
+    Wt::Dbo::ptr<tb::dbo::Product> m_product;
+    Wt::Dbo::ptr<tb::dbo::Book> m_book;
 }; // cl TransactionItem
 
-class Product : public tb::models::dbo::BaseObject
+class Product : public tb::dbo::BaseObject
 {
 public:
     /**
@@ -575,7 +575,7 @@ public:
     template<class Action>
     void persist(Action& action)
     {
-        tb::models::dbo::BaseObject::persist(action);
+        tb::dbo::BaseObject::persist(action);
 
         Wt::Dbo::field(action, m_name, "name");
         Wt::Dbo::field(action, m_description, "description");
@@ -608,7 +608,7 @@ public:
      * @brief Returns a pointer to the parent product in the hierarchy.
      * @return Const reference to the DBO pointer referencing the parent Product entity.
      */
-    inline const Wt::Dbo::ptr<tb::models::dbo::Product>& GetParent() const { return m_parent; }
+    inline const Wt::Dbo::ptr<tb::dbo::Product>& GetParent() const { return m_parent; }
 
     /**
      * @brief Returns the depth level of the product in the hierarchy.
@@ -626,7 +626,7 @@ public:
      * @brief Returns a pointer to the superseding replacement product.
      * @return Const reference to the DBO pointer referencing the replacement Product entity.
      */
-    inline const Wt::Dbo::ptr<tb::models::dbo::Product>& GetReplacedBy() const { return m_replacedBy; }
+    inline const Wt::Dbo::ptr<tb::dbo::Product>& GetReplacedBy() const { return m_replacedBy; }
 
     /**
      * @brief Returns the start timestamp of the product's validity period.
@@ -650,19 +650,19 @@ public:
      * @brief Returns a pointer to the associated currency.
      * @return Const reference to the DBO pointer referencing the Currency entity.
      */
-    inline const Wt::Dbo::ptr<tb::models::dbo::Currency>& GetCurrency() const { return m_currency; }
+    inline const Wt::Dbo::ptr<tb::dbo::Currency>& GetCurrency() const { return m_currency; }
 
     /**
      * @brief Returns a pointer to the associated partner.
      * @return Const reference to the DBO pointer referencing the Partner entity.
      */
-    inline const Wt::Dbo::ptr<tb::models::dbo::Partner>& GetPartner() const { return m_partner; }
+    inline const Wt::Dbo::ptr<tb::dbo::Partner>& GetPartner() const { return m_partner; }
 
     /**
      * @brief Returns a pointer to the associated book.
      * @return Const reference to the DBO pointer referencing the Book entity.
      */
-    inline const Wt::Dbo::ptr<tb::models::dbo::Book>& GetBook() const { return m_book; }
+    inline const Wt::Dbo::ptr<tb::dbo::Book>& GetBook() const { return m_book; }
 
     /**
      * @brief Sets the product's name.
@@ -680,7 +680,7 @@ public:
      * @brief Sets the parent product in the hierarchy.
      * @param parent DBO pointer referencing the parent Product entity to assign.
      */
-    void SetParent(const Wt::Dbo::ptr<tb::models::dbo::Product>& parent) { m_parent = parent; }
+    void SetParent(const Wt::Dbo::ptr<tb::dbo::Product>& parent) { m_parent = parent; }
 
     /**
      * @brief Sets the depth level of the product in the hierarchy.
@@ -698,7 +698,7 @@ public:
      * @brief Sets the superseding replacement product.
      * @param product DBO pointer referencing the replacement Product entity to assign.
      */
-    void SetReplaceBy(const Wt::Dbo::ptr<tb::models::dbo::Product>& product) { m_replacedBy = product; }
+    void SetReplaceBy(const Wt::Dbo::ptr<tb::dbo::Product>& product) { m_replacedBy = product; }
 
     /**
      * @brief Sets the start timestamp of the product's validity period.
@@ -722,42 +722,42 @@ public:
      * @brief Sets the associated currency.
      * @param currency DBO pointer referencing the Currency entity to assign.
      */
-    void SetCurrency(const Wt::Dbo::ptr<tb::models::dbo::Currency>& currency) { m_currency = currency; }
+    void SetCurrency(const Wt::Dbo::ptr<tb::dbo::Currency>& currency) { m_currency = currency; }
 
     /**
      * @brief Sets the associated partner.
      * @param partner DBO pointer referencing the Partner entity to assign.
      */
-    void SetPartner(const Wt::Dbo::ptr<tb::models::dbo::Partner>& partner) { m_partner = partner; }
+    void SetPartner(const Wt::Dbo::ptr<tb::dbo::Partner>& partner) { m_partner = partner; }
 
     /**
      * @brief Sets the associated book.
      * @param book DBO pointer referencing the Book entity to assign.
      */
-    void SetBook(const Wt::Dbo::ptr<tb::models::dbo::Book>& book) { m_book = book; }
+    void SetBook(const Wt::Dbo::ptr<tb::dbo::Book>& book) { m_book = book; }
 
 private:
 
     std::string m_name;
     std::string m_description;
 
-    Wt::Dbo::ptr<tb::models::dbo::Product> m_parent;
+    Wt::Dbo::ptr<tb::dbo::Product> m_parent;
     std::int32_t m_depth;
     bool m_isLeaf;
 
-    Wt::Dbo::ptr<tb::models::dbo::Product> m_replacedBy;
+    Wt::Dbo::ptr<tb::dbo::Product> m_replacedBy;
 
     Wt::WDateTime m_validFrom;
     Wt::WDateTime m_validTo;
 
     double m_price;
 
-    Wt::Dbo::ptr<tb::models::dbo::Currency> m_currency;
-    Wt::Dbo::ptr<tb::models::dbo::Partner> m_partner;
-    Wt::Dbo::ptr<tb::models::dbo::Book> m_book;
+    Wt::Dbo::ptr<tb::dbo::Currency> m_currency;
+    Wt::Dbo::ptr<tb::dbo::Partner> m_partner;
+    Wt::Dbo::ptr<tb::dbo::Book> m_book;
 }; // cl Product
 
-class BookStatusText : public tb::models::dbo::BaseObject
+class BookStatusText : public tb::dbo::BaseObject
 {
 public:
     /**
@@ -773,7 +773,7 @@ public:
     template<class Action>
     void persist(Action& action)
     {
-        tb::models::dbo::BaseObject::persist(action);
+        tb::dbo::BaseObject::persist(action);
 
         Wt::Dbo::field(action, m_languageIsoCode, "language_iso_code");
         Wt::Dbo::field(action, m_label, "label");
@@ -804,7 +804,7 @@ public:
      * @brief Returns a pointer to the associated book status.
      * @return DBO pointer referencing the BookStatus entity.
      */
-    const Wt::Dbo::ptr<tb::models::dbo::BookStatus> GetBookStatus() const { return m_bookStatus; }
+    const Wt::Dbo::ptr<tb::dbo::BookStatus> GetBookStatus() const { return m_bookStatus; }
 
     /**
      * @brief Sets the ISO language code for this localized text.
@@ -828,11 +828,11 @@ public:
      * @brief Sets the associated book status.
      * @param book_status DBO pointer referencing the BookStatus entity to assign.
      */
-    void SetBookStatus(const Wt::Dbo::ptr<tb::models::dbo::BookStatus>& book_status) { m_bookStatus = book_status; }
+    void SetBookStatus(const Wt::Dbo::ptr<tb::dbo::BookStatus>& book_status) { m_bookStatus = book_status; }
 
 private:
 
-    Wt::Dbo::ptr<tb::models::dbo::BookStatus> m_bookStatus;
+    Wt::Dbo::ptr<tb::dbo::BookStatus> m_bookStatus;
 
     std::string m_languageIsoCode;
 
@@ -842,7 +842,7 @@ private:
 
 }; // cl BookStatusText
 
-class BookStatus : public tb::models::dbo::BaseObject
+class BookStatus : public tb::dbo::BaseObject
 {
 public:
     /**
@@ -858,7 +858,7 @@ public:
     template<class Action>
     void persist(Action& action)
     {
-        tb::models::dbo::BaseObject::persist(action);
+        tb::dbo::BaseObject::persist(action);
 
         Wt::Dbo::field(action, m_code, "code", 4);
         Wt::Dbo::field(action, m_isEnabled, "is_enabled");
@@ -882,24 +882,24 @@ public:
      * @brief Returns the collection of localized text entries for this book status.
      * @return Collection of weak DBO pointers referencing BookStatusText entities.
      */
-    const Wt::Dbo::collection<Wt::Dbo::ptr<tb::models::dbo::BookStatusText>> GetLocalizedTexts() const { return m_localizedTexts; }
+    const Wt::Dbo::collection<Wt::Dbo::ptr<tb::dbo::BookStatusText>> GetLocalizedTexts() const { return m_localizedTexts; }
 
     /**
      * @brief Finds and returns the localized text entry matching the specified language code.
      * @param language_code ISO language code to look up.
      * @return Weak DBO pointer referencing the matching BookStatusText entity, or an empty pointer if not found.
      */
-    const Wt::Dbo::ptr<tb::models::dbo::BookStatusText> GetLocalizeText(const std::string& language_code) const
+    const Wt::Dbo::ptr<tb::dbo::BookStatusText> GetLocalizeText(const std::string& language_code) const
     {
         auto it = std::find_if(
             m_localizedTexts.begin(),
             m_localizedTexts.end(),
-            [&language_code](const Wt::Dbo::ptr<tb::models::dbo::BookStatusText>& text) {
+            [&language_code](const Wt::Dbo::ptr<tb::dbo::BookStatusText>& text) {
                 return text->GetLanguageIsoCode() == language_code;
             }
         );
         
-        return (it != m_localizedTexts.end()) ? *it : Wt::Dbo::ptr<tb::models::dbo::BookStatusText>{};
+        return (it != m_localizedTexts.end()) ? *it : Wt::Dbo::ptr<tb::dbo::BookStatusText>{};
     }
 
     /**
@@ -923,11 +923,11 @@ private:
     std::string m_code;
     bool m_isEnabled;
 
-    Wt::Dbo::collection<Wt::Dbo::ptr<tb::models::dbo::BookStatusText>> m_localizedTexts;
+    Wt::Dbo::collection<Wt::Dbo::ptr<tb::dbo::BookStatusText>> m_localizedTexts;
 
 }; // cl BookStatus
 
-class CurrencyText : public tb::models::dbo::BaseObject
+class CurrencyText : public tb::dbo::BaseObject
 {
 public:
     /**
@@ -943,7 +943,7 @@ public:
     template<class Action>
     void persist(Action& action)
     {
-        tb::models::dbo::BaseObject::persist(action);
+        tb::dbo::BaseObject::persist(action);
 
         Wt::Dbo::field(action, m_languageIsoCode, "language_iso_code");
         Wt::Dbo::field(action, m_label, "label");
@@ -966,7 +966,7 @@ public:
      * @brief Returns a pointer to the associated currency.
      * @return DBO pointer referencing the Currency entity.
      */
-    inline const Wt::Dbo::ptr<tb::models::dbo::Currency> GetCurrency() const { return m_currency; }
+    inline const Wt::Dbo::ptr<tb::dbo::Currency> GetCurrency() const { return m_currency; }
 
     /**
      * @brief Sets the ISO language code for this localized text.
@@ -984,11 +984,11 @@ public:
      * @brief Sets the associated currency.
      * @param currency DBO pointer referencing the Currency entity to assign.
      */
-    void SetCurrency(const Wt::Dbo::ptr<tb::models::dbo::Currency>& currency) { m_currency = currency; }
+    void SetCurrency(const Wt::Dbo::ptr<tb::dbo::Currency>& currency) { m_currency = currency; }
 
 private:
 
-    Wt::Dbo::ptr<tb::models::dbo::Currency> m_currency;
+    Wt::Dbo::ptr<tb::dbo::Currency> m_currency;
 
     std::string m_languageIsoCode;
 
@@ -996,7 +996,7 @@ private:
 
 }; // cl CurrencyText
 
-class Currency : public tb::models::dbo::BaseObject
+class Currency : public tb::dbo::BaseObject
 {
 public:
     /**
@@ -1012,7 +1012,7 @@ public:
     template<class Action>
     void persist(Action& action)
     {
-        tb::models::dbo::BaseObject::persist(action);
+        tb::dbo::BaseObject::persist(action);
 
         Wt::Dbo::field(action, m_code, "code");
         Wt::Dbo::field(action, m_symbol, "symbol");
@@ -1042,24 +1042,24 @@ public:
      * @brief Returns the collection of localized text entries for this currency.
      * @return Collection of weak DBO pointers referencing CurrencyText entities.
      */
-    inline const Wt::Dbo::collection<Wt::Dbo::ptr<tb::models::dbo::CurrencyText>> GetLocalizedTexts() const { return m_localizedTexts; }
+    inline const Wt::Dbo::collection<Wt::Dbo::ptr<tb::dbo::CurrencyText>> GetLocalizedTexts() const { return m_localizedTexts; }
 
     /**
      * @brief Finds and returns the localized text entry matching the specified language code.
      * @param language_code ISO language code to look up.
      * @return Weak DBO pointer referencing the matching CurrencyText entity, or an empty pointer if not found.
      */
-    inline const Wt::Dbo::ptr<tb::models::dbo::CurrencyText> GetLocalizedText(const std::string& language_code) const
+    inline const Wt::Dbo::ptr<tb::dbo::CurrencyText> GetLocalizedText(const std::string& language_code) const
     {
         auto it = std::find_if(
             m_localizedTexts.begin(),
             m_localizedTexts.end(),
-            [&language_code](const Wt::Dbo::ptr<tb::models::dbo::CurrencyText>& text) {
+            [&language_code](const Wt::Dbo::ptr<tb::dbo::CurrencyText>& text) {
                 return text->GetLanguageIsoCode() == language_code;
             }
         );
 
-        return (it != m_localizedTexts.end()) ? *it : Wt::Dbo::ptr<tb::models::dbo::CurrencyText>{};
+        return (it != m_localizedTexts.end()) ? *it : Wt::Dbo::ptr<tb::dbo::CurrencyText>{};
     }
 
     /**
@@ -1088,11 +1088,11 @@ private:
 
     int m_decimalPlaces;
 
-    Wt::Dbo::collection<Wt::Dbo::ptr<tb::models::dbo::CurrencyText>> m_localizedTexts;
+    Wt::Dbo::collection<Wt::Dbo::ptr<tb::dbo::CurrencyText>> m_localizedTexts;
 
 }; // cl Currency
 
-class AccountTypeText : public tb::models::dbo::BaseObject
+class AccountTypeText : public tb::dbo::BaseObject
 {
 public:
     /**
@@ -1108,7 +1108,7 @@ public:
     template<class Action>
     void persist(Action& action)
     {
-        tb::models::dbo::BaseObject::persist(action);
+        tb::dbo::BaseObject::persist(action);
 
         Wt::Dbo::field(action, m_languageIsoCode, "language_iso_code");
         Wt::Dbo::field(action, m_label, "label");
@@ -1131,7 +1131,7 @@ public:
      * @brief Returns a pointer to the associated account type.
      * @return DBO pointer referencing the AccountType entity.
      */
-    inline const Wt::Dbo::ptr<tb::models::dbo::AccountType> GetAccountType() const { return m_accountType; }
+    inline const Wt::Dbo::ptr<tb::dbo::AccountType> GetAccountType() const { return m_accountType; }
 
     /**
      * @brief Sets the ISO language code for this localized text.
@@ -1149,17 +1149,17 @@ public:
      * @brief Sets the associated account type.
      * @param account_type DBO pointer referencing the AccountType entity to assign.
      */
-    void SetAccountType(const Wt::Dbo::ptr<tb::models::dbo::AccountType>& account_type) { m_accountType = account_type; }
+    void SetAccountType(const Wt::Dbo::ptr<tb::dbo::AccountType>& account_type) { m_accountType = account_type; }
 
 private:
-    Wt::Dbo::ptr<tb::models::dbo::AccountType> m_accountType;
+    Wt::Dbo::ptr<tb::dbo::AccountType> m_accountType;
 
     std::string m_languageIsoCode;
 
     std::string m_label;
 }; // cl AccountTypeText
 
-class AccountType : public tb::models::dbo::BaseObject
+class AccountType : public tb::dbo::BaseObject
 {
 public:
     /**
@@ -1175,7 +1175,7 @@ public:
     template<class Action>
     void persist(Action& action)
     {
-        tb::models::dbo::BaseObject::persist(action);
+        tb::dbo::BaseObject::persist(action);
 
         Wt::Dbo::field(action, m_code, "code");
         Wt::Dbo::hasMany(action, m_localizedTexts, Wt::Dbo::RelationType::ManyToOne, "account_type");
@@ -1191,24 +1191,24 @@ public:
      * @brief Returns the collection of localized text entries for this account type.
      * @return Collection of weak DBO pointers referencing AccountTypeText entities.
      */
-    inline const Wt::Dbo::collection<Wt::Dbo::ptr<tb::models::dbo::AccountTypeText>> GetLocalizedTexts() const { return m_localizedTexts; }
+    inline const Wt::Dbo::collection<Wt::Dbo::ptr<tb::dbo::AccountTypeText>> GetLocalizedTexts() const { return m_localizedTexts; }
 
     /**
      * @brief Finds and returns the localized text entry matching the specified language code.
      * @param language_code ISO language code to look up.
      * @return Weak DBO pointer referencing the matching AccountTypeText entity, or an empty pointer if not found.
      */
-    inline const Wt::Dbo::ptr<tb::models::dbo::AccountTypeText> GetLocalizedText(const std::string& language_code) const
+    inline const Wt::Dbo::ptr<tb::dbo::AccountTypeText> GetLocalizedText(const std::string& language_code) const
     {
         auto it = std::find_if(
             m_localizedTexts.begin(),
             m_localizedTexts.end(),
-            [&language_code](const Wt::Dbo::ptr<tb::models::dbo::AccountTypeText>& text) {
+            [&language_code](const Wt::Dbo::ptr<tb::dbo::AccountTypeText>& text) {
                 return text->GetLanguageIsoCode() == language_code;
             }
         );
 
-        return (it != m_localizedTexts.end()) ? *it : Wt::Dbo::ptr<tb::models::dbo::AccountTypeText>{};
+        return (it != m_localizedTexts.end()) ? *it : Wt::Dbo::ptr<tb::dbo::AccountTypeText>{};
     }
 
     /**
@@ -1220,10 +1220,10 @@ public:
 private:
     std::string m_code;
 
-    Wt::Dbo::collection<Wt::Dbo::ptr<tb::models::dbo::AccountTypeText>> m_localizedTexts;
+    Wt::Dbo::collection<Wt::Dbo::ptr<tb::dbo::AccountTypeText>> m_localizedTexts;
 }; // cl AccountType
 
-class Language : public tb::models::dbo::BaseObject
+class Language : public tb::dbo::BaseObject
 {
 public:
     /**
@@ -1239,7 +1239,7 @@ public:
     template<class Action>
     void persist(Action& action)
     {
-        tb::models::dbo::BaseObject::persist(action);
+        tb::dbo::BaseObject::persist(action);
 
         Wt::Dbo::field(action, m_code, "code");
         Wt::Dbo::field(action, m_englishLabel, "english_label");
@@ -1291,6 +1291,6 @@ private:
 
 }; // cl Language
 
-} // tb::models::dbo
+} // tb::dbo
 
 #endif

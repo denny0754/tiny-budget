@@ -13,13 +13,13 @@
 
 #include "Common.hpp"
 
-namespace tb::models::dbo
+namespace tb::dbo
 {
 
 class Identity;
 class PasswordCredential;
 
-} // ns tb::models::dbo
+} // ns tb::dbo
 
 /*
 	Note(https://www.webtoolkit.eu/wt/doc/reference/html/structWt_1_1Dbo_1_1dbo__traits.html):
@@ -27,13 +27,13 @@ class PasswordCredential;
 	>> based on a forward declaration. This is necessary since the persist()
 	>> function relies on this specialization.
 */
-DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::Identity);
-DEF_WT_DBO_STRING_TRAIT(tb::models::dbo::PasswordCredential);
+DEF_WT_DBO_STRING_TRAIT(tb::dbo::Identity);
+DEF_WT_DBO_STRING_TRAIT(tb::dbo::PasswordCredential);
 
-namespace tb::models::dbo
+namespace tb::dbo
 {
 
-class Identity : public tb::models::dbo::BaseObject
+class Identity : public tb::dbo::BaseObject
 {
 public:
 	/**
@@ -49,7 +49,7 @@ public:
 	template<class Action>
 	void persist(Action& action)
 	{
-		tb::models::dbo::BaseObject::persist(action);
+		tb::dbo::BaseObject::persist(action);
 
 		Wt::Dbo::field(action, m_email, "email");
 		Wt::Dbo::field(action, m_firstName, "first_name");
@@ -80,7 +80,7 @@ public:
 	 * @brief Returns a weak pointer to the associated password credential.
 	 * @return Weak DBO pointer referencing the PasswordCredential entity.
 	 */
-	inline Wt::Dbo::weak_ptr<tb::models::dbo::PasswordCredential> GetPasswordCredential() const { return m_passwordCredential; }
+	inline Wt::Dbo::weak_ptr<tb::dbo::PasswordCredential> GetPasswordCredential() const { return m_passwordCredential; }
 
 	/**
 	 * @brief Sets the user's email address.
@@ -107,11 +107,11 @@ private:
 
 	std::string m_email;
 
-	Wt::Dbo::weak_ptr<tb::models::dbo::PasswordCredential> m_passwordCredential;
+	Wt::Dbo::weak_ptr<tb::dbo::PasswordCredential> m_passwordCredential;
 
 }; // cl Identity
 
-class PasswordCredential : public tb::models::dbo::BaseObject
+class PasswordCredential : public tb::dbo::BaseObject
 {
 public:
 	/**
@@ -127,7 +127,7 @@ public:
 	template<class Action>
 	void persist(Action& action)
 	{
-		tb::models::dbo::BaseObject::persist(action);
+		tb::dbo::BaseObject::persist(action);
 
 		Wt::Dbo::belongsTo(action, m_identity, "identity");
 		Wt::Dbo::field(action, m_passwordHash, "password_hash");
@@ -137,7 +137,7 @@ public:
 	 * @brief Returns a pointer to the associated identity.
 	 * @return DBO pointer referencing the Identity entity.
 	 */
-	inline Wt::Dbo::ptr<tb::models::dbo::Identity> GetIdentity() const { return m_identity; }
+	inline Wt::Dbo::ptr<tb::dbo::Identity> GetIdentity() const { return m_identity; }
 
 	/**
 	 * @brief Returns the password hash.
@@ -149,7 +149,7 @@ public:
 	 * @brief Sets the associated identity.
 	 * @param identity DBO pointer referencing the Identity entity to assign.
 	 */
-	void SetIdentity(const Wt::Dbo::ptr<tb::models::dbo::Identity>& identity) { m_identity = identity; }
+	void SetIdentity(const Wt::Dbo::ptr<tb::dbo::Identity>& identity) { m_identity = identity; }
 
 	/**
 	 * @brief Sets the password hash.
@@ -160,9 +160,9 @@ public:
 private:
 	std::string m_passwordHash;
 
-	Wt::Dbo::ptr<tb::models::dbo::Identity> m_identity;
+	Wt::Dbo::ptr<tb::dbo::Identity> m_identity;
 }; // cl PasswordCredential
 
-} // ns tb::models::dbo
+} // ns tb::dbo
 
 #endif
