@@ -23,6 +23,7 @@
       "features": [ "dbo", "sqlite3" ]
     },
     "boost-uuid",
-    "libsodium"
+    "libsodium",
+    "gtest"
   ]
 }

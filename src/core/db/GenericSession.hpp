@@ -32,7 +32,7 @@ public:
 	*/
 	void Open(
 		const std::filesystem::path& dbPath,
-		const std::string& hexKey256
+		const std::string& hexKey256 = std::string()
 	);
 
 	/**

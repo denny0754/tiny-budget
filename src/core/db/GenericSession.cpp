@@ -10,16 +10,24 @@ void GenericSession::Open(
 	const std::string& hexKey256
 )
 {
-	// Ensuring that all paths exists
-	std::filesystem::create_directories(dbPath.parent_path());
-
+	bool isMemoryDb = dbPath == ":memory:";
 	bool error = false;
+
+	// Ensuring that all paths exists(only if not a memory db)
+	if (!isMemoryDb)
+	{
+		std::filesystem::create_directories(dbPath.parent_path());
+	}
 
 	try
 	{
 		std::unique_ptr<Wt::Dbo::backend::Sqlite3> sqliteBackend = std::make_unique<Wt::Dbo::backend::Sqlite3>(dbPath.string());
-		sqliteBackend->executeSql(std::format("PRAGMA KEY {}", hexKey256));
-		sqliteBackend->executeSql("SELECT count(*) FROM sqlite_master;");
+		// Database encryption only for percistent databases(file) and with a defined key.
+		if (!isMemoryDb && hexKey256.length() > 0)
+		{
+			sqliteBackend->executeSql(std::format("PRAGMA KEY {}", hexKey256));
+			sqliteBackend->executeSql("SELECT count(*) FROM sqlite_master;");
+		}
 		sqliteBackend->executeSql("PRAGMA journal_mode = WAL;");
 		sqliteBackend->executeSql("PRAGMA foreign_keys = ON;");
 
@@ -48,7 +56,7 @@ void GenericSession::Migrate()
 {
 	Wt::Dbo::Transaction tx(*m_session);
 
-	const int currentVersion = m_session->query<int>("PRAGMA user_version").resultValue();
+	const int currentVersion = m_session->query<int>("SELECT user_version FROM pragma_user_version").resultValue();
 	const int targetVersion = ApplyMigrations(currentVersion);
 
 	if (targetVersion < currentVersion)
