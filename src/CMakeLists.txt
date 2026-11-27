@@ -13,9 +13,13 @@ find_package(imgui CONFIG REQUIRED)
 add_library(tb-core-lib STATIC
 	# Database
 	"core/db/DatabaseWorker.cpp"
+	
 	"core/db/GenericSession.cpp"
 	"core/db/SecuritySession.cpp"
 	"core/db/UserSession.cpp"
+
+	"core/db/repo/AuthRepository.cpp"
+
 )
 
 target_include_directories(tb-core-lib PUBLIC "${PROJECT_SOURCE_DIR}/include")

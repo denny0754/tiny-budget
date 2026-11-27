@@ -26,21 +26,7 @@ std::string Security::HashPassword(const std::string& password)
 {
     Initialize();
 
-    // Buffer required by libsodium for stored password strings
-    char hashedPasswordBuf[crypto_pwhash_STRBYTES];
 
-    if (crypto_pwhash_str(
-        hashedPasswordBuf,
-        password.c_str(),
-        password.length(),
-        crypto_pwhash_OPSLIMIT_MODERATE,
-        crypto_pwhash_MEMLIMIT_MODERATE
-    ) != 0)
-    {
-        throw std::runtime_error("Fatal: Out of memory or system error while hashing password.");
-    }
-
-    return std::string(hashedPasswordBuf);
 }
 
 bool Security::VerifyPasswordHash(const std::string& password, const std::string& storedHash)

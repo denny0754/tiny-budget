@@ -1,6 +1,8 @@
 #ifndef TB_CORE_DB_REPO_REPOSITORY
 #define TB_CORE_DB_REPO_REPOSITORY
 
+#include <memory>
+
 namespace Wt::Dbo { class Session; };
 
 namespace tb::db
@@ -9,7 +11,7 @@ namespace tb::db
 class Repository
 {
 public:
-	explicit Repository(const Wt::Dbo::Session& session)
+	explicit Repository(const std::shared_ptr<Wt::Dbo::Session>& session)
 		: m_session(session)
 	{
 
@@ -17,13 +19,13 @@ public:
 	virtual ~Repository() = default;
 
 protected:
-	const Wt::Dbo::Session& Session() const
+	const std::shared_ptr<Wt::Dbo::Session>& Session() const
 	{
 		return m_session;
 	}
 
 private:
-	const Wt::Dbo::Session& m_session;
+	std::shared_ptr<Wt::Dbo::Session> m_session;
 }; // cl Repository
 
 } // ns tb::db

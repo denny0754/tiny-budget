@@ -21,7 +21,7 @@ struct SignInCommand
 {
 	std::string email;
 
-	std::string email;
+	std::string password;
 }; // st SignInCommand
 
 } // ns tb::dto
