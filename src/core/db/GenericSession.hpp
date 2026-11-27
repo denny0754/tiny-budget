@@ -5,9 +5,9 @@
 #include <string>
 #include <memory>
 
-#include <wt/Dbo/Dbo.h>
+#include <Wt/Dbo/Dbo.h>
 
-namespace tb::core::db
+namespace tb::db
 {
 
 class GenericSession
@@ -69,6 +69,6 @@ private:
 
 }; // cl GenericSession
 
-} // ns tb::core::db
+} // ns tb::db
 
 #endif

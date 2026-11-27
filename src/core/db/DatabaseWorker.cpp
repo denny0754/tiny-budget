@@ -1,6 +1,6 @@
 #include "DatabaseWorker.hpp"
 
-namespace tb::core::db
+namespace tb::db
 {
 
 void DatabaseWorker::Start()
@@ -15,13 +15,13 @@ void DatabaseWorker::Stop()
 
 void DatabaseWorker::InitializeSecuritySession(const std::string& dbPath, const std::string& hexKey256)
 {
-	m_securitySession = std::make_unique<tb::core::db::SecuritySession>();
+	m_securitySession = std::make_unique<tb::db::SecuritySession>();
 	m_securitySession->Open(dbPath, hexKey256);
 }
 
 void DatabaseWorker::InitializeUserSession(const std::string& dbPath, const std::string& hexKey256)
 {
-	m_userSession = std::make_unique<tb::core::db::UserSession>();
+	m_userSession = std::make_unique<tb::db::UserSession>();
 	m_userSession->Open(dbPath, hexKey256);
 }
 
@@ -64,7 +64,7 @@ void DatabaseWorker::Run(std::stop_token token)
 	}
 }
 
-void DatabaseWorker::PostSystemTask(std::function<void(const tb::core::db::SecuritySession&)> task)
+void DatabaseWorker::PostSystemTask(std::function<void(const tb::db::SecuritySession&)> task)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
 	InternalTaskData data{};
@@ -73,7 +73,7 @@ void DatabaseWorker::PostSystemTask(std::function<void(const tb::core::db::Secur
 	m_tasks.emplace_back(std::move(data));
 }
 
-void DatabaseWorker::PostUserTask(std::function<void(const tb::core::db::UserSession&)> task)
+void DatabaseWorker::PostUserTask(std::function<void(const tb::db::UserSession&)> task)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
 	InternalTaskData data{};
@@ -82,4 +82,4 @@ void DatabaseWorker::PostUserTask(std::function<void(const tb::core::db::UserSes
 	m_tasks.emplace_back(std::move(data));
 }
 
-} // ns tb::core::db
+} // ns tb::db

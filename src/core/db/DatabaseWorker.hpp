@@ -10,7 +10,7 @@
 #include <thread>
 #include <variant>
 
-namespace tb::core::db
+namespace tb::db
 {
 
 class DatabaseWorker
@@ -26,17 +26,17 @@ public:
 
 	void InitializeUserSession(const std::string& dbPath, const std::string& hexKey256);
 
-	void PostSystemTask(std::function<void(const tb::core::db::SecuritySession&)> task);
+	void PostSystemTask(std::function<void(const tb::db::SecuritySession&)> task);
 
-	void PostUserTask(std::function<void(const tb::core::db::UserSession&)> task);
+	void PostUserTask(std::function<void(const tb::db::UserSession&)> task);
 
 private:
 	void Run(std::stop_token token);
 
 	std::jthread m_executor;
 
-	std::unique_ptr<tb::core::db::SecuritySession> m_securitySession;
-	std::unique_ptr<tb::core::db::UserSession> m_userSession;
+	std::unique_ptr<tb::db::SecuritySession> m_securitySession;
+	std::unique_ptr<tb::db::UserSession> m_userSession;
 
 	enum class InternalTaskType
 	{
@@ -46,8 +46,8 @@ private:
 
 	struct InternalTaskData
 	{
-		using SystemTaskHandlerRef = std::function<void(const tb::core::db::SecuritySession&)>;
-		using UserTaskHandlerRef = std::function<void(const tb::core::db::UserSession&)>;
+		using SystemTaskHandlerRef = std::function<void(const tb::db::SecuritySession&)>;
+		using UserTaskHandlerRef = std::function<void(const tb::db::UserSession&)>;
 		std::variant<SystemTaskHandlerRef, UserTaskHandlerRef> handler;
 		InternalTaskType type;
 	}; // st InternalTaskData
@@ -59,6 +59,6 @@ private:
 
 }; // cl DatabaseWorker
 
-} // ns tb::core::db
+} // ns tb::db
 
 #endif

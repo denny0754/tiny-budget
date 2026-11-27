@@ -2,12 +2,12 @@
 
 #include "core/models/dbo/Security.hpp"
 
-namespace tb::core::db
+namespace tb::db
 {
 void SecuritySession::MapClasses()
 {
-	Session()->mapClass<tb::models::dbo::Identity>("identity");
-	Session()->mapClass<tb::models::dbo::PasswordCredential>("password_credential");
+	Session()->mapClass<tb::dbo::Identity>("identity");
+	Session()->mapClass<tb::dbo::PasswordCredential>("password_credential");
 }
 
 int SecuritySession::ApplyMigrations(int currentVersion)
@@ -15,4 +15,4 @@ int SecuritySession::ApplyMigrations(int currentVersion)
 	return currentVersion;
 }
 
-} // ns tb::core::db
+} // ns tb::db

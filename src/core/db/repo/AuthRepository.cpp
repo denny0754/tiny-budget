@@ -1,9 +1,9 @@
 #include "core/db/repo/AuthRepository.hpp"
 
-namespace tb::core::db
+namespace tb::db
 {
 
-AuthRepository::AuthRepository(Wt::Dbo::Session& session)
+AuthRepository::AuthRepository(const Wt::Dbo::Session& session)
 	: m_session(session)
 {
 
@@ -21,4 +21,4 @@ tb::dto::DataResult<tb::dto::Identity> AuthRepository::SignIn(const tb::dto::Sig
 	return {};
 }
 
-} // ns tb::core::db::
+} // ns tb::db

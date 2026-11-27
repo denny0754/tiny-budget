@@ -3,10 +3,10 @@
 
 #include "GenericSession.hpp"
 
-namespace tb::core::db
+namespace tb::db
 {
 
-class UserSession : public tb::core::db::GenericSession
+class UserSession : public tb::db::GenericSession
 {
 public:
 	UserSession() = default;
@@ -23,6 +23,6 @@ protected:
 
 }; // cl UserSession
 
-} // ns tb::core::db
+} // ns tb::db
 
 #endif

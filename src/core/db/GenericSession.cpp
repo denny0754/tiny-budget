@@ -2,7 +2,7 @@
 
 #include <Wt/Dbo/backend/Sqlite3.h>
 
-namespace tb::core::db
+namespace tb::db
 {
 
 void GenericSession::Open(
@@ -78,4 +78,4 @@ void GenericSession::Migrate()
 	tx.commit();
 }
 
-} // ns tb::core::db
+} // ns tb::db
